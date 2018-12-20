@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin Menu</title>
+    <style type="text/css">
+    body {overflow-x:scroll !important;}
+    </style>
+</head>
+<body>
+ 	<div th:replace="fragments/header :: header">...</div>
+    <div class="container-fluid">
+<!--     
+        <ol class="breadcrumb">
+            <li><a href="#" th:href="${'/widgets'}">Home</a></li>
+        </ol>
+-->        
+        <div class="row"><h2>Error Page</h2></div>
+        <form class="form-horizontal">
+            <div class="row flex-row flex-nowrap">
+<table>
+    <tr>
+        <td>Date</td>
+        <td th:text="${timestamp}"/>
+    </tr>
+    <tr>
+        <td>Path</td>
+        <td th:text="${path}"/>
+    </tr>
+    <tr>
+        <td>Error</td>
+        <td th:text="${error}"/>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td th:text="${status}"/>
+    </tr>
+    <tr>
+        <td>Message</td>
+        <td th:text="${message}"/>
+    </tr>
+    <tr>
+        <td>Exception</td>
+        <td th:text="${exception}"/>
+    </tr>
+    <tr>
+        <td>Trace</td>
+        <td>
+            <pre style="font-size:12px" th:text="${trace}"/>
+        </td>
+    </tr>
+</table>
+           </div>
+            
+        </form>
+    </div>
+    <div th:replace="fragments/footer :: footer">...</div>
+</body>
+</html>

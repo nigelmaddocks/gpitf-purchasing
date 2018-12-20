@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: gpitf-purchasing
+  datasource:
+    url: jdbc:postgresql://localhost:4001/postgres
+    username: postgres
+    password: 
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL95Dialect
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+  thymeleaf:
+    cache: false
+          
+onboarding.api.url: http://localhost:5100
+spring.jackson.serialization.write-dates-as-timestamps: false
+
+spring.session.store-type: redis
+server.servlet.session.timeout: 3600s # Session timeout. If a duration suffix is not specified, seconds will be used.
+spring.session.redis.flush-mode: on-save # Sessions flush mode.
+spring.session.redis.namespace: spring:session # Namespace for keys used to store sessions.
+spring.redis.host: localhost # Redis server host.
+#spring.redis.password= # Login password of the redis server.
+spring.redis.port: 6379 # Redis server port.
+
+security:
+  basic:
+    enabled: false
+  oauth2:
+    client:
+      clientId: catalogue-private-beta-ci
+      clientSecret: ptjqjbxbdxryshjbsqelfwoonibgnnee
+      accessTokenUri: http://localhost:9000/token
+      userAuthorizationUri: http://localhost:9000/auth
+#      tokenName: oauth_token
+#      authenticationScheme: query
+#      clientAuthenticationScheme: form
+      scope: openid email
+    resource:
+      userInfoUri: http://localhost:9000/me
+    sso:
+      login-path: /login
+

@@ -1,0 +1,38 @@
+
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(1 , 2 , '99Q' , 'NHS South Devon and Torbay CCG' );
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(2 , 1 , 'L83034' , 'Albany Surgery' ) ;
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(3 , 1 , 'L83010' , 'Ashburton Surgery' ) ;
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(4 , 3, 'YDD72', 'Leicestershire Health Informatics Service');
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(9 , 1, 'C82626', 'Khong TK');
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(8 , 1, 'C82659', 'Kapur R');
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(5 , 1, 'C82008', 'Jones PR');
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(6 , 1, 'C82119', 'Kapur R');
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(7 , 1, 'C82671', 'Kapur R');
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(10 , 2 , '04C' , 'NHS Leicester City CCG' );
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(11 , 2 , '03W' , 'NHS East Leicestershire and Rutland CCG' );
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(12 , 1, 'C82002', 'Aram GE');
+INSERT INTO purchasing.organisation (id, org_type, org_code, name) VALUES(13 , 1, 'C82022', 'Austin Mwe');
+
+BEGIN;
+LOCK TABLE purchasing.organisation IN EXCLUSIVE MODE;
+SELECT setval('purchasing.organisation_id_seq', COALESCE((SELECT MAX(id)+1 FROM purchasing.organisation), 1), false);
+COMMIT;
+
+
+
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(1 , 1 , 2 , 1 ); 
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(2 , 1 , 3 , 1 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(3 , 10 , 9 , 1 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(4 , 10 , 8 , 1 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(5 , 10 , 5 , 1 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(6 , 10 , 6 , 1 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(7 , 10 , 7 , 1 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(8 , 11 , 12 , 1 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(9 , 11 , 13 , 1 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(10,  4 , 10 , 2 );
+INSERT INTO purchasing.org_relationship (id, parent_org, child_org, relationship_type) VALUES(11,  4 , 11 , 2 );
+
+BEGIN;
+LOCK TABLE purchasing.organisation IN EXCLUSIVE MODE;
+SELECT setval('purchasing.org_relationship_id_seq', COALESCE((SELECT MAX(id)+1 FROM purchasing.org_relationship), 1), false);
+COMMIT;

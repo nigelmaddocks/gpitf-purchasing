@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Purchasing - Keyword Search for Solutions</title>
+</head>
+<body>
+	<div th:replace="fragments/header :: header">...</div>
+    <div class="container">
+<!--     
+        <ol class="breadcrumb">
+            <li><a href="#" th:href="${'/widgets'}">Home</a></li>
+        </ol>
+-->        
+        <div class="row"><h2>Purchasing - Keyword Search for Solutions</h2></div>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-10"><div class="mx-auto"><h3>Search Results</h3></div>
+                </div>
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-4" style="border:solid 0px">
+		            <div th:each="cap : ${myModel.allCapabilities}" class="form-groupX">		                
+	               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}"/>
+						<label class="col-md-11" th:text="${cap.name}" th:for="${'filterCapabilities_' + cap.id}" >Capability 1</label>		                
+		            </div>
+                </div>
+                <div class="col-md-8" style="border:solid 0px" id="foundSolutions">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div th:replace="fragments/footer :: footer">...</div>
+    <script>
+    $("form").on("click", ":checkbox[name='filterCapabilities']", function(event){
+		//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
+		var selectedCapabilities = "";
+		$("input[name=" + event.target.name + "]:checked").each( function () {
+			selectedCapabilities += ", " + this.id.split(event.target.name+'_')[1];
+		});
+		//alert("selectedCapabilities: " + selectedCapabilities);
+		$("#foundSolutions").empty();
+		if (selectedCapabilities.length > 0) {
+			searchCapabilitiesForSolutions(selectedCapabilities);
+		}
+	});
+    function searchCapabilitiesForSolutions(csvCapabilities) {
+		//console.log(csvCapabilities);
+		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_WITH_EVERY_CAPABILITY_IN_LIST}]]" + csvCapabilities;
+		$.getJSON( url)
+		.done(function( data ) {
+			//console.log(data);
+			$.each( data, function( i, item ) {
+				//console.log(i);
+				var newRow = $("<div class=\"col-md-12\">");
+				$("<div class=\"col-md-4\">").text(item.name).appendTo(newRow);
+				$("<div class=\"col-md-8\">").text(item.description).appendTo(newRow);
+				newRow.appendTo("#foundSolutions");
+			});
+		});
+   	}
+    </script>
+</body>
+</html>

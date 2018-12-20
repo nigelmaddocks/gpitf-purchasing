@@ -1,0 +1,192 @@
+$header-top-height: 5rem;
+$header-bottom-height: 3rem;
+$header-total-height: $header-top-height + $header-bottom-height;
+$header-padding: 1rem;
+
+html {
+  background-color: $color-bg;
+  box-sizing: border-box;
+  color: $color-fg;
+  font-family: 'Frutiger W01', Arial;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+ul,
+ol {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: $color-link-fg;
+  text-decoration: none;
+
+  &:visited,
+  &:active,
+  &:focus {
+    color: $color-link-fg;
+  }
+}
+
+@mixin reversed {
+  background-color: $color-reversed-bg;
+  color: $color-reversed-fg;
+
+  a {
+    color: $color-link-reversed-fg;
+
+    &:visited,
+    &:active,
+    &:focus {
+      color: $color-link-reversed-fg;
+    }
+  }
+
+  button,
+  .button {
+    background-color: $color-button-reversed-bg;
+    color: $color-button-reversed-fg;
+
+    &[disabled] {
+      color: $color-button-reversed-disabled-fg;
+    }
+  }
+}
+
+#content {
+  // set general padding as per design
+  padding: 1em;
+
+  // account for fixed header with JS support @see src/static/js/app.js
+  padding-top: $header-total-height;
+}
+
+body {
+  overflow-x: hidden; // horizontal scrolling is never desirable
+}
+
+body > header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 2;
+
+  .top {
+    background-color: $color-bg;
+    display: flex;
+    height: $header-top-height;
+    padding: $header-padding;
+
+    > nav {
+      flex: auto;
+    }
+  }
+
+  .bottom {
+    @include reversed;
+
+    min-height: $header-bottom-height;
+    padding: $header-padding;
+
+    nav {
+      &.no-active-form {
+        margin: 0 auto;
+        width: 40%;
+
+        a {
+          margin-right: 2rem;
+        }
+      }
+
+      &.active-form {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+
+        input {
+          flex-shrink: 0
+        }
+
+        .title {
+          flex-grow: 2;
+          font-weight: bold;
+          padding: 0 1em;
+        }
+
+        a {
+          padding-right: 1em;
+        }
+      }
+    }
+  }
+
+  #home-link {
+    display: block;
+    text-decoration: none;
+    vertical-align: top;
+
+    .nhs-digital-logo {
+      display: inline-block;
+      height: $header-top-height - 2 * $header-padding;
+    }
+
+    .title {
+      display: inline-block;
+      font-size: 1.5rem;
+      font-weight: bold;
+      vertical-align: top;
+    }
+  }
+}
+
+body > footer {
+  a {
+    color: $color-footer-link-fg;
+
+    &:visited,
+    &:active,
+    &:focus {
+      color: $color-footer-link-fg;
+    }
+  }
+
+  .top {
+    background-color: $color-footer-top-bg;
+    color: $color-footer-top-fg;
+    display: flex;
+    justify-content: space-between;
+    min-height: 11rem;
+    padding: 1em 2em;
+
+    h2 {
+      margin: 0 0 1em;
+    }
+
+    li {
+      padding-bottom: .5em;
+    }
+  }
+
+  .bottom {
+    background-color: $color-footer-bottom-bg;
+    color: $color-footer-bottom-fg;
+
+    .legal {
+      margin: 0;
+      padding: 1em;
+
+      .heading {
+        margin-right: 1em;
+      }
+
+      a {
+        text-decoration: underline;
+      }
+    }
+  }
+}

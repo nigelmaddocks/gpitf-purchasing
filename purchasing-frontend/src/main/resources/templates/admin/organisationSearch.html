@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Organisation Edit</title>
+</head>
+<body>
+ 	<div th:replace="fragments/header :: header">...</div>
+    <div class="container">
+<!--     
+        <ol class="breadcrumb">
+            <li><a href="#" th:href="${'/widgets'}">Home</a></li>
+        </ol>
+-->        
+        <div class="row"><h2>GP Practice Search</h2></div>
+        
+        <form class="form-horizontal" th:object="${organisationSearchModel}" th:action="@{/organisationSearch}" method="post">
+		 	
+			<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+			    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.fieldName + ': ' + err.message}"></p>    
+			</div>
+       	
+            <div class="form-group">
+                <label class="col-sm-1 control-label">Code</label>
+                <div class="col-sm-2">
+                    <input type="text" th:field="*{criteria.gpCode}" class="form-control text-uppercase" placeholder="Practice Code" autocomplete="off" />
+                    <span th:if="${#fields.hasErrors('criteria.gpCode')}" class="help-block">[[${#fields.errors('criteria.gpCode')[0]}]]</span>
+                </div>
+               
+                <label class="col-sm-1 control-label">Name</label>
+                <div class="col-sm-2">
+                    <input type="text" th:field="*{criteria.gpName}" class="form-control" placeholder="Practice Name" autocomplete="off" />
+                    <span th:if="${#fields.hasErrors('criteria.gpName')}" class="help-block">[[${#fields.errors('criteria.gpName')[0]}]]</span>
+                </div>
+	            
+                <label class="col-sm-1 control-label">CCG Code</label>
+                <div class="col-sm-1">
+                    <input type="text" th:field="*{criteria.ccgCode}" class="form-control text-uppercase" placeholder="CCG Code" autocomplete="off" />
+                    <span th:if="${#fields.hasErrors('criteria.ccgCode')}" class="help-block">[[${#fields.errors('criteria.ccgCode')[0]}]]</span>
+                </div>
+                <label class="col-sm-1 control-label">CCG Name</label>
+                <div class="col-sm-2">
+                    <input type="text" th:field="*{criteria.ccgName}" class="form-control" placeholder="CCG Name" autocomplete="off" />
+                    <span th:if="${#fields.hasErrors('criteria.ccgName')}" class="help-block">[[${#fields.errors('criteria.ccgName')[0]}]]</span>
+                </div>
+                <div class="col-sm-1 control-label">
+            		<button type="submit" class="btn btn-default">Search</button>
+                </div>
+            </div>
+            <div th:if="*{orgRels != null && orgRels.size() == 0}" class="col-sm-12">
+            	No GP Practices found for the search terms
+            </div>
+            <div th:if="*{orgRels != null && orgRels.size() > 0}" class="table-responsive">
+		        <table class="table">
+		            <thead>
+		                <tr>
+		                	<th>
+		                    	<div class="col-sm-1"></div>
+		                    	<div class="col-sm-2">Code</div>
+		                    	<div class="col-sm-5">Name</div>
+		                    	<div class="col-sm-4">CCG</div>
+		                    </th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                <tr th:each="orgRel : ${organisationSearchModel.orgRels}">
+		                	<td>
+			                    <a class="col-sm-1" th:href="'/organisationAdmin/' + ${orgRel.childOrg.id}">view</a>
+			                    <div class="col-sm-2" th:text="${orgRel.childOrg.orgCode}"></div>
+			                    <div class="col-sm-5" th:text="${orgRel.childOrg.nameProperCase}"></div>
+			                    <div class="col-sm-4" th:text="${orgRel.parentOrg.nameProperCase} + ' (' + ${orgRel.parentOrg.orgCode} + ')'"></div>
+		                    </td>
+		                </tr>
+		            </tbody>
+		        </table>
+            
+            </div>
+        </form>
+    </div>
+    <div th:replace="fragments/footer :: footer">...</div>
+</body>
+</html>

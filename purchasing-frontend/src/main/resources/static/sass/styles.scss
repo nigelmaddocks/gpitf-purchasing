@@ -1,0 +1,17 @@
+@import 'normalize';
+@import 'fonts';
+@import 'palette';
+@import 'icons';
+@import 'forms';
+@import 'layout';
+@import 'hacks';
+
+.sr {
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+}
+
+@import 'pages/supplier/registration';
+@import 'pages/supplier/capabilities';

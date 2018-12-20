@@ -1,0 +1,6 @@
+version: '3.1'
+
+services:
+    purchasing-db:
+        volumes:
+           - /Users/Shared/Dev/nhs-gpitf-purchasing/docker-volumes/postgres-data:/var/lib/postgresql/data

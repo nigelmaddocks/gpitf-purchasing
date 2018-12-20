@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Organisation Contact View</title>
+</head>
+<body>
+ 	<div th:replace="fragments/header :: header">...</div>
+    <div class="container">
+
+        <div class="row"><h2>Organisation Contact Details</h2></div>
+        <form class="form-horizontal">
+        	<input type="hidden" th:field="${orgContactModel.id}" />
+
+			<div class="panel panel-default">
+				<div class="panel-heading" th:text="${orgContactModel.organisation.orgType.name} + ' - ' + ${orgContactModel.organisation.name} + ' (' + ${orgContactModel.organisation.orgCode} + ')'"></div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">Contact Details <small>(apply across organisations)</small></div>
+				<div class="panel-body">
+		            <div class="form-group">
+		                <label class="col-sm-2 control-label">Email:</label>
+		                <div class="col-sm-10">
+		                    <p class="form-control-static" th:text="${orgContactModel.contact.email}">Their email</p>
+		                </div>
+		            </div>
+		            <div class="form-group">
+		                <label class="col-sm-2 control-label">Forename:</label>
+		                <div class="col-sm-10">
+		                    <p class="form-control-static" th:text="${orgContactModel.contact.forename}">Their forename</p>
+		                </div>
+		            </div>
+		            <div class="form-group">
+		                <label class="col-sm-2 control-label">Surname:</label>
+		                <div class="col-sm-10">
+		                    <p class="form-control-static" th:text="${orgContactModel.contact.surname}">Their surname</p>
+		                </div>
+		            </div>
+		         </div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">Holds the following roles at this organisation</div>
+ 				<div class="panel-body">
+		            <div class="form-group">
+		            	<div th:each="orgContactRole : ${orgContactModel.orgContactRoles}">
+		            		<div th:if="${orgContactRole.deleted} == false">
+		                		<div class="col-sm-2 control-label"></div>
+		                		<div th:text="${orgContactRole.role.name}" class="col-sm-10" style="min-height:27px;"></div>
+		                	</div>
+		                </div>
+		            </div>
+ 				</div>
+ 			</div>
+ 
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <a href="#" class="btn btn-default" th:href="${'/orgContactAdmin/edit/' + orgContactModel.id}">Edit</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div th:replace="fragments/footer :: footer">...</div>
+</body>
+</html>

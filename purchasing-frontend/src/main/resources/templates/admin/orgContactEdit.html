@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Organisation Contact Edit</title>
+</head>
+<body>
+ 	<div th:replace="fragments/header :: header">...</div>
+    <div class="container">
+
+        <div class="row"><h2>Organisation Contact Edit</h2></div>
+        <form class="form-horizontal" th:object="${orgContactModel}" th:action="@{/orgContactAdmin}" method="post">
+        	<input type="hidden" th:field="*{id}" />
+        	<input type="hidden" th:field="*{contact.id}" />
+
+			<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+			    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.fieldName + ': ' + err.message}"></p>    
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading" th:text="${orgContactModel.organisation.orgType.name} + ' - ' + ${orgContactModel.organisation.name} + ' (' + ${orgContactModel.organisation.orgCode} + ')'"></div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">Contact Details <small>(apply across organisations)</small></div>
+				<div class="panel-body">
+		            <div th:class="${#fields.hasErrors('contact.email')}? 'form-group has-error' : form-group">
+		                <label class="col-sm-2 control-label">Email:</label>
+		                <div th:class="${#fields.hasErrors('contact.email')}? 'col-sm-10 has-error' : 'col-sm-10'">
+		                    <input type="text" th:field="*{contact.email}" class="form-control" placeholder="Email" autocomplete="off" />
+		                    <span th:if="${#fields.hasErrors('contact.email')}" class="help-block">[[${#fields.errors('contact.email')[0]}]]</span>
+		                </div>
+		            </div>
+		            <div th:class="${#fields.hasErrors('contact.forename')}? 'form-group has-error' : form-group">
+		                <label class="col-sm-2 control-label">Forename:</label>
+		                <div th:class="${#fields.hasErrors('contact.forename')}? 'col-sm-10 has-error' : 'col-sm-10'">
+		                    <input type="text" th:field="*{contact.forename}" class="form-control" placeholder="Forename" autocomplete="off" />
+		                    <span th:if="${#fields.hasErrors('contact.forename')}" class="help-block">[[${#fields.errors('contact.forename')[0]}]]</span>
+		                </div>
+		            </div>
+		            <div th:class="${#fields.hasErrors('contact.surname')}? 'form-group has-error' : form-group">
+		                <label class="col-sm-2 control-label">Surname:</label>
+		                <div th:class="${#fields.hasErrors('contact.surname')}? 'col-sm-10 has-error' : 'col-sm-10'">
+		                    <input type="text" th:field="*{contact.surname}" class="form-control" placeholder="Surname" autocomplete="off" />
+		                    <span th:if="${#fields.hasErrors('contact.surname')}" class="help-block">[[${#fields.errors('contact.surname')[0]}]]</span>
+		                </div>
+		            </div>
+		         </div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">Holds the following roles at this organisation</div>
+ 				<div class="panel-body">
+		            <div class="form-group">
+		            	<div th:each="orgContactRole : ${orgContactModel.orgContactRoles}">
+		            		<div th:if="${orgContactRole.deleted} == false">
+		                		<label class="col-sm-2 control-label"></label>
+		                		<div th:text="${orgContactRole.role.name}" class="col-sm-8"></div>
+		                		<label class="col-sm-2 control-label">
+					                <input type="checkbox" name="deleteOrgContactRoles" th:value="${orgContactRole.id}"/>&nbsp Remove Role
+					    		</label>		                		
+		                	</div>
+		                </div>
+		            </div>
+            
+		            <div th:if="${orgContactModel.potentialRoles.size() > 0}" class="form-group">
+		                <label class="col-sm-2 control-label">Add Role:</label>
+		                <div class="col-sm-10">
+						    <select class="form-control" th:field="*{newRoleId}" id="ddlRole">
+						    <option th:value="0">Add role</option>
+						    <option th:each="role : ${orgContactModel.potentialRoles}" th:value="${role.id}" th:text="${role.name}"></option>
+						    </select>
+		                </div>
+		            </div>
+		            
+ 				</div>
+ 			</div> 
+
+
+
+            
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+            		<button type="submit" class="btn btn-default">Submit</button> <a href="#" class="btn btn-default" th:href="${'/orgContactAdmin/' + orgContactModel.id}">Cancel</a>
+                </div>
+            </div>
+         </form>
+    </div>
+    <div th:replace="fragments/footer :: footer">...</div>
+</body>
+</html>

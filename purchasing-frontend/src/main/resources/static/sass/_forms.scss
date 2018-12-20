@@ -1,0 +1,178 @@
+$width-input-border: 2px;
+$radius-input-border: 0;
+
+input[type='text'],
+input[type='email'],
+input[type='tel'],
+textarea {
+  border: $width-input-border solid $color-input-border;
+  border-radius: $radius-input-border;
+  display: block;
+  padding: .5em;
+  width: 60%;
+
+  &.narrow {
+    width: 20%;
+  }
+
+  .control.invalid & {
+    border-color: $color-input-invalid-border;
+  }
+}
+
+fieldset {
+  &.collapsible {
+    background-color: $color-collapsible-fieldset-bg;
+    border: $border-collapsible-fieldset;
+    border-radius: $radius-collapsible-fieldset-border;
+    color: $color-fg;
+    margin-bottom: .5em;
+    padding: 2rem 0 0;
+    position: relative;
+
+    > legend {
+      background-color: $color-collapsible-fieldset-legend-bg;
+      color: $color-collapsible-fieldset-legend-fg;
+      cursor: pointer;
+      height: 2rem;
+      left: 0;
+      padding: .5rem 1rem;
+      position: absolute;
+      top: 0;
+      width: 100%;
+
+      &::before {
+        content: $icon-upward-pointing-arrow;
+        font-size: smaller;
+        padding-right: 1rem;
+      }
+    }
+
+    &.invalid {
+      border: $border-collapsible-fieldset-error;
+
+      > legend {
+        background-color: $color-collapsible-fieldset-legend-error-bg;
+        color: $color-collapsible-fieldset-legend-error-fg;
+      }
+    }
+
+    &.collapsed {
+      height: 2.1rem;
+      overflow: hidden;
+
+      > legend {
+        background-color: $color-collapsible-fieldset-legend-collapsed-bg;
+        color: $color-collapsible-fieldset-legend-collapsed-fg;
+
+        &::before {
+          content: $icon-downward-pointing-arrow;
+        }
+      }
+
+      > *:not(legend) {
+        display: none;
+      }
+
+      &.invalid {
+        > legend {
+          background-color: $color-collapsible-fieldset-legend-error-collapsed-bg;
+          color: $color-collapsible-fieldset-legend-error-collapsed-fg;
+        }
+      }
+    }
+
+    .preamble {
+      background-color: $color-collapsible-fieldset-preamble-bg;
+      color: $color-collapsible-fieldset-preamble-fg;
+      margin: 0;
+      padding: 1rem 3rem 1rem;
+    }
+
+    .control {
+      margin: 1rem 3rem;
+
+      label {
+        font-size: larger;
+        font-weight: bold;
+      }
+
+      .validations {
+        list-style-type: disc;
+        margin: .5em 0 .5em 2em;
+
+        li {
+          color: $color-collapsible-fieldset-validations-fg;
+          font-size: smaller;
+        }
+      }
+
+      .info {
+        color: $color-collapsible-fieldset-validations-fg;
+        font-size: smaller;
+        margin: .5em 0;
+      }
+
+      .action {
+        display: none;
+      }
+
+      &.invalid {
+        border-left: 4px solid $color-input-invalid-border;
+        padding-left: .5rem;
+
+        .action {
+          color: $color-input-invalid-message-fg;
+          display: block;
+          font-size: smaller;
+          margin: .5em 0;
+        }
+      }
+    }
+
+    details.help-reveal {
+      margin: .25em 0;
+      width: 40em;
+
+      & > summary {
+        background-color: $color-help-reveal-summary-bg;
+        color: $color-help-reveal-summary-fg;
+
+        .title {
+          text-decoration: underline;
+        }
+      }
+
+      & > .contents {
+        background-color: $color-help-reveal-contents-bg;
+        border-left: 4px solid $color-help-reveal-contents-border;
+        color: $color-help-reveal-contents-fg;
+        margin: .3em 0;
+        padding: .1em 0;
+
+        p {
+          font-size: smaller;
+          margin: .5em 0;
+          padding-left: 1em;
+        }
+      }
+    }
+  }
+}
+
+button,
+[type='button'],
+[type='submit'],
+.button {
+  background-color: $color-button-bg;
+  border-radius: 3px;
+  color: $color-button-fg;
+  min-width: 5em;
+  padding: .25em 1em;
+  transition: background-color .25s;
+
+  &:hover {
+    background-color: $color-button-hover-bg;
+    color: $color-button-hover-fg;
+  }
+}

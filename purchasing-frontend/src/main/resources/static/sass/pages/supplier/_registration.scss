@@ -1,0 +1,19 @@
+#add-contact {
+  margin-bottom: 1em;
+}
+
+#add-contact-button {
+  vertical-align: middle;
+
+  &::before {
+    @include reversed;
+
+    content: '+';
+    display: inline-block;
+    font-size: 150%;
+    height: 1.1em;
+    margin-right: .3em;
+    text-align: center;
+    width: 1.1em;
+  }
+}

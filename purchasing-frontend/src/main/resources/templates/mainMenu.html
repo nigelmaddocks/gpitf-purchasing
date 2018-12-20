@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin Menu</title>
+</head>
+<body>
+ 	<div th:replace="fragments/header :: header">...</div>
+    <div class="container">
+<!--     
+        <ol class="breadcrumb">
+            <li><a href="#" th:href="${'/widgets'}">Home</a></li>
+        </ol>
+-->        
+        <div class="row"><h2>Main Menu</h2></div>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-6 control-label">Organisation Admin Tasks</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/adminMenu" th:href="${'/admin'}">Admin Menu</a>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+    <div th:replace="fragments/footer :: footer">...</div>
+</body>
+</html>
