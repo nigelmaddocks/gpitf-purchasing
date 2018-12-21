@@ -46,6 +46,8 @@ public class ControllerConfiguration implements WebMvcConfigurer {
         .excludePathPatterns("/css/**/*")
         .excludePathPatterns("/js/**/*")
         .excludePathPatterns("/img/**/*")
+        .excludePathPatterns("/loginOrgSelection")
+        .excludePathPatterns("/purchasingLogout")
         ;
     }
     
@@ -70,6 +72,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
         	}
     		
     		SecurityContext secCtx =  (SecurityContext) request.getSession().getAttribute("SPRING_SECURITY_CONTEXT");
+    		
     		if (secCtx != null) {
 	    		Authentication auth = secCtx.getAuthentication();
 	    		secinfo.setAuthenticated(auth.isAuthenticated());
@@ -101,6 +104,23 @@ public class ControllerConfiguration implements WebMvcConfigurer {
 	            		}
 	            		if (arlOrgContact.size() == 1) {
 	            			setupSecinfoFromOrgContact(secinfo, arlOrgContact.get(0));
+	            		}
+	            		if (arlOrgContact.size() > 1) {
+	            			Long lngSelectionOrganisation = (Long)request.getSession().getAttribute("tmpSelectedOrganisation");
+	            			if (lngSelectionOrganisation != null && lngSelectionOrganisation.longValue() != 0) {
+	            				for (var oc : arlOrgContact) {
+	            					if (oc.getOrganisation().getId() == lngSelectionOrganisation.longValue()) {
+	            						setupSecinfoFromOrgContact(secinfo, oc);
+	            						request.getSession().removeAttribute("tmpSelectedOrganisation");
+	            					}
+	            				}
+	            			}
+	            			
+	            			if (secinfo.getOrganisationId() == 0) {
+		            			request.getSession().setAttribute("SecurityInfo", secinfo);
+		            			response.sendRedirect("/loginOrgSelection");
+		            			return false;
+	            			}
 	            		}
 	            	} else {
 	            		secinfo.setForename(sUserEmail);
