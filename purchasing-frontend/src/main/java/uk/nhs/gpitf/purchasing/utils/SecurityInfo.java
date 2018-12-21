@@ -13,6 +13,10 @@ public class SecurityInfo implements Serializable {
 	String email;
 	String forename;
 	String surname;
+	long organisationId;
+	String organisationName;
+	long[] roles;
+	String rolesDescription;
 	
 	public static boolean isAuthenticated(HttpServletRequest request) {
 		SecurityInfo secinfo = (SecurityInfo) request.getSession().getAttribute("SecurityInfo");

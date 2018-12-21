@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -20,7 +21,10 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import uk.nhs.gpitf.purchasing.entities.Contact;
+import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.repositories.ContactRepository;
+import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
+import uk.nhs.gpitf.purchasing.repositories.OrgContactRoleRepository;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Configuration
@@ -28,6 +32,12 @@ public class ControllerConfiguration implements WebMvcConfigurer {
 	
 	@Autowired
 	ContactRepository contactRepository;
+	
+	@Autowired
+	OrgContactRepository orgContactRepository;
+	
+	@Autowired
+	OrgContactRoleRepository orgContactRoleRepository;
 	
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -72,16 +82,27 @@ public class ControllerConfiguration implements WebMvcConfigurer {
 	            
 	            // If the email address has changed, then lookup the name from Contacts table
 	            if (!sUserEmail.equals(secinfo.getEmail())) {
+                	secinfo.setOrganisationId(0);
+                	secinfo.setOrganisationName("");
+                	secinfo.setRoles(new long[] {});
+                	secinfo.setRolesDescription("");
+                	
 	            	Optional<Contact> optContact = contactRepository.findByEmail(sUserEmail);
 	            	if (optContact.isPresent()) {
 	            		Contact contact = optContact.get();
 	            		secinfo.setForename(contact.getForename());
 	            		secinfo.setSurname(contact.getSurname());
 	            		secinfo.setKnown(true);
+	            		
+	            		Iterable<OrgContact> itbOrgContact = orgContactRepository.findAllByContactAndDeleted(contact, false);
+	            		ArrayList<OrgContact> arlOrgContact = new ArrayList<>();
+	            		for (OrgContact orgContact : itbOrgContact) {
+	            			arlOrgContact.add(orgContact);
+	            		}
+	            		if (arlOrgContact.size() == 1) {
+	            			setupSecinfoFromOrgContact(secinfo, arlOrgContact.get(0));
+	            		}
 	            	} else {
-	            	
-//	            	boolean bFoundContact = false;
-//	            	if (!bFoundContact) {
 	            		secinfo.setForename(sUserEmail);
 	            		secinfo.setSurname("unknown");
 	            		secinfo.setKnown(false);
@@ -95,6 +116,10 @@ public class ControllerConfiguration implements WebMvcConfigurer {
             	secinfo.setEmail("");
             	secinfo.setForename("");
             	secinfo.setSurname("");
+            	secinfo.setOrganisationId(0);
+            	secinfo.setOrganisationName("");
+            	secinfo.setRoles(new long[] {});
+            	secinfo.setRolesDescription("");
             }
 		
     		//DefaultOAuth2ClientContext oAuth2CliCtx = (DefaultOAuth2ClientContext) request.getSession().getAttribute("scopedTarget.oauth2ClientContext");
@@ -104,4 +129,19 @@ public class ControllerConfiguration implements WebMvcConfigurer {
             return true;
         }
     }    
+    
+    private void setupSecinfoFromOrgContact(SecurityInfo secinfo, OrgContact orgContact) {
+    	secinfo.setOrganisationId(orgContact.getOrganisation().getId());
+    	secinfo.setOrganisationName(orgContact.getOrganisation().getNameProperCase());
+    	secinfo.setRolesDescription(orgContact.getRolesAsString());
+    	ArrayList<Long> arlRoleIds = new ArrayList<>();
+    	for (var ocr : orgContact.getOrgContactRoles()) {
+    		arlRoleIds.add(ocr.getRole().getId());
+    	}
+    	long[] arrRoleIds = new long[arlRoleIds.size()];
+    	for (int idx=0; idx<arlRoleIds.size(); idx++) {
+    		arrRoleIds[idx] = arlRoleIds.get(idx).intValue();
+    	}
+    	secinfo.setRoles(arrRoleIds);
+    }
 }

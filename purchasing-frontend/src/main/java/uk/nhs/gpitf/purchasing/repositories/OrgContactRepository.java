@@ -11,4 +11,5 @@ import uk.nhs.gpitf.purchasing.entities.*;
 public interface OrgContactRepository extends CrudRepository<OrgContact, Long> {
 	Iterable<OrgContact> findAllByOrganisationAndDeletedOrderByContactSurnameAscContactForenameAsc(Organisation organisation, boolean deleted);
 	Optional<OrgContact> findByOrganisationAndContact(Organisation organisation, Contact contact);
+	Iterable<OrgContact> findAllByContactAndDeleted(Contact contact, boolean deleted);
 }

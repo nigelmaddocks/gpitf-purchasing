@@ -31,7 +31,7 @@ public class OrganisationEditModel {
 	private String[] deleteOrgRelationships;
 	
 	private String[] deleteContacts;
-	
+/*	
 	public String rolesToString(OrgContact orgContact) {
 		ArrayList<Role> arlRoles = new ArrayList<>();
 		for (var orc : orgContact.getOrgContactRoles()) {
@@ -50,4 +50,5 @@ public class OrganisationEditModel {
 		}
 		return sRoles;
 	}
+*/	
 }

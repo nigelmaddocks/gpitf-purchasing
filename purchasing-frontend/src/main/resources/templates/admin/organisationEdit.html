@@ -101,7 +101,7 @@
                 <div class="col-sm-8" style="margin-top:6px;">
                     <a class="form-control-static" th:href="@{'/orgContactAdmin/' + ${orgContact.id}}">[[${orgContact.contact.forename + ' ' + orgContact.contact.surname + ' (' + orgContact.contact.email + ')'}]]</a>
                     <br />
-                    <span th:text="'roles: ' + ${organisationEditModel.rolesToString(orgContact)}">Roles: [Contact's roles]</span>
+                    <span th:text="'roles: ' + ${orgContact.getRolesAsString()}">Roles: [Contact's roles]</span>
                 </div>
 	            <label class="col-sm-2 control-label">
 	                <input type="checkbox" name="deleteContacts" th:value="${orgContact.id + '-' + orgContact.contact.email}"/>&nbsp Remove Contact

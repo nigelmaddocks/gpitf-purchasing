@@ -18,7 +18,7 @@
         </nav>
         <div id="account" aria-label="Account">
           <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAuthenticated() == true}" class="auth">
-            <span class='user' th:text="'Hi ' + ${session.SecurityInfo.forename}">
+            <span class='user' th:text="'Hi ' + ${session.SecurityInfo.forename}" th:title="${session.SecurityInfo.organisationName}">
               <span class='sr'>
                 You are logged in.
               </span>
