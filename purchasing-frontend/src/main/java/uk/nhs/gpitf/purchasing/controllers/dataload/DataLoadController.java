@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,17 +25,22 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import antlr.Utils;
+import uk.nhs.gpitf.purchasing.entities.LegacySolution;
 import uk.nhs.gpitf.purchasing.entities.OrgRelationship;
+import uk.nhs.gpitf.purchasing.entities.OrgSolution;
 import uk.nhs.gpitf.purchasing.entities.OrgType;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.PatientCount;
 import uk.nhs.gpitf.purchasing.entities.PatientCountRun;
 import uk.nhs.gpitf.purchasing.entities.RelationshipType;
+import uk.nhs.gpitf.purchasing.repositories.LegacySolutionRepository;
 import uk.nhs.gpitf.purchasing.repositories.OrgRelationshipRepository;
+import uk.nhs.gpitf.purchasing.repositories.OrgSolutionRepository;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
+import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.CSVUtils;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
 
@@ -41,7 +48,8 @@ import uk.nhs.gpitf.purchasing.utils.GUtils;
 public class DataLoadController {
 	
 	private static final String ODS_ORD_URL = "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations";
-	private static final String ROLE_GP_PRACTICE = "RO177";
+	private static final String ROLE_PRIMARY_CARE = "RO177";
+	private static final String ROLE_GP_PRACTICE = "RO76"; //"RO177";
 	private static final String ROLE_CCG = "RO98";
 	private static final String ROLE_CSU = "RO213";
 	private static final String ROLE_SHARED_SERVICE = "RO161";
@@ -61,6 +69,12 @@ public class DataLoadController {
 
 	@Autowired
 	PatientCountRepository patientCountRepository;
+
+	@Autowired
+	LegacySolutionRepository legacySolutionRepository;
+
+	@Autowired
+	OrgSolutionRepository orgSolutionRepository;
 
 	/**
 	 * Endpoint for loading CCGs into a database. 
@@ -84,7 +98,7 @@ public class DataLoadController {
 		model.addAttribute("orgsChanged", orgsChanged);
 		model.addAttribute("exceptions", exceptions);
 		
-		return "dataloadOrgs";
+		return "dataload/dataloadOrgs";
     }	
 
 	/**
@@ -103,7 +117,7 @@ public class DataLoadController {
 		List<String> relsAdded = new ArrayList<String>();
 		List<Exception> exceptions = new ArrayList<Exception>();
 		int iPage = 0;
-		while (loadPageOfOrgsOfRole(ROLE_GP_PRACTICE, iPage++, orgsAdded, orgsChanged, relsAdded, exceptions)) {}
+		while (loadPageOfOrgsOfRole(ROLE_PRIMARY_CARE, iPage++, orgsAdded, orgsChanged, relsAdded, exceptions)) {}
 			
 		model.addAttribute("orgTypeName", "GP Practices");
 		model.addAttribute("orgsAdded", orgsAdded);
@@ -111,7 +125,7 @@ public class DataLoadController {
 		model.addAttribute("orgsChanged", orgsChanged);
 		model.addAttribute("exceptions", exceptions);
 		
-		return "dataloadOrgs";
+		return "dataload/dataloadOrgs";
     }	
 
 
@@ -137,7 +151,7 @@ public class DataLoadController {
 		model.addAttribute("orgsChanged", orgsChanged);
 		model.addAttribute("exceptions", exceptions);
 		
-		return "dataloadOrgs";
+		return "dataload/dataloadOrgs";
     }	
 
 	/**
@@ -162,7 +176,7 @@ public class DataLoadController {
 		model.addAttribute("orgsChanged", orgsChanged);
 		model.addAttribute("exceptions", exceptions);
 		
-		return "dataloadOrgs";
+		return "dataload/dataloadOrgs";
     }	
 
 	/**
@@ -174,7 +188,7 @@ public class DataLoadController {
 	 */
 	@GetMapping("/dataload/Day0CSUs")
 	public String loadCSUsSelectFile(Model model) {
-		return "dataloadCCGtoCSU";
+		return "dataload/dataloadCCGtoCSU";
 	}
 
 	@PostMapping("/dataload/Day0CSUs")
@@ -199,7 +213,7 @@ public class DataLoadController {
 			relTypeCSUtoCCG = (RelationshipType)GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CSU_TO_CCG);
 		} catch (Exception e) {
 			exceptions.add(e);
-			return "dataloadOrgs";
+			return "dataload/dataloadOrgs";
 		}
 		
 		Scanner scanner = null;
@@ -304,9 +318,181 @@ public class DataLoadController {
 			
 		}
 		
-		return "dataloadOrgs";
+		return "dataload/dataloadOrgs";
 	}
 
+	/**
+	 * Endpoint for loading Legacy Systems into the database on Day Zero. Thereafter, the system will
+	 * enable purchasing and storing of new systems.
+	 * Tracking Database csv file is used as the datasource.
+	 * Each line contains a GP Practice and its supplier and system.
+	 * @param model
+	 * @return
+	 */
+	@GetMapping("/dataload/Day0LegacySystems")
+	public String loadLegacySystemsSelectFile(Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Load GP Legacy Systems", request);
+		return "dataload/dataloadLegacySystems";
+	}
+
+	@PostMapping("/dataload/Day0LegacySystemsPost")
+	public String loadLegacySystemsSelectFile(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Output", request);
+		
+		List<Organisation> suppliersAdded = new ArrayList<>();
+		List<LegacySolution> legacySolutionsAdded = new ArrayList<>();
+		List<Exception> exceptions = new ArrayList<Exception>();
+		
+		model.addAttribute("suppliersAdded", suppliersAdded);
+		model.addAttribute("legacySolutionsAdded", legacySolutionsAdded);
+		model.addAttribute("exceptions", exceptions);
+
+		Scanner scanner = null;
+		try {
+			scanner = new Scanner(file.getInputStream());
+
+		} catch (Exception e) {
+			exceptions.add(e);
+		}
+		if (scanner != null) {
+			long iLine = 1;
+			CSVUtils csvUtils = new CSVUtils();
+			// Omit header line
+			scanner.nextLine();
+			
+	        while (scanner.hasNext()) {
+	            List<String> line = csvUtils.parseLine(scanner.nextLine());
+	            iLine++;
+
+	            String sGPOrgCode = line.get(0).toUpperCase(); 
+				String sSupplierCompositeCode = line.get(2);
+				String sProductType = line.get(5); // Must be "Clinical system - GP"
+				String sProductName = line.get(6);
+				String sProductVersion = line.get(7);
+				String sInstalledBy = line.get(8);
+				String sOrderedDate = line.get(9);
+				String sInstalledDate = line.get(11);
+				String sSupplierOrgCode = "";
+				String[] arrSupplierCompositeCode = sSupplierCompositeCode.split("-");
+				if (arrSupplierCompositeCode.length > 0) {
+					sSupplierOrgCode = arrSupplierCompositeCode[0].toUpperCase();
+				}
+				
+				boolean bContinue = true;
+				
+				if (sProductType.equals("Clinical system - GP")) {
+					// Get the GP Practice
+					Optional<Organisation> optGP = organisationRepository.findByOrgCode(sGPOrgCode);
+					Organisation orgGP = null;
+					Optional<Organisation> optSupplier = null;
+					Organisation orgSupplier = null;
+					LegacySolution legSolution = null;
+					OrgSolution orgSolution = null;
+					
+					if (sSupplierOrgCode == null || sSupplierOrgCode.trim().length() == 0) {
+						exceptions.add(new Exception("Supplier code blank on line " + iLine));
+						bContinue = false;
+					}
+					
+					if (optGP.isEmpty()) {
+						exceptions.add(new Exception("GP for Org Code " + sGPOrgCode + " not found"));
+						bContinue = false;
+					} else {
+						orgGP = optGP.get();
+					}
+					
+					// Get or setup the supplier
+					if (bContinue) {
+						// Massage the data slightly because of company mergers and acquisitions
+						if (sProductName.toUpperCase().startsWith("EMIS")) {
+							sSupplierOrgCode = "YGM06"; // YGM12 also used for EMIS, but this was originally iSoft, who were taken over by CSC, who then withdrew products from the market and GPs migrated to EMIS
+							sInstalledBy = "EMIS";
+						} else if (sProductName.toUpperCase().startsWith("SYNERGY")) {
+								sSupplierOrgCode = "YGM06"; // iSoft -> CSC -> EMIS
+								sInstalledBy = "EMIS";
+						} else if (sProductName.toUpperCase().startsWith("VISUAL PHENIX")) {
+							sSupplierOrgCode = "YGM06"; // Torex -> iSoft -> CSC -> EMIS
+							sInstalledBy = "EMIS";
+						} else if (sProductName.toUpperCase().startsWith("EVOLUTION")) {
+							sSupplierOrgCode = "YGM16";
+							sInstalledBy = "Microtest";
+						} else if (sProductName.toUpperCase().startsWith("VISION")) {
+							sSupplierOrgCode = "YGM11";
+							sInstalledBy = "In Practice Systems";
+						} else if (sProductName.toUpperCase().startsWith("SYSTM")) {
+							sSupplierOrgCode = "YGM27";
+							sInstalledBy = "TPP";
+						}
+						
+						
+						optSupplier = organisationRepository.findByOrgCode(sSupplierOrgCode);
+						if (optSupplier.isEmpty()) {
+							try {
+								orgSupplier = new Organisation();
+								orgSupplier.setOrgCode(sSupplierOrgCode);
+								orgSupplier.setOrgType((OrgType)GUtils.makeObjectForId(OrgType.class, OrgType.SUPPLIER));
+								orgSupplier.setName(sInstalledBy);
+								organisationRepository.save(orgSupplier);
+								suppliersAdded.add(orgSupplier);
+							} catch (Exception e) {
+								exceptions.add(e);
+								bContinue = false;								
+							}
+						} else {
+							orgSupplier = optSupplier.get();
+							if ((orgSupplier.getName() == null || orgSupplier.getName().trim().length() == 0)
+							 && sInstalledBy != null && sInstalledBy.trim().length() > 0) {
+								orgSupplier.setName(sInstalledBy);
+								organisationRepository.save(orgSupplier);
+								exceptions.add(new Exception("**info** Supplier " + orgSupplier.getOrgCode() + " name updated to " + orgSupplier.getName()));
+							}
+						}
+						
+					}
+					
+					// If solution doesn't exist, create it
+					if (bContinue) {
+						Optional<LegacySolution> optLegSol = legacySolutionRepository.findByNameAndVersionAndSupplier(sProductName, sProductVersion, orgSupplier);
+						if (optLegSol.isEmpty()) {
+							legSolution = new LegacySolution();
+							legSolution.setName(sProductName);
+							legSolution.setVersion(sProductVersion);
+							legSolution.setSupplier(orgSupplier);
+							try {
+								legacySolutionRepository.save(legSolution);
+							} catch (Exception e) {
+								exceptions.add(e);
+								bContinue = false;
+							}
+						} else {
+							legSolution = optLegSol.get();
+						}
+					}
+					
+					if (bContinue) {
+						Optional<OrgSolution> optOrgSolution = orgSolutionRepository.findByOrganisationAndLegacySolution(orgGP, legSolution);
+						if (optOrgSolution.isEmpty()) {
+							orgSolution = new OrgSolution();
+							orgSolution.setOrganisation(orgGP);
+							orgSolution.setLegacySolution(legSolution);
+							try {
+								orgSolutionRepository.save(orgSolution);
+							} catch (Exception e) {
+								exceptions.add(e);
+								bContinue = false;
+							}
+						} else {
+							orgSolution = optOrgSolution.get();
+						}
+					}
+				}
+	        }
+	        
+	        scanner.close();
+		}
+		
+		return "dataload/dataloadLegacySystemsOutput";
+	}		
 	/**
 	 * Endpoint for loading GP Practice Patient numbers.
 	 * NHS Digital csv file produced from GP Payments system is used as the datasource.
@@ -315,12 +501,14 @@ public class DataLoadController {
 	 * @return
 	 */
 	@GetMapping("/dataload/PatientNumbers")
-	public String loadPatientNumbers(Model model) {
-		return "dataloadPatientNumbers";
+	public String loadPatientNumbers(Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Load Patient Numbers", request);
+		return "dataload/dataloadPatientNumbers";
 	}
 
 	@PostMapping("/dataload/PatientNumbers")
-	public String loadPatientNumbers(@RequestParam("file") MultipartFile file, Model model) {
+	public String loadPatientNumbers(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Output", request);
 		
 		List<Organisation> orgsAdded = new ArrayList<Organisation>();
 		List<ChangedOrganisation> orgsChanged = new ArrayList<ChangedOrganisation>();
@@ -341,7 +529,7 @@ public class DataLoadController {
 			relTypeCSUtoCCG = (RelationshipType)GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CSU_TO_CCG);
 		} catch (Exception e) {
 			exceptions.add(e);
-			return "dataloadOrgs";
+			return "dataload/dataloadOrgs";
 		}
 		
 		Scanner scanner = null;
@@ -395,7 +583,7 @@ public class DataLoadController {
 	        scanner.close();
 		}
 		
-		return "dataloadOrgs";
+		return "dataload/dataloadOrgs";
 	}
 	
 	
@@ -418,7 +606,7 @@ public class DataLoadController {
 			iOrgType = OrgType.CSU;
 		} else if (sORDRole.equals(ROLE_SHARED_SERVICE)) {
 			iOrgType = OrgType.CSU;
-		} else if (sORDRole.equals(ROLE_GP_PRACTICE)) {
+		} else if (sORDRole.equals(ROLE_GP_PRACTICE) || sORDRole.equals(ROLE_PRIMARY_CARE)) {
 			iOrgType = OrgType.GPPRACTICE;
 			restTemplate = new RestTemplate();
 			try {
@@ -451,7 +639,15 @@ public class DataLoadController {
 					orgName = jsonOrgName.asText();
 					if (iOrgType == OrgType.CSU) {
 						orgName = orgName.replace("COMMISSIONING SUPPORT UNIT", "CSU");
+					}	
+					
+					if (iOrgType == OrgType.CCG) {
+						if (orgName.contains("COMMISSIONING HUB")) { 
+							exceptions.add(new Exception(orgName + " not added as it's a Commissioning Hub"));
+							continue;
+						}						
 					}
+					
 					JsonNode jsonOrgCode = jsonOrg.get("OrgId");
 					if (jsonOrgCode == null) {
 						exceptions.add(new Exception("\"OrgId\" not found in json: " + jsonOrg.toString()));
@@ -599,7 +795,11 @@ public class DataLoadController {
 
 	private String getPageOfOrganisations(String role, int pageSize, long offset) {
 		RestTemplate restTemplate = new RestTemplate();
-		String url = ODS_ORD_URL + "?Status=Active&PrimaryRoleId=" + role + "&Limit=" + pageSize + "&Offset=" + offset;
+		String url = ODS_ORD_URL + "?Status=Active&PrimaryRoleId=" + role;
+		if (role.equals(ROLE_PRIMARY_CARE)) {
+			url += "&NonPrimaryRoleId=" + ROLE_GP_PRACTICE;
+		}
+		url += "&Limit=" + pageSize + "&Offset=" + offset;
 		
 		String response = restTemplate.getForObject(url, String.class);
 		return response;

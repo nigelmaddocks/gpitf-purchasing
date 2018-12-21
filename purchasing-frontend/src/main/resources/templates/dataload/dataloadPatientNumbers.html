@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8" />
     <title>Widget Details</title>
-    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
 </head>
 <body>
+ 	<div th:replace="fragments/header :: header">...</div>
     <div class="container">
 <!--     
         <ol class="breadcrumb">
             <li><a href="#" th:href="${'/widgets'}">Home</a></li>
         </ol>
 -->        
-        <div class="row"><h2>CCG to CSU Data Load</h2></div>
-        <form class="form-horizontal" th:object="${organisationEditModel}" th:action="@{/dataload/Day0CSUs}" method="post" enctype="multipart/form-data">
+        <div class="row"><h2>GP Practice Patient Numbers Data Load</h2></div>
+        <form class="form-horizontal" th:action="@{/dataload/PatientNumbers}" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label class="col-sm-12">Please select the CSV file output from the Tracking Database which defines the relationship between CCGs and CSUs/Shared Services</label>
+                <label class="col-sm-12">Please select the CSV file which contains the GP Practice patient numbers.</label>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-12">See <a href="https://digital.nhs.uk/data-and-information/publications/statistical/patients-registered-at-a-gp-practice">https://digital.nhs.uk/data-and-information/publications/statistical/patients-registered-at-a-gp-practice</a></label>
             </div>
             
             <div class="form-group">
@@ -29,7 +33,6 @@
             </div>
         </form>
     </div>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+    <div th:replace="fragments/footer :: footer">...</div>
 </body>
 </html>

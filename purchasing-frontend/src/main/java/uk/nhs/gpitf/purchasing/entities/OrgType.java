@@ -20,6 +20,7 @@ public class OrgType {
 	public static final long GPPRACTICE = 1;
 	public static final long CCG = 2;
 	public static final long CSU = 3;
+	public static final long SUPPLIER = 4;
 	
 	@Id
 	private long id;
