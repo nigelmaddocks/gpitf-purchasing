@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="bottom">
-        <nav aria-label="breadcrumb" th:if="${session.Breadcrumbs.renderable(#request).size()} > 1">
+        <nav aria-label="breadcrumb" th:if="${session.Breadcrumbs != null && session.Breadcrumbs.renderable(#request).size() > 1}">
         	<ol class="breadcrumb">
         	<li th:each="breadcrumb, infoBreadcrumb : ${session.Breadcrumbs.renderable(#request)}" 
         		th:class="${infoBreadcrumb.count} < ${infoBreadcrumb.size} ? 'breadcrumb-item' : 'breadcrumb-item active'"

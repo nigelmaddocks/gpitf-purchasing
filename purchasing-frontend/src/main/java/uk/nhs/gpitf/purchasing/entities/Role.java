@@ -17,6 +17,13 @@ import lombok.Data;
 @Table(name="role", schema="purchasing")
 @Data
 public class Role {
+	
+	public static final long PURCHASER = 1;
+	public static final long APPROVER = 2;
+	public static final long LOCAL_ADMIN = 3;
+	public static final long ADMINISTRATOR = 4;
+
+	
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private long id;

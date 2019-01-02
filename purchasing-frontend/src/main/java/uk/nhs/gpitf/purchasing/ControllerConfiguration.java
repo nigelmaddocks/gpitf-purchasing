@@ -138,6 +138,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
             	secinfo.setSurname("");
             	secinfo.setOrganisationId(0);
             	secinfo.setOrganisationName("");
+            	secinfo.setOrganisationTypeId(0);
             	secinfo.setRoles(new long[] {});
             	secinfo.setRolesDescription("");
             }
@@ -153,6 +154,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
     private void setupSecinfoFromOrgContact(SecurityInfo secinfo, OrgContact orgContact) {
     	secinfo.setOrganisationId(orgContact.getOrganisation().getId());
     	secinfo.setOrganisationName(orgContact.getOrganisation().getNameProperCase());
+    	secinfo.setOrganisationTypeId(orgContact.getOrganisation().getOrgType().getId());
     	secinfo.setRolesDescription(orgContact.getRolesAsString());
     	ArrayList<Long> arlRoleIds = new ArrayList<>();
     	for (var ocr : orgContact.getOrgContactRoles()) {

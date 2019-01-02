@@ -43,7 +43,9 @@ import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.services.OrgContactService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
+import uk.nhs.gpitf.purchasing.services.SecurityService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
+import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller
 public class OrganisationAdminController {
@@ -70,17 +72,21 @@ public class OrganisationAdminController {
     private OrgContactService orgContactService;
 
     @Autowired
+    private SecurityService securityService;
+
+    @Autowired
  	private Validator validator;
     
 	@GetMapping("/admin")
 	public String getAdminMenu(Model model, HttpServletRequest request, Principal principal) {
 		Breadcrumbs.reset("Admin", request);
+		
         return "adminMenu";
     }	
 	
 	@GetMapping("/organisationAdmin/{id}")
 	public String getOrganisationById(@PathVariable Long id, Model model, HttpServletRequest request) {
-		model = getOrganisationModel(id, model);	
+		model = getOrganisationModel(request, id, model);	
 		long iOrgType = ((OrganisationEditModel) model.asMap().get("organisationEditModel")).getOrganisation().getOrgType().getId();
 		String sShortOrgType = "";
 		switch ((int)iOrgType) {
@@ -93,8 +99,8 @@ public class OrganisationAdminController {
     }	
 	
 	@GetMapping("/organisationAdmin/edit/{id}")
-	public String getOrganisationForEditById(@PathVariable Long id, Model model) {
-		model = getOrganisationModel(id, model);	
+	public String getOrganisationForEditById(@PathVariable Long id, Model model, HttpServletRequest request) {
+		model = getOrganisationModel(request, id, model);	
         return "admin/organisationEdit";
     }	
 	
@@ -253,11 +259,12 @@ public class OrganisationAdminController {
 		return "redirect:/organisationAdmin/" + org.getId();
     }	
 	
-	private Model getOrganisationModel(long id, Model model) {
+	private Model getOrganisationModel(HttpServletRequest request, long id, Model model) {
 		Organisation org = organisationRepository.findById(id).get();
 		OrganisationEditModel orgEditModel = new OrganisationEditModel();
 		orgEditModel.setOrganisation(org);
 		orgEditModel.setNewContact(new Contact());
+		orgEditModel.setCanAdminister(securityService.canAdministerOrganisation(request, id));
         
 		setupOrganisationModelCollections(org, orgEditModel);
 		
