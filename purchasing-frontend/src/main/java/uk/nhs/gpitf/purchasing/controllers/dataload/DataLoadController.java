@@ -12,6 +12,10 @@ import java.util.Scanner;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -490,7 +494,180 @@ public class DataLoadController {
 		}
 		
 		return "dataload/dataloadLegacySystemsOutput";
+	}	
+	
+	
+
+	/**
+	 * Endpoint for loading Legacy Systems into the database on Day Zero. Thereafter, the system will
+	 * enable purchasing and storing of new systems.
+	 * XSLX file is used as the datasource.
+	 * Each line contains a GP Practice and its supplier and system.
+	 * @param model
+	 * @return
+	 */
+	@GetMapping("/dataload/Day0LegacySystemsExcel")
+	public String loadLegacySystemsExcelSelectFile(Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Load GP Legacy Systems", request);
+		return "dataload/dataloadLegacySystemsExcel";
+	}
+
+	@PostMapping("/dataload/Day0LegacySystemsExcelPost")
+	public String loadLegacySystemsExcelSelectFile(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Output", request);
+		
+		List<Organisation> suppliersAdded = new ArrayList<>();
+		List<LegacySolution> legacySolutionsAdded = new ArrayList<>();
+		List<Exception> exceptions = new ArrayList<Exception>();
+		
+		model.addAttribute("suppliersAdded", suppliersAdded);
+		model.addAttribute("legacySolutionsAdded", legacySolutionsAdded);
+		model.addAttribute("exceptions", exceptions);
+
+		Workbook workbook = null;
+		Sheet sheet = null; 
+		try {
+			workbook = WorkbookFactory.create(file.getInputStream());
+			sheet = workbook.getSheetAt(0);
+		} catch (Exception e) {
+			exceptions.add(e);
+		}
+		
+		
+		if (workbook != null && sheet != null) {
+			long iLine = 1;
+			Iterator<Row> rowIterator = sheet.rowIterator();
+			// Omit header line
+			rowIterator.next();
+			
+	        while (rowIterator.hasNext()) {
+	            Row line = rowIterator.next();
+	            iLine++;
+
+	            String sGPOrgCode = line.getCell(0).getStringCellValue().trim().toUpperCase(); 
+//				String sSupplierCompositeCode = line.get(2);
+//				String sProductType = line.get(5); // Must be "Clinical system - GP"
+				String sProductName = line.getCell(13).getStringCellValue().trim().toUpperCase();
+//				String sProductVersion = line.get(7);
+				String sSupplierName = line.getCell(12).getStringCellValue().trim().toUpperCase();
+//				String sOrderedDate = line.get(9);
+//				String sInstalledDate = line.get(11);
+				String sSupplierOrgCode = "";
+				
+				boolean bContinue = true;
+				
+				if (sProductName != null && sProductName.length() > 0) {
+					// Get the GP Practice
+					Optional<Organisation> optGP = organisationRepository.findByOrgCode(sGPOrgCode);
+					Organisation orgGP = null;
+					Optional<Organisation> optSupplier = null;
+					Organisation orgSupplier = null;
+					LegacySolution legSolution = null;
+					OrgSolution orgSolution = null;
+					
+//					if (sSupplierOrgCode == null || sSupplierOrgCode.trim().length() == 0) {
+//						exceptions.add(new Exception("Supplier code blank on line " + iLine));
+//						bContinue = false;
+//					}
+					
+					if (optGP.isEmpty()) {
+						exceptions.add(new Exception("GP for Org Code " + sGPOrgCode + " not found"));
+						bContinue = false;
+					} else {
+						orgGP = optGP.get();
+					}
+					
+					// Get or setup the supplier
+					if (bContinue) {
+						// Massage the data slightly because of company mergers and acquisitions
+						if (sProductName.toUpperCase().startsWith("EMIS")) {
+							sSupplierOrgCode = "YGM06"; // YGM12 also used for EMIS, but this was originally iSoft, who were taken over by CSC, who then withdrew products from the market and GPs migrated to EMIS
+							sSupplierName = "EMIS";
+						} else if (sProductName.toUpperCase().startsWith("EVOLUTION")) {
+							sSupplierOrgCode = "YGM16";
+							sSupplierName = "Microtest";
+						} else if (sProductName.toUpperCase().startsWith("VISION")) {
+							sSupplierOrgCode = "YGM11";
+							sSupplierName = "In Practice Systems";
+						} else if (sProductName.toUpperCase().startsWith("SYSTM")) {
+							sSupplierOrgCode = "YGM27";
+							sSupplierName = "TPP";
+						}
+						
+						
+						optSupplier = organisationRepository.findByOrgCode(sSupplierOrgCode);
+						if (optSupplier.isEmpty()) {
+							try {
+								orgSupplier = new Organisation();
+								orgSupplier.setOrgCode(sSupplierOrgCode);
+								orgSupplier.setOrgType((OrgType)GUtils.makeObjectForId(OrgType.class, OrgType.SUPPLIER));
+								orgSupplier.setName(sSupplierName);
+								organisationRepository.save(orgSupplier);
+								suppliersAdded.add(orgSupplier);
+							} catch (Exception e) {
+								exceptions.add(e);
+								bContinue = false;								
+							}
+						} else {
+							orgSupplier = optSupplier.get();
+							if ((orgSupplier.getName() == null || orgSupplier.getName().trim().length() == 0)
+							 && sSupplierName != null && sSupplierName.trim().length() > 0) {
+								orgSupplier.setName(sSupplierName);
+								organisationRepository.save(orgSupplier);
+								exceptions.add(new Exception("**info** Supplier " + orgSupplier.getOrgCode() + " name updated to " + orgSupplier.getName()));
+							}
+						}
+						
+					}
+					
+					// If solution doesn't exist, create it
+					if (bContinue) {
+						Optional<LegacySolution> optLegSol = legacySolutionRepository.findByNameAndVersionAndSupplier(sProductName, null, orgSupplier);
+						if (optLegSol.isEmpty()) {
+							legSolution = new LegacySolution();
+							legSolution.setName(sProductName);
+							//legSolution.setVersion(sProductVersion);
+							legSolution.setSupplier(orgSupplier);
+							try {
+								legacySolutionRepository.save(legSolution);
+							} catch (Exception e) {
+								exceptions.add(e);
+								bContinue = false;
+							}
+						} else {
+							legSolution = optLegSol.get();
+						}
+					}
+					
+					if (bContinue) {
+						Optional<OrgSolution> optOrgSolution = orgSolutionRepository.findByOrganisationAndLegacySolution(orgGP, legSolution);
+						if (optOrgSolution.isEmpty()) {
+							orgSolution = new OrgSolution();
+							orgSolution.setOrganisation(orgGP);
+							orgSolution.setLegacySolution(legSolution);
+							try {
+								orgSolutionRepository.save(orgSolution);
+							} catch (Exception e) {
+								exceptions.add(e);
+								bContinue = false;
+							}
+						} else {
+							orgSolution = optOrgSolution.get();
+						}
+					}
+				}
+	        }
+	        try {
+	        	workbook.close();
+	        } catch (Exception e) {
+	        	e.printStackTrace();
+	        }
+		}
+		
+		return "dataload/dataloadLegacySystemsExcelOutput";
 	}		
+	
+	
 	/**
 	 * Endpoint for loading GP Practice Patient numbers.
 	 * NHS Digital csv file produced from GP Payments system is used as the datasource.

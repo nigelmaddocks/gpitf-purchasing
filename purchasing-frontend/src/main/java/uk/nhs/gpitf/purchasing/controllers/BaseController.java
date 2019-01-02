@@ -82,18 +82,6 @@ public class BaseController {
 	@GetMapping("/mainMenu")
 	public String mainMenu(Model model, HttpServletRequest request, Principal principal) {
 		Breadcrumbs.reset(request);
-		
-		
-System.out.println("Hello");	
-System.out.println("(Torbay CCG Practice:) Can purchase for 1063: " + securityService.canPurchaseForGPPractice(request, 1063));
-System.out.println("(Central Eastern CSU Practice:) Can purchase for 607: " + securityService.canPurchaseForGPPractice(request, 607));
-System.out.println("(Neither) Can purchase for 1064: " + securityService.canPurchaseForGPPractice(request, 1064));
-
-System.out.println("(Torbay CCG Practice:) Can administer 1063: " + securityService.canAdministerOrganisation(request, 1063));
-System.out.println("(Central Eastern CSU Practice:) Can administer 607: " + securityService.canAdministerOrganisation(request, 607));
-System.out.println("(Neither) Can administer 1064: " + securityService.canAdministerOrganisation(request, 1064));
-
-		
         return "mainMenu";
     }	
 	
