@@ -11,6 +11,9 @@ body {
     filter:alpha(opacity=0);
 }
 
+body > header {
+	max-width:100%; !important;
+}
 
 input[type='text'], input[type='email'], input[type='tel'], textarea {
     border: 1px solid #ccc !important;

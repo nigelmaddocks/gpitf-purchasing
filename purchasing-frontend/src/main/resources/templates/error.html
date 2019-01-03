@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section})}">
 <head>
     <meta charset="UTF-8" />
     <title>Admin Menu</title>
@@ -8,13 +8,8 @@
     </style>
 </head>
 <body>
- 	<div th:replace="fragments/header :: header">...</div>
+<section>
     <div class="container-fluid">
-<!--     
-        <ol class="breadcrumb">
-            <li><a href="#" th:href="${'/widgets'}">Home</a></li>
-        </ol>
--->        
         <div class="row"><h2>Error Page</h2></div>
         <form class="form-horizontal">
             <div class="row flex-row flex-nowrap">
@@ -54,6 +49,6 @@
             
         </form>
     </div>
-    <div th:replace="fragments/footer :: footer">...</div>
+</section>    
 </body>
 </html>

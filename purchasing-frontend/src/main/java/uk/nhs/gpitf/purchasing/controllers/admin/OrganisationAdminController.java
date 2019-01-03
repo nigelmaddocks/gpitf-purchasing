@@ -95,7 +95,7 @@ public class OrganisationAdminController {
 			case (int)OrgType.CSU: sShortOrgType = "CSU"; break;
 		}
 		Breadcrumbs.register("View " + sShortOrgType, request);
-        return "admin/organisationView";
+        return "admin/organisationView2";
     }	
 	
 	@GetMapping("/organisationAdmin/edit/{id}")

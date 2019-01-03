@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section})}">
 <head>
     <meta charset="UTF-8" />
     <title>Purchasing - Keyword Search for Solutions</title>
 </head>
 <body>
-	<div th:replace="fragments/header :: header">...</div>
+<section>
     <div class="container">
 <!--     
         <ol class="breadcrumb">
@@ -32,7 +32,6 @@
             </div>
         </form>
     </div>
-    <div th:replace="fragments/footer :: footer">...</div>
     <script>
     $("form").on("click", ":checkbox[name='filterCapabilities']", function(event){
 		//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
@@ -62,5 +61,6 @@
 		});
    	}
     </script>
+</section>    
 </body>
 </html>

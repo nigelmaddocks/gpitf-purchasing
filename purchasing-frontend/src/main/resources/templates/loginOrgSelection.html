@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section})}">
 <head>
     <meta charset="UTF-8" />
     <title>Login Organisation Selection</title>
 </head>
 <body>
- 	<div th:replace="fragments/header :: header">...</div>
+<section>
     <div class="container">
 
 
@@ -41,6 +41,6 @@
             
         </form>
     </div>
-    <div th:replace="fragments/footer :: footer">...</div>
+</section>
 </body>
 </html>
