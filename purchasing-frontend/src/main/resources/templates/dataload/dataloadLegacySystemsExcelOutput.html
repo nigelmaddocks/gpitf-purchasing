@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section})}">
 <head>
     <meta charset="UTF-8" />
     <title>Dataload of GP Practice Legacy Systems from GPSoC Marketshare XSLX file</title>
 </head>
 <body>
- 	<div th:replace="fragments/header :: header">...</div>
+<section>
     <div class="container">
         <div class="row"><h2>Dataload of GP Practice Legacy Systems from GPSoC Marketshare XSLX file</h2></div>
         <form class="form-horizontal">
@@ -30,6 +30,6 @@
         </form>
     </div>
     </div>
-    <div th:replace="fragments/footer :: footer">...</div>
+</section>
 </body>
 </html>
