@@ -51,7 +51,11 @@ public class DataLoadController {
 	
 	private static final String ODS_ORD_URL = "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations";
 	private static final String ROLE_PRIMARY_CARE = "RO177";
-	private static final String ROLE_GP_PRACTICE = "RO76"; //"RO177";
+
+	private static final String ROLE_GP_PRACTICE = "RO76";
+	private static final String ROLE_OOH_PRACTICE = "RO80"; // Out of hours
+	private static final String ROLE_WIC_PRACTICE = "RO87"; // Walk-in centre
+	
 	private static final String ROLE_CCG = "RO98";
 	private static final String ROLE_CSU = "RO213";
 	private static final String ROLE_SHARED_SERVICE = "RO161";
@@ -111,16 +115,23 @@ public class DataLoadController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping("/dataload/GPs")
-	public String loadGPs(Model model) {
+	@GetMapping("/dataload/Practices")
+	public String loadPractices(Model model) {
 		
 		List<Organisation> orgsAdded = new ArrayList<Organisation>();
 		List<ChangedOrganisation> orgsChanged = new ArrayList<ChangedOrganisation>();
 		List<String> relsAdded = new ArrayList<String>();
 		List<Exception> exceptions = new ArrayList<Exception>();
 		int iPage = 0;
-		while (loadPageOfOrgsOfRole(ROLE_PRIMARY_CARE, iPage++, orgsAdded, orgsChanged, relsAdded, exceptions)) {}
-			
+		while (loadPageOfOrgsOfRole(ROLE_OOH_PRACTICE, iPage++, orgsAdded, orgsChanged, relsAdded, exceptions)) {}
+		
+		iPage = 0;
+		while (loadPageOfOrgsOfRole(ROLE_WIC_PRACTICE, iPage++, orgsAdded, orgsChanged, relsAdded, exceptions)) {}	
+		
+		iPage = 0;
+		while (loadPageOfOrgsOfRole(ROLE_GP_PRACTICE, iPage++, orgsAdded, orgsChanged, relsAdded, exceptions)) {}	
+		
+		
 		model.addAttribute("orgTypeName", "GP Practices");
 		model.addAttribute("orgsAdded", orgsAdded);
 		model.addAttribute("relsAdded", relsAdded);
@@ -771,24 +782,33 @@ public class DataLoadController {
 			List<Exception> exceptions
 			) {
 		
-		RelationshipType relTypeCCGtoGP = null;
+		RelationshipType relTypeCCGtoPractice = null;
 		RestTemplate restTemplate = null;
 
 		long iOrgType = 0;
+		Long iOrgSubType = null;
 		if (sORDRole.equals(ROLE_CCG)) {
 			iOrgType = OrgType.CCG;
 		} else if (sORDRole.equals(ROLE_CSU)) {
 			iOrgType = OrgType.CSU;
 		} else if (sORDRole.equals(ROLE_SHARED_SERVICE)) {
 			iOrgType = OrgType.CSU;
-		} else if (sORDRole.equals(ROLE_GP_PRACTICE) || sORDRole.equals(ROLE_PRIMARY_CARE)) {
-			iOrgType = OrgType.GPPRACTICE;
+		} else if (sORDRole.equals(ROLE_GP_PRACTICE) || sORDRole.equals(ROLE_OOH_PRACTICE) || sORDRole.equals(ROLE_WIC_PRACTICE)) {
+			iOrgType = OrgType.PRESCRIBING_PRACTICE;
 			restTemplate = new RestTemplate();
 			try {
-				relTypeCCGtoGP = (RelationshipType)GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_GPPRACTICE);
+				relTypeCCGtoPractice = (RelationshipType)GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE);
 			} catch (Exception e) {
 				exceptions.add(e);
 			}
+		}
+		
+		if (sORDRole.equals(ROLE_GP_PRACTICE)) {
+			iOrgSubType = OrgType.GP;
+		} else if (sORDRole.equals(ROLE_OOH_PRACTICE)) {
+			iOrgSubType = OrgType.OOH;
+		} else if (sORDRole.equals(ROLE_WIC_PRACTICE)) {
+			iOrgSubType = OrgType.WIC;
 		}
 				
 		String response = getPageOfOrganisations(sORDRole, PAGE_SIZE, page * PAGE_SIZE + 1);
@@ -840,6 +860,9 @@ public class DataLoadController {
 						org.setOrgType((OrgType)GUtils.makeObjectForId(OrgType.class, iOrgType));
 						org.setOrgCode(orgCode);
 						org.setName(orgName);
+						if (iOrgSubType != null) {
+							org.setOrgSubType((OrgType)GUtils.makeObjectForId(OrgType.class, iOrgSubType.longValue()));
+						}
 						bNewOrg = true;
 					} else {
 						org = optOrg.get();
@@ -863,7 +886,7 @@ public class DataLoadController {
 					}
 					
 					// For GP Practices, add the CCG relationship
-					if (iOrgType == OrgType.GPPRACTICE) {
+					if (iOrgType == OrgType.PRESCRIBING_PRACTICE) {
 						String url = ODS_ORD_URL + "/" + org.getOrgCode();
 						
 						String responseOrg = restTemplate.getForObject(url, String.class);
@@ -932,14 +955,14 @@ public class DataLoadController {
 															Optional<Organisation> optCCG = organisationRepository.findByOrgCode(sCCGOrgCode);
 															if (optCCG.isPresent()) {
 																Organisation orgCCG = optCCG.get();
-																Iterable<OrgRelationship> iterOrgRels = orgRelationshipRepository.findAllByParentOrgAndChildOrgAndRelationshipType(orgCCG, org, relTypeCCGtoGP);
+																Iterable<OrgRelationship> iterOrgRels = orgRelationshipRepository.findAllByParentOrgAndChildOrgAndRelationshipType(orgCCG, org, relTypeCCGtoPractice);
 																if (!iterOrgRels.iterator().hasNext()) {
 																	OrgRelationship orgRel = new OrgRelationship();
-																	orgRel.setRelationshipType(relTypeCCGtoGP);
+																	orgRel.setRelationshipType(relTypeCCGtoPractice);
 																	orgRel.setParentOrg(orgCCG);
 																	orgRel.setChildOrg(org);
 																	orgRelationshipRepository.save(orgRel);
-																	relsAdded.add("CCG to GP Practice relationship added for " + orgCCG.getOrgCode() + " to " + org.getOrgCode());
+																	relsAdded.add("CCG to Prescribing Practice relationship added for " + orgCCG.getOrgCode() + " to " + org.getOrgCode());
 																}
 															}
 														}
@@ -970,9 +993,14 @@ public class DataLoadController {
 
 	private String getPageOfOrganisations(String role, int pageSize, long offset) {
 		RestTemplate restTemplate = new RestTemplate();
+		String nonPrimaryRole = "";
+		if (role.equals(ROLE_GP_PRACTICE) || role.equals(ROLE_OOH_PRACTICE) || role.equals(ROLE_WIC_PRACTICE)) {
+			nonPrimaryRole = role;
+			role = ROLE_PRIMARY_CARE;
+		}
 		String url = ODS_ORD_URL + "?Status=Active&PrimaryRoleId=" + role;
-		if (role.equals(ROLE_PRIMARY_CARE)) {
-			url += "&NonPrimaryRoleId=" + ROLE_GP_PRACTICE;
+		if (nonPrimaryRole.length() > 0) {
+			url += "&NonPrimaryRoleId=" + nonPrimaryRole;
 		}
 		url += "&Limit=" + pageSize + "&Offset=" + offset;
 		

@@ -52,6 +52,12 @@ public class Organisation {
     @NotBlank
 	@Size(max = 255)
 	private String nameProperCase;
+
+    
+    @ManyToOne(optional=true)
+    @JoinColumn(name = "org_sub_type")
+	private OrgType orgSubType;
+    
     
     @Transient
     public int getPatientCount() {
@@ -65,7 +71,7 @@ public class Organisation {
     
     @Transient
     public PatientCount getLatestPatientCount() {
-    	if (orgType.getId() == OrgType.GPPRACTICE) {
+    	if (orgType.getId() == OrgType.PRESCRIBING_PRACTICE) {
     		if (patientCountRunRepository == null || patientCountRepository == null) {
     			patientCountRunRepository = (PatientCountRunRepository) SpringConfiguration.contextProvider().getApplicationContext().getBean("patientCountRunRepository");
     			patientCountRepository = (PatientCountRepository) SpringConfiguration.contextProvider().getApplicationContext().getBean("patientCountRepository");

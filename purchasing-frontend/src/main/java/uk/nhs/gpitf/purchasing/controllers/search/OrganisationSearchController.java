@@ -83,22 +83,22 @@ public class OrganisationSearchController {
 
         if (bindingResult != null && !bindingResult.hasErrors() || bindingResult == null) {
         	if (orgSearchModel.getCriteria().getGpName().trim().length() > 0) {
-        		List<OrgRelationship> orgRels = organisationService.getOrgsAndParentsByRelTypeAndChildNameOrderByChildName(RelationshipType.CCG_TO_GPPRACTICE, orgSearchModel.getCriteria().getGpName().trim().toUpperCase());
+        		List<OrgRelationship> orgRels = organisationService.getOrgsAndParentsByRelTypeAndChildNameOrderByChildName(RelationshipType.CCG_TO_PRACTICE, orgSearchModel.getCriteria().getGpName().trim().toUpperCase());
         		orgSearchModel.setOrgRels(orgRels);
         	}
         	
         	if (orgSearchModel.getCriteria().getGpCode().trim().length() > 0) {
-        		List<OrgRelationship> orgRels = organisationService.getOrgsAndParentsByRelTypeAndChildOrgTypeOrderByChildName(RelationshipType.CCG_TO_GPPRACTICE, orgSearchModel.getCriteria().getGpCode().trim().toUpperCase());
+        		List<OrgRelationship> orgRels = organisationService.getOrgsAndParentsByRelTypeAndChildOrgTypeOrderByChildName(RelationshipType.CCG_TO_PRACTICE, orgSearchModel.getCriteria().getGpCode().trim().toUpperCase());
         		orgSearchModel.setOrgRels(orgRels);
         	}
         	
         	if (orgSearchModel.getCriteria().getCcgName().trim().length() > 0) {
-        		List<OrgRelationship> orgRels = organisationService.getOrgsAndParentsByRelTypeAndParentNameOrderByChildName(RelationshipType.CCG_TO_GPPRACTICE, orgSearchModel.getCriteria().getCcgName().trim().toUpperCase());
+        		List<OrgRelationship> orgRels = organisationService.getOrgsAndParentsByRelTypeAndParentNameOrderByChildName(RelationshipType.CCG_TO_PRACTICE, orgSearchModel.getCriteria().getCcgName().trim().toUpperCase());
         		orgSearchModel.setOrgRels(orgRels);
         	}
         	
         	if (orgSearchModel.getCriteria().getCcgCode().trim().length() > 0) {
-        		List<OrgRelationship> orgRels = organisationService.getOrgsAndParentsByRelTypeAndParentOrgTypeOrderByChildName(RelationshipType.CCG_TO_GPPRACTICE, orgSearchModel.getCriteria().getCcgCode().trim().toUpperCase());
+        		List<OrgRelationship> orgRels = organisationService.getOrgsAndParentsByRelTypeAndParentOrgTypeOrderByChildName(RelationshipType.CCG_TO_PRACTICE, orgSearchModel.getCriteria().getCcgCode().trim().toUpperCase());
         		orgSearchModel.setOrgRels(orgRels);
         	}
         }

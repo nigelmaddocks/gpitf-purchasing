@@ -90,12 +90,12 @@ public class OrganisationAdminController {
 		long iOrgType = ((OrganisationEditModel) model.asMap().get("organisationEditModel")).getOrganisation().getOrgType().getId();
 		String sShortOrgType = "";
 		switch ((int)iOrgType) {
-			case (int)OrgType.GPPRACTICE: sShortOrgType = "GP"; break;
+			case (int)OrgType.PRESCRIBING_PRACTICE: sShortOrgType = "Practice"; break;
 			case (int)OrgType.CCG: sShortOrgType = "CCG"; break;
 			case (int)OrgType.CSU: sShortOrgType = "CSU"; break;
 		}
 		Breadcrumbs.register("View " + sShortOrgType, request);
-        return "admin/organisationView2";
+        return "admin/organisationView";
     }	
 	
 	@GetMapping("/organisationAdmin/edit/{id}")
@@ -172,8 +172,8 @@ public class OrganisationAdminController {
         if (!bindingResult.hasErrors()) {
 	        RelationshipType parentRelationshipType = new RelationshipType();
 	        
-	        if (org.getOrgType().getId() == OrgType.GPPRACTICE) {
-	        	parentRelationshipType.setId(RelationshipType.CCG_TO_GPPRACTICE);
+	        if (org.getOrgType().getId() == OrgType.PRESCRIBING_PRACTICE) {
+	        	parentRelationshipType.setId(RelationshipType.CCG_TO_PRACTICE);
 	        } else if (org.getOrgType().getId() == OrgType.CCG) {
 	        	parentRelationshipType.setId(RelationshipType.CSU_TO_CCG);
 	        }
@@ -276,8 +276,8 @@ public class OrganisationAdminController {
 	private void setupOrganisationModelCollections(Organisation org, OrganisationEditModel orgEditModel) {
         RelationshipType parentRelationshipType = new RelationshipType();
         
-        if (org.getOrgType().getId() == OrgType.GPPRACTICE) {
-        	parentRelationshipType.setId(RelationshipType.CCG_TO_GPPRACTICE);
+        if (org.getOrgType().getId() == OrgType.PRESCRIBING_PRACTICE) {
+        	parentRelationshipType.setId(RelationshipType.CCG_TO_PRACTICE);
         } else if (org.getOrgType().getId() == OrgType.CCG) {
         	parentRelationshipType.setId(RelationshipType.CSU_TO_CCG);
         }
@@ -303,7 +303,7 @@ public class OrganisationAdminController {
 	
 	private List<Organisation> getParentOrgCandidates(long iOrgType) {
 		List<Organisation> parentOrgs = new ArrayList<Organisation>();
-        if (iOrgType == OrgType.GPPRACTICE) {
+        if (iOrgType == OrgType.PRESCRIBING_PRACTICE) {
             parentOrgs = organisationService.getAllByOrgType(OrgType.CCG);        	
         } else if (iOrgType == OrgType.CCG) {
         	parentOrgs = organisationService.getAllByOrgType(OrgType.CSU);        	

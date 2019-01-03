@@ -14,7 +14,7 @@ import lombok.Data;
 @Table(name="relationship_type", schema="purchasing")
 @Data
 public class RelationshipType {
-	public static final long CCG_TO_GPPRACTICE = 1;
+	public static final long CCG_TO_PRACTICE = 1;
 	public static final long CSU_TO_CCG = 2;
 	
     @Id

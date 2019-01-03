@@ -29,7 +29,7 @@ public class SecurityService {
 		}
 		
 		if (secinfo.isPurchaser()) {		
-			if (isDescendant(secinfo.getOrganisationId(), secinfo.getOrganisationTypeId(), gpOrganisationId, Optional.of(OrgType.GPPRACTICE))) {
+			if (isDescendant(secinfo.getOrganisationId(), secinfo.getOrganisationTypeId(), gpOrganisationId, Optional.of(OrgType.PRESCRIBING_PRACTICE))) {
 				return true;
 			}
 		}
@@ -93,7 +93,7 @@ public class SecurityService {
 					orgRelationshipRepository.findAllByParentOrgAndChildOrgAndRelationshipType(
 						(Organisation) GUtils.makeObjectForId(Organisation.class, parentOrgId), 
 						(Organisation) GUtils.makeObjectForId(Organisation.class, descendantOrgId), 
-						(RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_GPPRACTICE));
+						(RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE));
 				if (iterOrgRelGP.iterator().hasNext()) {
 					if (descendantOrgTypeId.isEmpty()) {
 						return true;
@@ -140,7 +140,7 @@ public class SecurityService {
 						orgRelationshipRepository.findAllByParentOrgAndChildOrgAndRelationshipType(
 							orgRelToCCG.getChildOrg(), 
 							(Organisation) GUtils.makeObjectForId(Organisation.class, descendantOrgId), 
-							(RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_GPPRACTICE));
+							(RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE));
 					if (iterOrgRelGP.iterator().hasNext()) {
 						if (descendantOrgTypeId.isEmpty()) {
 							return true;
