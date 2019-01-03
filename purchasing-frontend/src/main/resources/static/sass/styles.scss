@@ -13,5 +13,24 @@
   top: 0;
 }
 
+a[target="_blank"]:after {
+  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+  margin: 0 3px 0 5px;
+}
+
+// style all body links that are not buttons to NHS Digital Design Guidelines
+#content a:not(.button) {
+  color: $color-link-fg;
+  text-decoration: underline;
+
+  &:hover {
+    background-color: $color-link-hover-bg;
+  }
+}
+
+@import 'components/help-reveal';
+@import 'components/callout';
+
 @import 'pages/supplier/registration';
 @import 'pages/supplier/capabilities';
+@import 'pages/supplier/compliance';

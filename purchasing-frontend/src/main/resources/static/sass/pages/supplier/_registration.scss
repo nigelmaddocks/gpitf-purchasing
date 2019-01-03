@@ -1,3 +1,80 @@
+#onboarding.dashboard.page {
+  .onboarding-stages {
+    border-left: 1px solid $color-fg;
+    counter-reset: stage;
+    margin-left: 1em;
+    padding-left: 2em;
+
+    li {
+      position: relative;
+
+      &::before {
+        background-color: $color-bg;
+        border: 1.5px solid $color-nhs-blue;
+        border-radius: 50%;
+        content: counter(stage);
+        counter-increment: stage 1;
+        display: inline-block;
+        height: 1.9em;
+        left: -3em;
+        padding-top: .3em;
+        position: absolute;
+        text-align: center;
+        top: -.3em;
+        width: 1.9em;
+      }
+
+      // hack to obscure the border under the last number
+      &:last-child::after {
+        background-color: $color-bg;
+        content: ' ';
+        display: inline-block;
+        height: calc(100% - 1.5em);
+        left: -3em;
+        position: absolute;
+        top: 1.6em;
+        width: 1em;
+      }
+
+      .action {
+        font-weight: bold;
+      }
+
+      .narrative {
+        font-size: smaller;
+
+        .name {
+          font-weight: bold;
+        }
+      }
+
+      &.complete {
+        &::before {
+          background-color: $color-nhs-green;
+          border-color: $color-nhs-green;
+          color: $color-bg;
+          content: '✓';
+        }
+
+        .title {
+          color: $color-nhs-green;
+        }
+      }
+
+      &.unavailable {
+        .title {
+          color: $color-fg;
+        }
+      }
+    }
+  }
+
+  .callout {
+    @extend %callout-with-border;
+    margin-top: 2em;
+  }
+}
+
 #add-contact {
   margin-bottom: 1em;
 }

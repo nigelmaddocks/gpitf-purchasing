@@ -175,4 +175,10 @@ button,
     background-color: $color-button-hover-bg;
     color: $color-button-hover-fg;
   }
+
+  &[disabled],
+  &.disabled {
+    background-color: $color-button-disabled-bg;
+    color: $color-button-disabled-fg;
+  }
 }

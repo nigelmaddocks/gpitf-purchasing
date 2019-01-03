@@ -1,0 +1,22 @@
+details.help-reveal {
+  margin-bottom: .5em;
+
+  > summary {
+    color: $color-help-reveal-summary-fg;
+
+    .title {
+      text-decoration: underline;
+    }
+  }
+
+  > .contents {
+    background-color: $color-help-reveal-contents-bg;
+    border-left: 3px solid $color-help-reveal-border;
+    color: $color-help-reveal-contents-fg;
+    font-size: smaller;
+    font-weight: lighter;
+    margin-top: .5em;
+    padding: .5em 0 .5em 1em;
+    width: 60%;
+  }
+}

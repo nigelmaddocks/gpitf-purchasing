@@ -1,6 +1,7 @@
 // concrete colour palette based on NHS Digital branding guidelines
 $color-nhs-white: #FFF;
 $color-nhs-blue: #005EB8;
+$color-nhs-light-blue: #CDDFF0;
 $color-nhs-light-grey: #F0F4F5;
 $color-nhs-mid-grey: #768692;
 $color-nhs-dark-grey: #425563;
@@ -18,6 +19,7 @@ $color-reversed-fg: $color-nhs-white;
 
 $color-link-fg: $color-nhs-blue;
 $color-link-reversed-fg: $color-nhs-white;
+$color-link-hover-bg: #FFCD60;
 
 $color-footer-top-bg: $color-nhs-dark-grey;
 $color-footer-top-fg: $color-nhs-white;
@@ -58,6 +60,8 @@ $color-button-bg: $color-nhs-green;
 $color-button-hover-bg: $color-nhs-dark-green;
 $color-button-fg: $color-nhs-white;
 $color-button-hover-fg: $color-nhs-white;
+$color-button-disabled-bg: $color-nhs-white;
+$color-button-disabled-fg: $color-nhs-mid-grey;
 $color-button-primary-bg: $color-nhs-green;
 $color-button-primary-hover-bg: $color-nhs-dark-green;
 $color-button-primary-fg: $color-nhs-white;
@@ -78,3 +82,16 @@ $color-capability-selector-capability-selected-fg: $color-nhs-white;
 $color-capability-selector-capability-selected-name-fg: $color-nhs-white;
 $color-capability-selector-reveal-bg: $color-bg;
 $color-capability-selector-reveal-fg: $color-fg;
+
+$color-compliance-table-border: $color-nhs-light-grey;
+$color-compliance-table-fg: $color-nhs-blue;
+$color-compliance-table-good-fg: $color-nhs-green;
+$color-compliance-table-bad-fg: $color-nhs-red;
+
+$color-help-reveal-summary-fg: $color-nhs-blue;
+$color-help-reveal-border: $color-nhs-blue;
+$color-help-reveal-contents-bg: $color-bg;
+$color-help-reveal-contents-fg: $color-fg;
+
+$color-callout-bg: $color-nhs-light-grey;
+$color-callout-fg: $color-fg;

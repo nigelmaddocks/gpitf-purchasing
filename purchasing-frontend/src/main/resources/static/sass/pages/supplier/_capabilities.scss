@@ -35,9 +35,9 @@
 
 #capability-selector {
   background-color: $color-capability-selector-bg;
-  left: -1.5rem;
+  left: -$content-padding;
   position: relative;
-  width: calc(100% + 2.5rem);
+  width: calc(100% + #{$content-padding} + #{$content-padding});
 
   .capability-group {
     border: 0;

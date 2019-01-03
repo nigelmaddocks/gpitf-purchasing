@@ -3,6 +3,8 @@ $header-bottom-height: 3rem;
 $header-total-height: $header-top-height + $header-bottom-height;
 $header-padding: 1rem;
 
+$content-padding: 1rem;
+
 html {
   background-color: $color-bg;
   box-sizing: border-box;
@@ -59,17 +61,27 @@ a {
 
 #content {
   // set general padding as per design
-  padding: 1em;
+  padding: $content-padding;
 
   // account for fixed header with JS support @see src/static/js/app.js
   padding-top: $header-total-height;
+
+  .page-main-heading {
+    p {
+      font-weight: bold;
+    }
+  }
 }
 
 body {
+  margin: 0 auto;
+  max-width: 1020px;
   overflow-x: hidden; // horizontal scrolling is never desirable
+  position: relative;
 }
 
 body > header {
+  max-width: 1020px;
   position: fixed;
   top: 0;
   width: 100%;
