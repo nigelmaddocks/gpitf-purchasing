@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section})}">
 <head>
     <meta charset="UTF-8" />
     <title>Widget Details</title>
 </head>
 <body>
-  	<div th:replace="fragments/header :: header">...</div>
+<section>
     <div class="container">
 <!--     
         <ol class="breadcrumb">
@@ -44,6 +44,6 @@ Login into Live TdB as an admin user.
             </pre>
         </form>
     </div>
-    <div th:replace="fragments/footer :: footer">...</div>
+</section>
 </body>
 </html>
