@@ -28,4 +28,6 @@ public class OrgContactModel {
 	private String[] deleteOrgContactRoles;
 	
 	private long newRoleId;
+	
+	private boolean canAdminister;
 }

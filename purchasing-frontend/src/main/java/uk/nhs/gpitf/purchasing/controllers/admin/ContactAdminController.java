@@ -49,6 +49,7 @@ import uk.nhs.gpitf.purchasing.services.OrgContactService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
 import uk.nhs.gpitf.purchasing.services.RoleService;
+import uk.nhs.gpitf.purchasing.services.SecurityService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 
 @Controller
@@ -69,16 +70,19 @@ public class ContactAdminController {
 	@Autowired
 	RoleService roleService;
 	
+	@Autowired
+	SecurityService securityService;
+	
 	@GetMapping("/orgContactAdmin/{id}")
 	public String getOrgContactById(@PathVariable Long id, Model model, HttpServletRequest request) {
-		model = getOrgContactModel(id, model);	
+		model = getOrgContactModel(request, id, model);	
 		Breadcrumbs.register("Contact", request);
         return "admin/orgContactView";
     }	
 	
 	@GetMapping("/orgContactAdmin/edit/{id}")
 	public String getOrgContactEditById(@PathVariable Long id, Model model, HttpServletRequest request) {
-		model = getOrgContactModel(id, model);	
+		model = getOrgContactModel(request, id, model);	
         return "admin/orgContactEdit";
     }	
 
@@ -173,11 +177,13 @@ public class ContactAdminController {
 		setupCollections(orgContactModel, orgContact);
 	}
 	
-	private Model getOrgContactModel(long id, Model model) {
+	private Model getOrgContactModel(HttpServletRequest request, long id, Model model) {
 		OrgContact orgContact = orgContactRepository.findById(id).get();
 		OrgContactModel orgContactModel = new OrgContactModel();
 		orgContactModel.setId(id);
 		orgContactModel.setContact(orgContact.getContact());
+		orgContactModel.setCanAdminister(securityService.canAdministerOrganisation(request, orgContact.getOrganisation().getId()));
+
 		
 		setupCollections(orgContactModel, orgContact);
 		
