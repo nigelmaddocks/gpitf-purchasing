@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section})}">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
 <head>
     <meta charset="UTF-8" />
     <title>Admin Menu</title>
@@ -7,11 +7,7 @@
 <body>
 <section>
     <div class="container">
-<!--     
-        <ol class="breadcrumb">
-            <li><a href="#" th:href="${'/widgets'}">Home</a></li>
-        </ol>
--->        
+
         <div class="row"><h2>Main Menu</h2></div>
         
 		<div th:if="${security_message} != null"class="alert alert-danger fade in">
@@ -30,6 +26,13 @@
                 <label class="col-sm-6 control-label">Buying Process</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/buyingprocess" th:href="@{'/buyingprocess'}">Buying Process</a>
+                </div>
+            </div>
+            
+             <div class="form-group">
+                <label class="col-sm-6 control-label">Solution search by capability</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/solutionByCapability/dummy" th:href="@{'/solutionByCapability/dummy'}">Solution search</a>
                 </div>
             </div>
             

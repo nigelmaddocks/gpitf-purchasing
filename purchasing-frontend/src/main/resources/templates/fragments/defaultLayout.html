@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" th:fragment="layout (title, content)" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" th:fragment="layout (title, content, script)" xmlns:th="http://www.thymeleaf.org">
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta charset="UTF-8">
@@ -89,6 +89,10 @@
 
 		<script src="../static/js/site.js" th:src="@{/js/site.js}"></script>
     </div>
+
+	<script th:replace="${script} != null ? ${script} : ~{}">
+		<p>Layout script</p>
+	</script>
 
 
 </body>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section})}">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
 <head>
     <meta charset="UTF-8" />
     <title>Purchasing - Keyword Search for Solutions</title>
@@ -7,11 +7,6 @@
 <body>
 <section>
     <div class="container">
-<!--     
-        <ol class="breadcrumb">
-            <li><a href="#" th:href="${'/widgets'}">Home</a></li>
-        </ol>
--->        
         <div class="row"><h2>Purchasing - Keyword Search for Solutions</h2></div>
         <form class="form-horizontal">
             <div class="form-group">
@@ -32,7 +27,9 @@
             </div>
         </form>
     </div>
-    <script>
+</section>    
+
+<script>
     $("form").on("click", ":checkbox[name='filterCapabilities']", function(event){
 		//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
 		var selectedCapabilities = "";
@@ -60,7 +57,6 @@
 			});
 		});
    	}
-    </script>
-</section>    
+</script>
 </body>
 </html>
