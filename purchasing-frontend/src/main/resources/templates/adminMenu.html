@@ -14,63 +14,63 @@
 -->        
         <div class="row"><h2>Admin Menu</h2></div>
         <form class="form-horizontal">
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
                 <label class="col-sm-6 control-label">Load CCGs from ODS webservice</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/CCGs" th:href="@{'/dataload/CCGs'}">Load CCGs</a>
                 </div>
             </div>
             
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
                 <label class="col-sm-6 control-label">Load Practices from ODS webservice and their relationships to CCGs (10mins +)</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/Practices" th:href="@{'/dataload/Practices'}">Load Practices</a>
                 </div>
             </div>
             
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
                 <label class="col-sm-6 control-label">Load CSUs from ODS webservice</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/CSUs" th:href="@{'/dataload/CSUs'}">Load CSUs</a>
                 </div>
             </div>
             
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
                 <label class="col-sm-6 control-label">Load Shared Services from ODS webservice</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/SSs" th:href="@{'/dataload/SSs'}">Load Shared Services</a>
                 </div>
             </div>
             
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
                 <label class="col-sm-6 control-label">Load Day Zero CSU to CCG relationships from Tracking Database output csv file</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/Day0CSUs" th:href="@{'/dataload/Day0CSUs'}">Load Day Zero CSU to CCG relationships</a>
                 </div>
             </div>
             
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
                 <label class="col-sm-6 control-label">Load Day Zero GP Practice legacy systems from Tracking Database output csv file</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/Day0LegacySystems" th:href="@{'/dataload/Day0LegacySystems'}">Load Day Zero Legacy Systems (csv)</a>
                 </div>
             </div>
             
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
                 <label class="col-sm-6 control-label">Load Day Zero GP Practice legacy systems from GPSoC Marketshare XSLX file</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/Day0LegacySystemsExcel" th:href="@{'/dataload/Day0LegacySystemsExcel'}">Load Day Zero Legacy Systems (xslx)</a>
                 </div>
             </div>
             
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
                 <label class="col-sm-6 control-label">GP Practice Patient numbers from GP Payments output csv file</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/PatientNumbers" th:href="@{'/dataload/PatientNumbers'}">Load Patient Numbers</a>
                 </div>
             </div>
             
-            <div class="form-group">
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isLocalAdminOrAdmin()}" class="form-group">
                 <label class="col-sm-6 control-label">Organisation Search and Maintenance</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/organisationSearch" th:href="@{'/organisationSearch'}">Organisation Search</a>
