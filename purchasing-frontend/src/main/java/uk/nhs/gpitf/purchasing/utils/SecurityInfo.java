@@ -40,6 +40,10 @@ public class SecurityInfo implements Serializable {
 		return hasRole(Role.LOCAL_ADMIN, false);
 	}
 	
+	public boolean isLocalAdminOrAdmin() {
+		return hasRole(Role.LOCAL_ADMIN, true);
+	}
+	
 	public boolean hasRole(long role, boolean administratorCanDoRole) {
 		return roles != null && (ArrayUtils.contains(roles, role) || administratorCanDoRole && ArrayUtils.contains(roles, Role.ADMINISTRATOR));
 	}

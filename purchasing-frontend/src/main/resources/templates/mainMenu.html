@@ -14,7 +14,7 @@
 -->        
         <div class="row"><h2>Main Menu</h2></div>
         <form class="form-horizontal">
-            <div class="form-group">
+          	<div th:if="${session.SecurityInfo != null && session.SecurityInfo.isLocalAdminOrAdmin() == true}" class="form-group">
                 <label class="col-sm-6 control-label">Organisation Admin Tasks</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/adminMenu" th:href="${'/admin'}">Admin Menu</a>
