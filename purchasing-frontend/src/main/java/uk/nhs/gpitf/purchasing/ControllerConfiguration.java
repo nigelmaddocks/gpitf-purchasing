@@ -1,6 +1,8 @@
 package uk.nhs.gpitf.purchasing;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -8,6 +10,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
@@ -15,6 +18,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -147,6 +152,13 @@ public class ControllerConfiguration implements WebMvcConfigurer {
     		
     		request.getSession().setAttribute("SecurityInfo", secinfo);
             
+    		// General page authorisation
+    		boolean authorised = isPageAuthorised(request, secinfo);
+    		if (!authorised) {
+    			response.sendRedirect("/");
+    			return false;    			
+    		}
+    		
             return true;
         }
     }    
@@ -166,4 +178,36 @@ public class ControllerConfiguration implements WebMvcConfigurer {
     	}
     	secinfo.setRoles(arrRoleIds);
     }
+/*    
+    private  String getClientId(HttpServletRequest request) {
+        //final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        final String authorizationHeaderValue = request.getHeader("Authorization");
+        final String base64AuthorizationHeader = Optional.ofNullable(authorizationHeaderValue)
+                .map(headerValue->headerValue.substring("Basic ".length())).orElse("");
+
+        if(StringUtils.isNotEmpty(base64AuthorizationHeader)){
+            String decodedAuthorizationHeader = new String(Base64.getDecoder().decode(base64AuthorizationHeader), Charset.forName("UTF-8"));
+            return decodedAuthorizationHeader.split(":")[0];
+        }
+
+        return "";
+    }    
+*/    
+    /**
+     * This is intended for simple authorisation of webpages, or a suite of webpages based on the url and the user's role[s]
+     * @param secinfo
+     * @return
+     */
+    private boolean isPageAuthorised(HttpServletRequest request, SecurityInfo secinfo) {
+    	String uri = request.getRequestURI();
+    	
+    	// dataload must be administrator
+    	if (uri.matches(".*\\/dataload\\/.*") && !secinfo.isAdministrator()) {
+    		return false;
+    	}
+    	
+    	return true;
+    }
+    
 }
