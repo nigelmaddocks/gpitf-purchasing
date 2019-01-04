@@ -23,6 +23,9 @@ public class SecurityInfo implements Serializable {
 	long[] roles;
 	String rolesDescription;
 	
+	public static final String SECURITY_ERROR_REDIRECT = "redirect:/";
+	public static final String SECURITY_ERROR_TARGET = "/";
+	
 	public static boolean isAuthenticated(HttpServletRequest request) {
 		SecurityInfo secinfo = getSecurityInfo(request);
 		return secinfo.isAuthenticated;

@@ -106,9 +106,14 @@ public class OrganisationAdminController {
 	
 	@PostMapping("/organisationAdmin/{id}")
 	public String updateOrganisation(@Valid
-			OrganisationEditModel orgEditModel, BindingResult bindingResult, RedirectAttributes attr) {
+			OrganisationEditModel orgEditModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
 		
         Organisation org = orgEditModel.getOrganisation();
+        
+        // Check the user is authorised to do this
+        if (!securityService.canAdministerOrganisation(request, org == null? 0L : org.getId())) {
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+        }
 
         if (!bindingResult.hasErrors() && orgEditModel.getNewContact().hasAnyPropertySet()) {
         	Errors errors = new BeanPropertyBindingResult(orgEditModel.getNewContact(), "");

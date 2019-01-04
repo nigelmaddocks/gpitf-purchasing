@@ -155,7 +155,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
     		// General page authorisation
     		boolean authorised = isPageAuthorised(request, secinfo);
     		if (!authorised) {
-    			response.sendRedirect("/");
+    			response.sendRedirect(SecurityInfo.SECURITY_ERROR_TARGET);
     			return false;    			
     		}
     		

@@ -44,6 +44,9 @@ public class SecurityService {
 		}
 		
 		if (secinfo.isLocalAdmin()) {	
+			if (targetOrganisationId == 0) {
+				return false;
+			}
 			if (secinfo.getOrganisationId() == targetOrganisationId) {
 				return true;
 			}

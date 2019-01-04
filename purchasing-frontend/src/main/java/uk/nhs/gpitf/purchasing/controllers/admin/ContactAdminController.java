@@ -51,6 +51,7 @@ import uk.nhs.gpitf.purchasing.services.OrganisationService;
 import uk.nhs.gpitf.purchasing.services.RoleService;
 import uk.nhs.gpitf.purchasing.services.SecurityService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
+import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller
 public class ContactAdminController {
@@ -89,7 +90,12 @@ public class ContactAdminController {
 	
 	@PostMapping("/orgContactAdmin")
 	public String updateOrganisation(@Valid
-			OrgContactModel orgContactModel, BindingResult bindingResult, RedirectAttributes attr) {
+			OrgContactModel orgContactModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
+        
+        // Check the user is authorised to do this
+        if (!securityService.canAdministerOrganisation(request, orgContactModel.getOrganisation() == null? 0L : orgContactModel.getOrganisation().getId())) {
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+        }
  
 		// Save contact attributes
 		if (!bindingResult.hasErrors()) {
