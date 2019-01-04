@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>Buying from the NHS Store</title>
+<link rel="stylesheet" href="../../static/css/bootstrap.min.css"
+	th:href="@{/css/bootstrap.min.css}">
+<link rel="stylesheet" href="../../static/scss/styles.css"
+	th:href="@{/scss/styles.css}">
+<link rel="stylesheet" href="../../static/css/override.css"
+	th:href="@{/css/override.css}">
+</head>
+<body>
+<div class="container">
+	<main id="content">
+	<header class="page-main-heading">
+		<h1>Buying from the NHS Store.</h1>
+	</header>
+	<ol class="onboarding-stages">
+		<li>
+			<h3 class="title">Identify needs and who you are buying for</h3>
+			<!-- <p class="action">
+				Status: Not started. <a href="register#content">Start</a>
+			</p>  -->
+			<p class="narrative">
+				<!-- <span class="name">Solution Registration.</span>  -->
+				Identify needs and tell us who you are
+				buying for to find appropriate Solutions by selecting Capabilities
+				and sites.
+			</p>
+		</li>
+		<li>
+			<h3 class="title">Create short list</h3>
+			<p class="narrative">
+				MORE RESEARCH NEEDED
+			</p>
+		</li>
+		<li>
+			<h3 class="title">Evaluate short list and select Solution</h3>
+			<p class="narrative">
+				MORE RESEARCH NEEDED
+			</p>
+		</li>
+		<li class="unavailable">
+			<h3 class="title">Build contract</h3>
+			<p class="narrative">
+				Send a Contract request to the Supplier. If your request if accepted,
+				you can review, share and sign the Contract. 
+			</p>
+		</li>
+	</ol>
+	</main>
+</div>
+</body>
+</html>

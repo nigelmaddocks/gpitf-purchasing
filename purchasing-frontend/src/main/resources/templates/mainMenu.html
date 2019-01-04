@@ -17,7 +17,13 @@
           	<div th:if="${session.SecurityInfo != null && session.SecurityInfo.isLocalAdminOrAdmin()}" class="form-group">
                 <label class="col-sm-6 control-label">Organisation Admin Tasks</label>
                 <div class="col-sm-6" style="margin-top:6px;">
-                    <a href="/adminMenu" th:href="${'/admin'}">Admin Menu</a>
+                    <a href="/adminMenu" th:href="@{'/admin'}">Admin Menu</a>
+                </div>
+            </div>
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isPurchaser()}" class="form-group">
+                <label class="col-sm-6 control-label">Buying Process</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/buyingprocess" th:href="@{'/buyingprocess'}">Buying Process</a>
                 </div>
             </div>
             
