@@ -13,6 +13,12 @@
         </ol>
 -->        
         <div class="row"><h2>Main Menu</h2></div>
+        
+		<div th:if="${security_message} != null"class="alert alert-danger fade in">
+		    <a href="#" class="close" data-dismiss="alert">&times;</a>
+		    <strong>Security Error: [[${security_message}]]</strong>
+		</div>        
+        
         <form class="form-horizontal">
           	<div th:if="${session.SecurityInfo != null && session.SecurityInfo.isLocalAdminOrAdmin()}" class="form-group">
                 <label class="col-sm-6 control-label">Organisation Admin Tasks</label>

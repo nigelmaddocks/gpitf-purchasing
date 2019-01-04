@@ -59,4 +59,13 @@ public class SecurityInfo implements Serializable {
 		}
 		return secinfo;
 	}
+	
+	public String loggerSecurityMessage(String issue) {
+		return "SECURITY: " + issue + " but user not authorised. User: " + toString();
+	}
+	
+	@Override
+	public String toString() {
+		return email + " [" + forename + " " + surname + "]";
+	}
 }

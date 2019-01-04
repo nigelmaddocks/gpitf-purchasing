@@ -13,6 +13,8 @@ import javax.validation.Validation;
 //import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
@@ -74,6 +76,8 @@ public class ContactAdminController {
 	@Autowired
 	SecurityService securityService;
 	
+    private static final Logger logger = LoggerFactory.getLogger(OrganisationAdminController.class);
+	
 	@GetMapping("/orgContactAdmin/{id}")
 	public String getOrgContactById(@PathVariable Long id, Model model, HttpServletRequest request) {
 		model = getOrgContactModel(request, id, model);	
@@ -82,8 +86,19 @@ public class ContactAdminController {
     }	
 	
 	@GetMapping("/orgContactAdmin/edit/{id}")
-	public String getOrgContactEditById(@PathVariable Long id, Model model, HttpServletRequest request) {
+	public String getOrgContactEditById(@PathVariable Long id, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		model = getOrgContactModel(request, id, model);	
+		
+		OrgContactModel orgContactModel = (OrgContactModel) model.asMap().get("orgContactModel");
+		
+        // Check the user is authorised to do this
+        if (!securityService.canAdministerOrganisation(request, orgContactModel.getOrganisation() == null? 0L : orgContactModel.getOrganisation().getId())) {
+        	String message = "create/update contact organisation " + (orgContactModel.getOrganisation() == null? 0L : orgContactModel.getOrganisation().getId());
+    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+        }
+		
         return "admin/orgContactEdit";
     }	
 
@@ -92,10 +107,22 @@ public class ContactAdminController {
 	public String updateOrganisation(@Valid
 			OrgContactModel orgContactModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
         
-        // Check the user is authorised to do this
-        if (!securityService.canAdministerOrganisation(request, orgContactModel.getOrganisation() == null? 0L : orgContactModel.getOrganisation().getId())) {
-        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
-        }
+		OrgContact orgContact = null;
+		try {
+			 orgContact = orgContactRepository.findById(orgContactModel.getId()).get();
+        } catch (Exception e) {
+            bindingResult.addError(new ObjectError("Error on getting of OrgContact",  e.getMessage()));
+		}
+
+		if (!bindingResult.hasErrors()) {
+	        // Check the user is authorised to do this
+	        if (!securityService.canAdministerOrganisation(request, orgContact.getOrganisation() == null? 0L : orgContact.getOrganisation().getId())) {
+	        	String message = "create/update contact organisation " + (orgContact.getOrganisation() == null? 0L : orgContact.getOrganisation().getId());
+	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
+	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+	        }
+		}
  
 		// Save contact attributes
 		if (!bindingResult.hasErrors()) {
@@ -129,19 +156,11 @@ public class ContactAdminController {
 		
 		// Add new Role
 		if (!bindingResult.hasErrors() && orgContactModel.getNewRoleId() != 0) {
-			OrgContact orgContact = null;
 			Role role = null;
 			try {
-				 orgContact = orgContactRepository.findById(orgContactModel.getId()).get();
+				role = roleRepository.findById(orgContactModel.getNewRoleId()).get();
 	        } catch (Exception e) {
-	            bindingResult.addError(new ObjectError("Error on getting of OrgContact",  e.getMessage()));
-			}
-			if (!bindingResult.hasErrors()) {
-				try {
-					role = roleRepository.findById(orgContactModel.getNewRoleId()).get();
-		        } catch (Exception e) {
-		            bindingResult.addError(new ObjectError("Error on getting of new Role",  e.getMessage()));
-				}
+	            bindingResult.addError(new ObjectError("Error on getting of new Role",  e.getMessage()));
 			}
 		
 			OrgContactRole newOrgContactRole = new OrgContactRole();

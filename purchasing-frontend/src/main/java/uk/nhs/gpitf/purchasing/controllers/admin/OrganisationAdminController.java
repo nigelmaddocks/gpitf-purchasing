@@ -13,6 +13,8 @@ import javax.validation.Validation;
 //import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
@@ -77,6 +79,8 @@ public class OrganisationAdminController {
     @Autowired
  	private Validator validator;
     
+    private static final Logger logger = LoggerFactory.getLogger(OrganisationAdminController.class);
+    
 	@GetMapping("/admin")
 	public String getAdminMenu(Model model, HttpServletRequest request, Principal principal) {
 		Breadcrumbs.reset("Admin", request);
@@ -99,7 +103,15 @@ public class OrganisationAdminController {
     }	
 	
 	@GetMapping("/organisationAdmin/edit/{id}")
-	public String getOrganisationForEditById(@PathVariable Long id, Model model, HttpServletRequest request) {
+	public String getOrganisationForEditById(@PathVariable Long id, Model model, RedirectAttributes attr, HttpServletRequest request) {
+        // Check the user is authorised to do this
+        if (!securityService.canAdministerOrganisation(request, id)) {
+        	String message = "create/update organisation " + id;
+    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+        }
+		
 		model = getOrganisationModel(request, id, model);	
         return "admin/organisationEdit";
     }	
@@ -109,9 +121,14 @@ public class OrganisationAdminController {
 			OrganisationEditModel orgEditModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
 		
         Organisation org = orgEditModel.getOrganisation();
+		
+		logger.debug("create/update organisation " + (org == null? 0L : org.getId()));
         
         // Check the user is authorised to do this
         if (!securityService.canAdministerOrganisation(request, org == null? 0L : org.getId())) {
+        	String message = "create/update organisation " + (org == null? 0L : org.getId());
+    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;
         }
 

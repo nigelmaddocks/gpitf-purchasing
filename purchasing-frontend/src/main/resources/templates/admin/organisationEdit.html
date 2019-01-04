@@ -17,6 +17,7 @@
         <form class="form-horizontal" th:object="${organisationEditModel}" th:action="@{/organisationAdmin/edit}" method="post">
         	<input type="hidden" th:field="*{organisation.id}" />
         	<input type="hidden" th:field="*{organisation.orgType}" />
+        	<input type="hidden" th:field="*{organisation.orgSubType}" />
         	
 <!-- 			
 			<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
