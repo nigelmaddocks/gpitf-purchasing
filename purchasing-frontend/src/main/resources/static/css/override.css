@@ -46,10 +46,15 @@ input[type='text'], input[type='email'], input[type='tel'], textarea {
 .breadcrumb {
 	background-color:transparent; !important;
 }
+
 .breadcrumb>.active {
     color: #BBB;
 }
 
 .bottom {
 	height: 56px; min-height: 56px; max-height: 56px; !important;
+}
+
+.breadcrumb > li + li:before {  /* remove this to revert back to slash */
+    content: "> ";
 }

@@ -83,7 +83,7 @@ public class OrganisationAdminController {
     
 	@GetMapping("/admin")
 	public String getAdminMenu(Model model, HttpServletRequest request, Principal principal) {
-		Breadcrumbs.reset("Admin", request);
+		Breadcrumbs.register("Admin", request);
 		
         return "adminMenu";
     }	

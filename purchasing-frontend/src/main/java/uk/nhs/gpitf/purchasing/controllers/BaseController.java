@@ -76,12 +76,12 @@ public class BaseController {
 	
 	@GetMapping("/")
 	public String root(Model model, HttpServletRequest request, Principal principal) {
-		Breadcrumbs.reset(request);
+		Breadcrumbs.reset("Home", request);
         return "mainMenu";
     }	
 	@GetMapping("/mainMenu")
 	public String mainMenu(Model model, HttpServletRequest request, Principal principal) {
-		Breadcrumbs.reset(request);
+		Breadcrumbs.reset("Home", request);
         return "mainMenu";
     }	
 	
