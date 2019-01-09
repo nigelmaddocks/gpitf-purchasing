@@ -9,4 +9,49 @@
   display:inline-block;
 }
 
- 
+.glyphicon.text-muted { 
+	opacity: 0.25; 
+}
+
+.sub-text {
+	color: rgb(66, 85, 99);
+}
+
+.solution-list-entry {
+	display: inline-flex;	
+	width: 50%;
+	min-width: 320px;
+	margin-left: 1em;
+}
+
+.solution-list-entry > div {
+	borderXX: 1px black solid;
+}
+
+.solution-list-entry  input[type=radio] {
+	margin-top:1.4em;
+	margin-left:1.0em;
+	margin-right:1.0em;
+	colour: blue;
+}
+
+.solution-list-entry  h3 {
+	color:black;
+}
+
+.solution-list-entry  h4 {
+	font-size: 0.95em;
+	line-height: 1.20em;
+	font-weight: 500;
+}
+
+.solution-list-entry  h5 {
+	font-size: 0.80em;
+	font-weight: 500;	
+	line-height: 0.6em;
+}
+
+.solution-list-entry  h5:first-of-type {
+	color: #005eb8;
+}
+

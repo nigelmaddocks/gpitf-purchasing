@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -15,9 +16,11 @@ import io.swagger.client.api.SolutionsApi;
 import io.swagger.client.api.StandardsApi;
 import io.swagger.client.api.CapabilitiesApi;
 import io.swagger.client.api.CapabilitiesImplementedApi;
+import io.swagger.client.api.OrganisationsApi;
 import io.swagger.client.api.SearchApi;
 import io.swagger.client.model.Capabilities;
 import io.swagger.client.model.CapabilitiesImplemented;
+import io.swagger.client.model.Organisations;
 import io.swagger.client.model.SearchResult;
 import io.swagger.client.model.Solutions;
 import io.swagger.client.model.Standards;
@@ -33,6 +36,9 @@ public class OnboardingService {
 	
 	@Autowired
 	private CapabilitiesImplementedApi capabilitiesImplementedApi;
+	
+	@Autowired
+	private OrganisationsApi organisationsApi;
 	
 	@Autowired
 	private StandardsApi standardsApi;
@@ -89,6 +95,19 @@ public class OnboardingService {
 		return list;
 	}
 	
+	
+	/**
+	 * WARNING: Non-api method that works over cached solutions and capabilities
+	 */
+	public List<Capabilities> findCapabilitiesBySolutionId(String solutionId) {
+		List<Capabilities> capabilities = new ArrayList<>();
+		String[] capabilityIds = capabilitiesImplementedCache.getSolutionIdCapabilityIds().get(solutionId);
+		for (String capabilityId : capabilityIds) {
+			capabilities.add(capabilitiesImplementedCache.getCapabilities().get(capabilityId));
+		}
+		return capabilities;
+	}
+	
 	// -------------------------------------------------------------------------------------------------------
 	
 	public List<Solutions> findSolutionsByFramework(String framework) {		
@@ -115,6 +134,9 @@ public class OnboardingService {
 	    return arl;
 	}
 	
+	/**
+	 * WARNING: Non-api method that works over cached solutions and capabilities
+	 */
 	public List<Solutions> findSolutionsHavingAnyCapabilityInList(String csvCapabilityList) {
 		String[] arrCapabilityIds = csvCapabilityList.split(",");
 		HashSet<String> hshSolutionIds = new HashSet<>();
@@ -136,6 +158,9 @@ public class OnboardingService {
 	    return arl;
 	}
 	
+	/**
+	 * WARNING: Non-api method that works over cached solutions and capabilities
+	 */
 	public List<Solutions> findSolutionsHavingEveryCapabilityInList(String csvCapabilityList) {
 		String[] arrCapabilityIds = csvCapabilityList.split(",");
 		HashSet<String> hshSolutionIds = new HashSet<>();
@@ -170,6 +195,92 @@ public class OnboardingService {
 		}
 
 	    return arl;
+	}
+	
+	/**
+	 * WARNING: Non-api method that works over cached solutions and capabilities
+	 */
+	public List<Solutions> findSolutionsHavingKeywords(String keywords) {
+		keywords = keywords.toUpperCase();
+		ArrayList<String> arlKeywords = new ArrayList<>();
+		String[] arrKeywords = keywords.split(" ");
+		for (String word : arrKeywords) {
+			if (word != null && word.trim().length() > 0) {
+				arlKeywords.add(word.trim().toUpperCase());
+			}
+		}
+		arrKeywords = arlKeywords.toArray(new String[] {});
+		
+		List<Solutions> lstSolutionsMatchingExactly = new ArrayList<>();
+		List<Solutions> lstSolutionsMatchingAllKeywords = new ArrayList<>();
+		List<Solutions> lstSolutionsMatchingSomeKeywords = new ArrayList<>();
+		for (Solutions solution : capabilitiesImplementedCache.getSolutions().values()) {
+			// Match on Organisation name
+			Organisations org = capabilitiesImplementedCache.getOrganisations().get(solution.getOrganisationId());
+			String sOrgName = "";
+			if (org != null) {
+				sOrgName = org.getName().toUpperCase();
+			}
+			String sSolutionName = solution.getName().toUpperCase();
+			String sSolutionDesc = solution.getDescription().toUpperCase();
+			if (sOrgName.contains(keywords) || sSolutionName.contains(keywords) || sSolutionDesc.contains(keywords)) {
+				if (!lstSolutionsMatchingExactly.contains(solution)) {
+					lstSolutionsMatchingExactly.add(solution);
+					continue;
+				}
+			} 
+			
+			boolean bAllKeywords = true;
+			boolean bSomeKeywords = false;
+			for (String word : arrKeywords) {
+				if (sOrgName.contains(word) || sSolutionName.contains(word) || sSolutionDesc.contains(word)) {
+					bSomeKeywords = true;
+				} else {
+					bAllKeywords = false;
+				}						
+			}
+			
+			if (bAllKeywords) {
+				if (!lstSolutionsMatchingAllKeywords.contains(solution)) {
+					lstSolutionsMatchingAllKeywords.add(solution);
+					continue;
+				}				
+			}
+			
+			if (bSomeKeywords) {
+				if (!lstSolutionsMatchingSomeKeywords.contains(solution)) {
+					lstSolutionsMatchingSomeKeywords.add(solution);
+					continue;
+				}				
+			}
+		}
+		
+		List<Solutions> returnedList = new ArrayList<>();
+		
+		// Shuffle entries that are equally matched
+		Collections.shuffle(lstSolutionsMatchingExactly);
+		Collections.shuffle(lstSolutionsMatchingAllKeywords);
+		Collections.shuffle(lstSolutionsMatchingSomeKeywords);
+		
+		// Output in one list
+		for (Solutions solution : lstSolutionsMatchingExactly) {
+			if (!returnedList.contains(solution)) {
+				returnedList.add(solution);
+			}
+		}
+		for (Solutions solution : lstSolutionsMatchingAllKeywords) {
+			if (!returnedList.contains(solution)) {
+				returnedList.add(solution);
+			}
+		}
+		for (Solutions solution : lstSolutionsMatchingSomeKeywords) {
+			if (!returnedList.contains(solution)) {
+				returnedList.add(solution);
+			}
+		}
+		
+		return returnedList;
+		
 	}
 	
 	// -------------------------------------------------------------------------------------------------------
@@ -214,6 +325,21 @@ public class OnboardingService {
 		List<CapabilitiesImplemented> arl = new ArrayList<>();
 		try {
 			arl = (List<CapabilitiesImplemented>)loadPaginatedList(capabilitiesImplementedApi, "apiCapabilitiesImplementedBySolutionBySolutionIdGet", new Object[] {solution, 1, PAGE_SIZE});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	    return arl;
+	}
+	
+	// -------------------------------------------------------------------------------------------------------
+	
+	/** 
+	 * @deprecated Actually not yet implemented as the required swagger function does not exist
+	 */
+	public List<Organisations> findAllOrganisations() {
+		List<Organisations> arl = new ArrayList<>();
+		try {
+			arl = (List<Organisations>)loadPaginatedList(organisationsApi, "apiOrganisationsGet", new Object[] {1, PAGE_SIZE});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

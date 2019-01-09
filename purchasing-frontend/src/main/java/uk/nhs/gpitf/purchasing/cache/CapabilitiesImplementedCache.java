@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import io.swagger.client.model.Capabilities;
 import io.swagger.client.model.CapabilitiesImplemented;
 import io.swagger.client.model.Solutions;
+import io.swagger.client.model.Organisations;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -33,6 +35,8 @@ public class CapabilitiesImplementedCache {
 	private Hashtable<String, String[]> solutionIdCapabilityIds = new Hashtable<>();
 	private Hashtable<String, Capabilities> capabilities = new Hashtable<>();
 	private Hashtable<String, Solutions> solutions = new Hashtable<>();
+	private Hashtable<String, Organisations> organisations = new Hashtable<>();
+
 	
 	@Getter(AccessLevel.NONE)
 	@Setter(AccessLevel.NONE)
@@ -55,6 +59,7 @@ public class CapabilitiesImplementedCache {
 		Hashtable<String, String[]> newSolutionIdCapabilityIds = new Hashtable<>();
 		Hashtable<String, Capabilities> newCapabilities = new Hashtable<>();
 		Hashtable<String, Solutions> newSolutions = new Hashtable<>();
+		Hashtable<String, Organisations> newOrganisations = new Hashtable<>();
 		
 		List<Capabilities> capabilities = onboardingService.findCapabilitiesByFramework(onboardingService.getDefaultFramework());
 		List<Solutions> solutions = onboardingService.findSolutionsByFramework(onboardingService.getDefaultFramework());
@@ -87,10 +92,15 @@ public class CapabilitiesImplementedCache {
 			newCapabilityIdSolutionIds.put(capability.getId(), arlSolutions.toArray(new String[]{}));
 		}
 		
+		// Add Organisations for Solutions
+		// TODO: Once the swagger api layer contains something to get Organisations
+		
+		
 		this.capabilityIdSolutionIds = newCapabilityIdSolutionIds;
 		this.solutionIdCapabilityIds = newSolutionIdCapabilityIds;
 		this.capabilities = newCapabilities;
 		this.solutions = newSolutions;
+		this.organisations = newOrganisations;
 		System.out.println("*** CapabilitiesImplemented loaded into Cache ***");
 
 	}

@@ -37,6 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/**/*.jpg",
                 "/**/*.html",
                 "/**/*.css",
+                "/**/*.woff2",
                 "/**/*.js").permitAll()                   
         .antMatchers("/organisationData/**").permitAll()
         .antMatchers("/", "/mainMenu", "/purchasingLogout", "/loginOrgSelection", "/error").permitAll()

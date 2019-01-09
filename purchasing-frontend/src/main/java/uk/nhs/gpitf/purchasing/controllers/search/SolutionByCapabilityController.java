@@ -18,7 +18,7 @@ public class SolutionByCapabilityController {
 	@GetMapping("/solutionByCapability/{search}")
 	public String solutionByCapability(@PathVariable String search, Model model) {
 		model = setupSolutionByCapability(search, model);	
-        return "searchSolutionByCapability";
+        return "buying-process/searchSolutionByCapability";
     }	
 
 	private Model setupSolutionByCapability(String search, Model model) {

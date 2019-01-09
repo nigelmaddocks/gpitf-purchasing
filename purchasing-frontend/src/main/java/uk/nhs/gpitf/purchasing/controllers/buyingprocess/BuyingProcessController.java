@@ -13,7 +13,7 @@ public class BuyingProcessController {
 
 	protected static final String PATH = "buying-process/";
 	protected static final String PAGE_INDEX = "index";
-	protected static final String PAGE_SEARCH_SOLUTIONS_MENU = "searchSolutionsMenu";
+	protected static final String PAGE_SEARCH_SOLUTIONS_MENU = "searchSolutionMenu";
 
 	@GetMapping("/buyingprocess")
 	public String home(HttpServletRequest request) {
@@ -21,7 +21,7 @@ public class BuyingProcessController {
 		return PATH + PAGE_INDEX;
 	}
 
-	@GetMapping("/buyingprocess/searchSolutionsMenu")
+	@GetMapping("/buyingprocess/searchSolutionMenu")
 	public String searchSolutionsMenu(HttpServletRequest request) {
 		Breadcrumbs.register("Search menu", request);
 		return PATH + PAGE_SEARCH_SOLUTIONS_MENU;

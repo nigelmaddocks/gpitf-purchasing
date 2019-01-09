@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+    <meta charset="UTF-8" />
+    <title>Purchasing - Keyword Search for Solutions</title>
+</head>
+<body>
+<section>
+    <div class="container" style="background-color: #f0f4f5;">
+        <div class="row"><h2>Use the keyword search below. Then, select the result with the Capabilities that best meet your needs.</h2></div>
+        
+        <form class="form-inline" th:object="${searchSolutionByKeywordModel}" th:action="@{/buyingprocess/solutionByKeyword}" method="post">
+		
+		<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+		    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.message}"></p>    
+		</div>
+		
+       	<br /><br />
+		<div class="row">        
+	        <div class="col-sm-7">
+		        <div class="input-group">       
+		            <div class="form-group has-feedback" style="width:400px;">
+		            	<input type="text" class="form-control" th:field="*{searchKeywords}" placeholder="Type keyword(s)" autocomplete="off">
+		            	<span class="glyphicon glyphicon-search form-control-feedback text-muted" aria-hidden="true"></span>
+		        	</div>
+		        	<span class="input-group-btn" style="vertical-align: top;">
+		            	<button class="btn btn-success" type="button" style="width:150px; padding-top:6px; padding-bottom:6px;" onclick="document.forms[0].submit()">Search</button>
+		        	</span>
+		        </div>
+			</div>
+			<div class="col-sm-5">&nbsp;
+			</div>
+		</div>
+		<br /><br />
+		<div class="row">        
+			<div class="col-sm-7 narrative" style="line-height:1.3em;">To help you select the Capabilities you need, we will match your search to some Solutions in our database. By selecting your prefered match, you can explore all the Solutions that meet this Solution’s Capabilities. Or, you can simply select the Capabilites from our 
+			Capability selection tool.      
+			</div>
+			<div class="col-sm-5">&nbsp;
+			</div>
+		</div>
+		<br />
+		
+		<div th:if="*{solutions} != null">
+		
+		<h4 th:if="*{solutions.size()} > 0">Select 1 Solution below to search its Capabilities.</h4>
+		
+			<h2>Capability Search</h2>
+			<div class="row">        
+				<div class="col-sm-7 narrative">Your search for &apos;<strong th:text="*{searchKeywords}"></strong>&apos; returned 
+				<span th:if="*{solutions.size() == 0}">no results.</span>
+				<span th:if="*{solutions.size() > 0}">the following.</span>
+				</div>
+				<div class="col-sm-5">&nbsp;
+				</div>
+			</div>
+		
+			<br />
+		
+			<div th:each="solution : *{solutions}" class="row"> 
+				<div class="panel panel-default solution-list-entry">
+					<div>
+						<input type="radio"
+		                	th:field="*{selectedSolution}"
+        					th:value="${solution.id}" />					
+					</div>
+					<div>
+						<h3 th:text="${solution.name}"></h3>       
+						<h4 th:text="${solution.description}"></h4>  
+						<h5>Capabilities:</h5>
+						<h5 th:each="capability : ${searchSolutionByKeywordModel.solutionCapabilities.get(solution)}" th:text="${capability.name}">
+						</h5>
+					</div>
+				</div>    
+			</div>		
+		</div>
+		
+		</form>
+		
+    </div>
+</section>    
+
+<script>
+</script>
+</body>
+</html>

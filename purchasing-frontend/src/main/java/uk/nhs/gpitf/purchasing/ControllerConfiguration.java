@@ -51,6 +51,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
         .excludePathPatterns("/css/**/*")
         .excludePathPatterns("/js/**/*")
         .excludePathPatterns("/img/**/*")
+        .excludePathPatterns("/fonts/**/*")
         .excludePathPatterns("/loginOrgSelection")
         .excludePathPatterns("/purchasingLogout")
         ;

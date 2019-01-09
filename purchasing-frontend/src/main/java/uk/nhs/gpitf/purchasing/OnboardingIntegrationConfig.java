@@ -18,6 +18,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.client.ApiClient;
 import io.swagger.client.api.CapabilitiesApi;
 import io.swagger.client.api.CapabilitiesImplementedApi;
+import io.swagger.client.api.OrganisationsApi;
 import io.swagger.client.api.SearchApi;
 import io.swagger.client.api.SolutionsApi;
 import io.swagger.client.api.StandardsApi;
@@ -72,6 +73,11 @@ public class OnboardingIntegrationConfig {
     @Bean
     public SearchApi searchApi() {
     	return new SearchApi(apiClient());
+    }
+
+    @Bean
+    public OrganisationsApi organisationsApi() {
+    	return new OrganisationsApi(apiClient());
     }
     
 }

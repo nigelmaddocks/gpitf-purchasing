@@ -19,8 +19,20 @@ h1 {
 	font-weight: bold; font-size: 2em; color: rgb(66, 85, 99); !important;
 }
 
+h2 {
+	font-weight: bold; font-size: 1.5em; color: rgb(66, 85, 99); !important;
+}
+
 h3 {
 	font-weight: bold; font-size: 1.17em; color: rgb(66, 85, 99); !important;
+}
+
+h4 {
+	font-weight: bold; font-size: 1.00em; color: rgb(66, 85, 99); !important;
+}
+
+h5 {
+	font-weight: bold; font-size: 0.85em; color: rgb(66, 85, 99); !important;
 }
 
 #content {
