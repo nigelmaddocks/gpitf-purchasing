@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+<meta charset="UTF-8">
+<title>List Procurements</title>
+
+</head>
+<body>
+<section>
+<div class="container">
+	<main id="content">
+        <div th:if="${session.SecurityInfo.orgContactId} == ${listProcurementsModel.orgContactId}" class="row"><h2>My Procurements</h1></div>
+        <div th:if="${session.SecurityInfo.orgContactId} != ${listProcurementsModel.orgContactId}" class="row"><h2>Procurements by [[${listProcurementsModel.orgContact.contact.forename}]] [[${listProcurementsModel.orgContact.contact.surname}]]</h1></div>
+
+        <div th:if="${session.SecurityInfo.orgContactId} == ${listProcurementsModel.orgContactId}" class="row"><h3>Welcome [[${listProcurementsModel.orgContact.contact.forename}]]. Here you can see all your IT procurements - both those in progress and complete.</h2></div>
+        <div th:if="${session.SecurityInfo.orgContactId} != ${listProcurementsModel.orgContactId}" class="row"><h3>Welcome . Here you can see all IT procurements made by [[${listProcurementsModel.orgContact.contact.forename}]] [[${listProcurementsModel.orgContact.contact.surname}]] - both those in progress and complete.</h2></div>
+
+		<br />
+       	<a href="/buyingprocess" th:href="@{'/buyingprocess'}"><button class="btn" type="button" style="width:150px; padding:6px;">Start New</button></a>
+
+        <div class="row"><h3>Open procurements</h2></div>
+		<table class="table table-striped">
+			<thead>
+		    	<tr>
+		      		<th scope="col">Name</th>
+		      		<th scope="col">Status</th>
+		      		<th scope="col">Stage last saved</th>
+		      		<th scope="col">Date last saved</th>
+		    	</tr>
+		  	</thead>
+			<tbody>
+				<tr th:each="proc : ${listProcurementsModel.openProcurements}">
+					<th scope="row"><a th:text="${proc.name}"></a></th>
+			    	<td th:text="${proc.status.name}">Draft</td>
+			    	<td>Not yet implemented</td>
+			    	<td th:text="${#temporals.format(proc.lastUpdated, 'dd MMM yyyy')}">32 Jan 2019</td>
+			  	</tr>
+			</tbody>
+		</table>
+
+        <div class="row"><h3>Completed procurements</h2></div>
+		<table class="table table-striped">
+			<thead>
+		    	<tr>
+		      		<th scope="col">Name</th>
+		      		<th scope="col">Summary</th>
+		      		<th scope="col">Contract</th>
+		      		<th scope="col">Date signed</th>
+		    	</tr>
+		  	</thead>
+			<tbody>
+				<tr th:each="proc : ${listProcurementsModel.completedProcurements}">
+					<th scope="row"><a th:text="${proc.name}"></a></th>
+			    	<td><a onclick="take me to a page that displays the procurement summary">View summary</a></td>
+			    	<td><a onclick="take me to a page that displays the contract">View contract</a></td>
+			    	<td th:text="${#temporals.format(proc.completedDate, 'dd MMM yyyy')}">32 Jan 2019</td>
+			  	</tr>
+			</tbody>
+		</table>
+
+	</main>
+</div>
+</section>
+</body>
+</html>

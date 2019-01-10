@@ -55,3 +55,8 @@
 	color: #005eb8;
 }
 
+.table thead th { 
+  background-color: #005ab8;
+  color: white;
+  font-weight: 300;
+}

@@ -17,6 +17,7 @@ public class SecurityInfo implements Serializable {
 	String email;
 	String forename;
 	String surname;
+	long orgContactId;
 	long organisationId;
 	String organisationName;
 	long organisationTypeId;

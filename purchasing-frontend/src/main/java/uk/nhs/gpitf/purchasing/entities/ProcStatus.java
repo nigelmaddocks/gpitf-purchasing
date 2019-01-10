@@ -14,14 +14,17 @@ import javax.validation.constraints.Size;
 import lombok.Data;
 
 @Entity
-@Table(name="role", schema="purchasing")
+@Table(name="proc_status", schema="purchasing")
 @Data
-public class Role {
+public class ProcStatus {
 	
-	public static final long PURCHASER = 1;
-	public static final long APPROVER = 2;
-	public static final long LOCAL_ADMIN = 3;
-	public static final long ADMINISTRATOR = 4;
+	public static final long DRAFT 					= 1;
+	public static final long SHORTLIST 				= 2;
+	public static final long INTERNAL_COMPETITION 	= 3;
+	public static final long EXTERNAL_TENDER 		= 4;
+	public static final long CONTRACT_OFFERED 		= 5;
+	public static final long COMPLETED 				= 6;
+	public static final long DELETED 				= 99;
 
 	
     @Id

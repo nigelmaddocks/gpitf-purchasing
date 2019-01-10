@@ -165,6 +165,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
     }    
     
     private void setupSecinfoFromOrgContact(SecurityInfo secinfo, OrgContact orgContact) {
+    	secinfo.setOrgContactId(orgContact.getId());
     	secinfo.setOrganisationId(orgContact.getOrganisation().getId());
     	secinfo.setOrganisationName(orgContact.getOrganisation().getNameProperCase());
     	secinfo.setOrganisationTypeId(orgContact.getOrganisation().getOrgType().getId());
