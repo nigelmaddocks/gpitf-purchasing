@@ -37,6 +37,29 @@ public class SolutionByKeywordController {
 	@Autowired
 	ProcurementService procurementService;
 	
+	/**
+	 * GET: A keyword search doesn't persist to a procurement
+	 */
+	@GetMapping("/buyingprocess/solutionByKeyword/{searchKeyword}")
+	public String solutionByCapability(@PathVariable String searchKeyword, Model model, HttpServletRequest request) {
+		Breadcrumbs.register("By keyword", request);
+		
+		SearchSolutionByKeywordModel searchModel = new SearchSolutionByKeywordModel();
+		if (searchKeyword != null && searchKeyword.trim().length() > 0) {
+			searchModel.setSearchKeywords(searchKeyword);
+			searchModel.setSolutions(onboardingService.findSolutionsHavingKeywords(searchModel.getSearchKeywords()));
+		}
+		
+		setupModel(null, searchModel);	
+		
+		model.addAttribute("searchSolutionByKeywordModel", searchModel);
+
+        return "buying-process/searchSolutionByKeyword";
+    }	
+	
+	/**
+	 * GET: A keyword search that persists to a procurement
+	 */
 	@GetMapping("/buyingprocess/{procurementId}/solutionByKeyword")
 	public String solutionByCapability(@PathVariable Long procurementId, Model model, HttpServletRequest request) {
 		Breadcrumbs.register("By keyword", request);
@@ -62,20 +85,24 @@ public class SolutionByKeywordController {
         return "buying-process/searchSolutionByKeyword";
     }	
 	
-	@PostMapping("/buyingprocess/{procurementId}/solutionByKeyword")
-	public String solutionByCapabilityPost(@PathVariable Long procurementId, @Valid SearchSolutionByKeywordModel searchModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
-		searchModel.setProcurementId(procurementId);
+	@PostMapping(value = {"/buyingprocess/solutionByKeyword", "/buyingprocess/{procurementId}/solutionByKeyword"})
+	public String solutionByCapabilityPost(@PathVariable Optional<Long> optProcurementId, @Valid SearchSolutionByKeywordModel searchModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
+		if (optProcurementId.isPresent()) {
+			searchModel.setProcurementId(optProcurementId.get());
+		}
 		searchModel.setSolutions(onboardingService.findSolutionsHavingKeywords(searchModel.getSearchKeywords()));
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
-		try {
-			Procurement procurement =
-					procurementService.saveSearchKeyword(procurementId, secInfo.getOrgContactId(), searchModel.getSearchKeywords());
-		
-			searchModel.setProcurementId(procurement.getId());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (optProcurementId.isPresent()) {
+			try {
+				Procurement procurement =
+						procurementService.saveSearchKeyword(optProcurementId.get(), secInfo.getOrgContactId(), searchModel.getSearchKeywords());
+			
+				searchModel.setProcurementId(procurement.getId());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		setupModel(bindingResult, searchModel);	
