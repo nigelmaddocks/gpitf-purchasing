@@ -69,7 +69,10 @@ public class SolutionByKeywordController {
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 		try {
-			procurementService.saveSearchKeyword(procurementId, secInfo.getOrgContactId(), searchModel.getSearchKeywords());
+			Procurement procurement =
+					procurementService.saveSearchKeyword(procurementId, secInfo.getOrgContactId(), searchModel.getSearchKeywords());
+		
+			searchModel.setProcurementId(procurement.getId());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
