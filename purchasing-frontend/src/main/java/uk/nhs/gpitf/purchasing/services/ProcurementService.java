@@ -7,7 +7,7 @@ import uk.nhs.gpitf.purchasing.entities.*;
 import uk.nhs.gpitf.purchasing.repositories.*;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,7 @@ public class ProcurementService {
     	}
     	
     	procurement.setSearchKeyword(searchKeyword);
-    	procurement.setLastUpdated(LocalDate.now());
+    	procurement.setLastUpdated(LocalDateTime.now());
     	procurement = thisRepository.save(procurement);
     	
     	return procurement;
@@ -75,7 +75,7 @@ public class ProcurementService {
     
     private Procurement createNewProcurement(long orgContactId) throws Exception {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMMyyyy");
-    	LocalDate now = LocalDate.now();
+    	LocalDateTime now = LocalDateTime.now();
     	Procurement procurement = new Procurement();
 		procurement.setName("Procurement-for-" + orgContactId + "-" + now.format(formatter));
     	procurement.setStartedDate(now);
