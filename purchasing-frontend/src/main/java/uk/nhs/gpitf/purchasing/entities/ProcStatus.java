@@ -19,11 +19,12 @@ import lombok.Data;
 public class ProcStatus {
 	
 	public static final long DRAFT 					= 1;
-	public static final long SHORTLIST 				= 2;
-	public static final long INTERNAL_COMPETITION 	= 3;
-	public static final long EXTERNAL_TENDER 		= 4;
-	public static final long CONTRACT_OFFERED 		= 5;
-	public static final long COMPLETED 				= 6;
+	public static final long LONGLIST 				= 2;
+	public static final long SHORTLIST 				= 3;
+	public static final long INTERNAL_COMPETITION 	= 4;
+	public static final long EXTERNAL_TENDER 		= 5;
+	public static final long CONTRACT_OFFERED 		= 6;
+	public static final long COMPLETED 				= 80;
 	public static final long DELETED 				= 99;
 
 	
