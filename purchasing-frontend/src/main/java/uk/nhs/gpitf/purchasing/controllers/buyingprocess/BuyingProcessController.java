@@ -51,6 +51,11 @@ public class BuyingProcessController {
 		return PATH + PAGE_SEARCH_SOLUTIONS_MENU;
 	}
 
+	@GetMapping("/buyingprocess/{procurementId}/gotoProcurement")
+	public String gotoProcurement(@PathVariable Long procurementId, HttpServletRequest request) {
+		return "redirect:/buyingprocess/" + procurementId + "/solutionByKeyword";
+	}
+
 	@GetMapping(value = {"/buyingprocess/listProcurements", "/buyingprocess/listProcurements/{optionalOrgContactId}"})
 	public String listProcurements(@PathVariable Optional<Long> optionalOrgContactId, HttpServletRequest request, Model model, RedirectAttributes attr) {
 		Breadcrumbs.register("Procurements", request);

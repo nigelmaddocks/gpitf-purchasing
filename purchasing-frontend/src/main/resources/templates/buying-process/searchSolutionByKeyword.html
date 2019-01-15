@@ -9,7 +9,7 @@
     <div class="container" style="background-color: #f0f4f5;">
         <div class="row"><h2>Use the keyword search below. Then, select the result with the Capabilities that best meet your needs.</h2></div>
         
-        <form class="form-inline" th:object="${searchSolutionByKeywordModel}" th:action="@{/buyingprocess/solutionByKeyword}" method="post">
+        <form class="form-inline" th:object="${searchSolutionByKeywordModel}" th:action="@{'/buyingprocess/' + ${searchSolutionByKeywordModel.procurementId} + '/solutionByKeyword'}" method="post">
 		
 		<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
 		    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.message}"></p>    

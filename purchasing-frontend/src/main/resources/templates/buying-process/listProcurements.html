@@ -30,7 +30,7 @@
 		  	</thead>
 			<tbody>
 				<tr th:each="proc : ${listProcurementsModel.openProcurements}">
-					<th scope="row"><a th:text="${proc.name}"></a></th>
+					<th scope="row"><a th:text="${proc.name}" th:href="@{'/buyingprocess/' + ${proc.id} + '/gotoProcurement'}"></a></th>
 			    	<td th:text="${proc.status.name}">Draft</td>
 			    	<td>Not yet implemented</td>
 			    	<td th:text="${#temporals.format(proc.lastUpdated, 'dd MMM yyyy')}">32 Jan 2019</td>

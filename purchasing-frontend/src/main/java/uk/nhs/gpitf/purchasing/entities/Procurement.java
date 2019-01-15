@@ -48,4 +48,7 @@ public class Procurement {
 
 	private LocalDate completedDate;
     
+	private String searchKeyword;
+	
+	private String csvCapabilities;
 }

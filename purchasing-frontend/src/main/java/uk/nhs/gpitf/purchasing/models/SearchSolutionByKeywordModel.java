@@ -12,6 +12,8 @@ import lombok.Data;
 @Data
 public class SearchSolutionByKeywordModel {
 	
+	private long procurementId;
+	
 	@Size(min = 3, message="search term must be at least 3 characters")
 	private String searchKeywords;
 	
