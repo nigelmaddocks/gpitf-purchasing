@@ -2,6 +2,7 @@ package uk.nhs.gpitf.purchasing.controllers.search;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import io.swagger.client.model.Solutions;
+import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByKeywordModel;
+import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
@@ -29,6 +32,9 @@ public class SolutionByKeywordController {
 	OnboardingService onboardingService;
 	
 	@Autowired
+	ProcurementRepository procurementRepository;
+	
+	@Autowired
 	ProcurementService procurementService;
 	
 	@GetMapping("/buyingprocess/{procurementId}/solutionByKeyword")
@@ -37,6 +43,18 @@ public class SolutionByKeywordController {
 		
 		SearchSolutionByKeywordModel searchModel = new SearchSolutionByKeywordModel();
 		searchModel.setProcurementId(procurementId);
+		
+		if (procurementId != 0) {
+			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
+			if (optProcurement.isPresent()) {
+				Procurement procurement = optProcurement.get();
+				if (procurement.getSearchKeyword() != null && procurement.getSearchKeyword().trim().length() > 0) {
+					searchModel.setSearchKeywords(procurement.getSearchKeyword());
+					searchModel.setSolutions(onboardingService.findSolutionsHavingKeywords(searchModel.getSearchKeywords()));
+				}
+			}
+		}
+		
 		setupModel(null, searchModel);	
 		
 		model.addAttribute("searchSolutionByKeywordModel", searchModel);
