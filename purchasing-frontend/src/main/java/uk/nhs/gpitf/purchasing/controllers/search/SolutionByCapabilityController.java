@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing.controllers.search;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import io.swagger.client.model.Solutions;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByCapabilityModel;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
@@ -92,5 +94,45 @@ public class SolutionByCapabilityController {
 		
 		return model;
 	}
+
+
+    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES = "/buyingprocess/updateProcurementWithCapabilities/";
+    /**
+     * To be used as an Ajax method from the solutionByCapability page to update the procurement record with the current capabilities
+     *  */
+    @GetMapping(value = ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES + "{procurementId}/{csvCapabilities}")
+    public void updateProcurementWithCapabilities (
+    		@PathVariable("procurementId") Long procurementId,
+    		@PathVariable("csvCapabilities") String csvCapabilities,
+    		HttpServletRequest request
+    		) {
+    	
+    	SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+    	
+		if (procurementId != 0) {
+			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
+			if (optProcurement.isPresent()) {
+				Procurement procurement = optProcurement.get();
+				
+				// Check that the user is authorised to this procurement
+				if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
+				 && !secInfo.isAdministrator()) {
+		        	String message = "view procurement " + procurementId;
+		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+				}
+				try {
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.of(csvCapabilities));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+    	
+    	
+    	
+    	return;
+    }
+	
 	
 }

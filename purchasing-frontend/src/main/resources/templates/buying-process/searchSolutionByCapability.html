@@ -36,14 +36,24 @@
 		//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
 		var selectedCapabilities = "";
 		$("input[name=" + event.target.name + "]:checked").each( function () {
-			selectedCapabilities += ", " + this.id.split(event.target.name+'_')[1];
+			selectedCapabilities += "," + this.id.split(event.target.name+'_')[1].trim();
 		});
 		//alert("selectedCapabilities: " + selectedCapabilities);
 		$("#foundSolutions").empty();
 		if (selectedCapabilities.length > 0) {
+			selectedCapabilities = selectedCapabilities.substring(1);
+			updateProcurementWithCapabilities([[${myModel.procurementId}]], selectedCapabilities)
 			searchCapabilitiesForSolutions(selectedCapabilities);
 		}
 	});
+
+    function updateProcurementWithCapabilities(procurementId, csvCapabilities) {
+		var url = "[[${T(uk.nhs.gpitf.purchasing.controllers.search.SolutionByCapabilityController).ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES}]]" + procurementId + '/' + csvCapabilities;
+		$.getJSON( url)
+		.done(function( data ) {
+		});
+   	}
+    
     function searchCapabilitiesForSolutions(csvCapabilities) {
 		//console.log(csvCapabilities);
 		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_WITH_EVERY_CAPABILITY_IN_LIST}]]" + csvCapabilities;
