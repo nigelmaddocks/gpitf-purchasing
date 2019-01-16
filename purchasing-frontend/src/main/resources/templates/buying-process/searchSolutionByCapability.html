@@ -56,15 +56,22 @@
     
     function searchCapabilitiesForSolutions(csvCapabilities) {
 		//console.log(csvCapabilities);
-		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_WITH_EVERY_CAPABILITY_IN_LIST}]]" + csvCapabilities;
+		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]]" + csvCapabilities;
 		$.getJSON( url)
 		.done(function( data ) {
 			//console.log(data);
+			var newRow = $("<div class=\"col-md-12\">");
+			$("<div class=\"col-md-1\">").text("Rank (+1)").appendTo(newRow);
+			$("<div class=\"col-md-4\">").text("Solution").appendTo(newRow);
+			$("<div class=\"col-md-7\">").text("Description").appendTo(newRow);
+			newRow.appendTo("#foundSolutions");
+
 			$.each( data, function( i, item ) {
 				//console.log(i);
-				var newRow = $("<div class=\"col-md-12\">");
-				$("<div class=\"col-md-4\">").text(item.name).appendTo(newRow);
-				$("<div class=\"col-md-8\">").text(item.description).appendTo(newRow);
+				newRow = $("<div class=\"col-md-12\">");
+				$("<div class=\"col-md-1\">").text(item.rank+1).appendTo(newRow);
+				$("<div class=\"col-md-4\">").text(item.solution.name).appendTo(newRow);
+				$("<div class=\"col-md-7\">").text(item.solution.description).appendTo(newRow);
 				newRow.appendTo("#foundSolutions");
 			});
 		});

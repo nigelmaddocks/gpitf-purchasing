@@ -92,6 +92,15 @@ public class OnboardingController {
     	return list;
     }
 
+    public static final String ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST = "/onboarding/solutionsByRankWithCapabilitiesInList/";
+    @GetMapping(value = ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST + "{csvCapabilityList}")
+    public List<OnboardingService.RankedSolution> getSolutionsByRankHavingCapabilitiesInList(
+    		@PathVariable("csvCapabilityList") String csvCapabilityList
+    		) {
+    	List<OnboardingService.RankedSolution> list = onboardingService.findRankedSolutionsHavingCapabilitiesInList(csvCapabilityList);
+    	return list;
+    }
+
     @GetMapping(value = "/onboarding/standardsByCapability/{capability}/{isOptional}")
     public List<Standards> getStandardsByCapability (
     		@PathVariable("capability") String capability,
