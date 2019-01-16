@@ -16,8 +16,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.nhs.gpitf.purchasing.controllers.admin.OrganisationAdminController;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
+import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
+import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.services.SecurityService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
@@ -36,6 +38,9 @@ public class BuyingProcessController {
 
     @Autowired
     private ProcurementService procurementService;
+
+    @Autowired
+    private ProcurementRepository procurementRepository;
 	
     private static final Logger logger = LoggerFactory.getLogger(BuyingProcessController.class);
 	
@@ -52,7 +57,30 @@ public class BuyingProcessController {
 	}
 
 	@GetMapping("/buyingprocess/{procurementId}/gotoProcurement")
-	public String gotoProcurement(@PathVariable Long procurementId, HttpServletRequest request) {
+	public String gotoProcurement(@PathVariable Long procurementId, HttpServletRequest request, RedirectAttributes attr) {
+		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+		
+		if (procurementId != 0) {
+			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
+			if (optProcurement.isPresent()) {
+				Procurement procurement = optProcurement.get();
+				
+				// Check that the user is authorised to this procurement
+				if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
+				 && !secInfo.isAdministrator()) {
+		        	String message = "view procurement " + procurementId;
+		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+		    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
+		        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+				}
+				
+				if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
+					return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + procurement.getCsvCapabilities().trim();
+				}
+			}
+		}
+		
+		
 		return "redirect:/buyingprocess/" + procurementId + "/solutionByKeyword";
 	}
 

@@ -70,6 +70,10 @@ public class SolutionByCapabilityController {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					
+					if (csvCapabilities == null || csvCapabilities.trim().length() == 0) {
+						csvCapabilities = procurement.getCsvCapabilities();
+					}
 				}
 			}
 		}		
