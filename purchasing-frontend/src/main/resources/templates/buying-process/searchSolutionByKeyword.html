@@ -84,7 +84,7 @@
 <script th:inline="javascript">
 	function capabilitySearch(value) {
 		/*<![CDATA[*/
-        var url = /*[[@{'/solutionByCapability/'}]]*/;
+        var url = /*[[@{'/buyingprocess/' + ${searchSolutionByKeywordModel.procurementId != null ? searchSolutionByKeywordModel.procurementId + '/' : ''} + 'solutionByCapability/'}]]*/;
         /*]]>*/
         
 		url += value

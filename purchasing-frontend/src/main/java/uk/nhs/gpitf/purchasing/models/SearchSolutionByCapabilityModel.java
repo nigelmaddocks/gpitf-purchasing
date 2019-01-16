@@ -10,6 +10,9 @@ import lombok.AccessLevel;
 
 @Data
 public class SearchSolutionByCapabilityModel {
+
+	private Long procurementId;
+
 	@Setter(AccessLevel.PUBLIC)
 	private String csvCapabilities;
 	

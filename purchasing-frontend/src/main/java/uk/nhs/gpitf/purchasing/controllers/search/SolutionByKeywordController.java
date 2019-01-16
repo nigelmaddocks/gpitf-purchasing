@@ -125,7 +125,7 @@ public class SolutionByKeywordController {
 					}
 
 					procurement =
-						procurementService.saveSearchKeyword(optProcurementId.get(), secInfo.getOrgContactId(), searchModel.getSearchKeywords());
+						procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.empty());
 			
 					searchModel.setProcurementId(procurement.getId());
 				}
