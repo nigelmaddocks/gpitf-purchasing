@@ -15,14 +15,15 @@ public class SolutionByCapabilityController {
 	@Autowired
 	OnboardingService onboardingService;
 	
-	@GetMapping("/solutionByCapability/{search}")
-	public String solutionByCapability(@PathVariable String search, Model model) {
-		model = setupSolutionByCapability(search, model);	
+	@GetMapping("/solutionByCapability/{csvCapabiities}")
+	public String solutionByCapability(@PathVariable String csvCapabiities, Model model) {
+		model = setupSolutionByCapability(csvCapabiities, model);	
         return "buying-process/searchSolutionByCapability";
     }	
 
-	private Model setupSolutionByCapability(String search, Model model) {
+	private Model setupSolutionByCapability(String csvCapabilities, Model model) {
 		SearchSolutionByCapabilityModel myModel = new SearchSolutionByCapabilityModel();
+		myModel.setCsvCapabilities(csvCapabilities);
 		myModel.setAllCapabilities(onboardingService.orderByCoreThenName(onboardingService.findCapabilities()));
 		
 		model.addAttribute("myModel", myModel);

@@ -18,7 +18,9 @@
                 </div>
                 <div class="col-md-4" style="border:solid 0px">
 		            <div th:each="cap : ${myModel.allCapabilities}" class="form-groupX">		                
-	               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}"/>
+	               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
+	               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
+	               		/>
 						<label class="col-md-11" th:text="${cap.name}" th:for="${'filterCapabilities_' + cap.id}" >Capability 1</label>		                
 		            </div>
                 </div>
