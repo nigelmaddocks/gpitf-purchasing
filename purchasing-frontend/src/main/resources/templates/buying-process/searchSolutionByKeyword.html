@@ -62,7 +62,7 @@
 					<div>
 						<input type="radio"
 		                	th:field="*{selectedSolution}"
-        					th:value="${solution.id}" />					
+        					th:value="${searchSolutionByKeywordModel.getSolutionCapabilitiesCsv().get(solution)}" />					
 					</div>
 					<div>
 						<h3 th:text="${solution.name}"></h3>       

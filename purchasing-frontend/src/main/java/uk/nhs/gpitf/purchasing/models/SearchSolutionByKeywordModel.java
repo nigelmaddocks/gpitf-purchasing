@@ -22,4 +22,26 @@ public class SearchSolutionByKeywordModel {
 	
 	private String selectedSolution;
 
+	/** 
+	 * Returns the capability ids as csv for each solution
+	 */
+	public Hashtable<Solutions, String> getSolutionCapabilitiesCsv() {
+		Hashtable<Solutions, String> hshRtn = new Hashtable<>();
+		if (solutionCapabilities == null) {
+			return hshRtn;
+		}
+		
+		for (Solutions sol : solutionCapabilities.keySet()) {
+			var capabilities = solutionCapabilities.get(sol);
+			String csv = "";
+			for (Capabilities cap : capabilities) {
+				csv += "," + cap.getId();
+			}
+			if (csv.length() > 0) {
+				csv = csv.substring(1);
+			}
+			hshRtn.put(sol, csv);
+		}
+		return hshRtn;
+	}
 }
