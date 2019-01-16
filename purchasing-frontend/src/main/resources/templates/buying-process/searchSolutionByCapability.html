@@ -59,6 +59,13 @@
 			});
 		});
    	}
+    
+    $( document ).ready(function() {
+       var csvCapabilities = '[[${myModel.csvCapabilities}]]';
+
+    	searchCapabilitiesForSolutions(csvCapabilities);
+    });
+    
 </script>
 </body>
 </html>
