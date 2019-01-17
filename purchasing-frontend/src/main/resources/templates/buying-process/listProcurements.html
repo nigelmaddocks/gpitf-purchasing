@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
 <head>
 <meta charset="UTF-8">
 <title>List Procurements</title>
@@ -9,16 +9,24 @@
 <section>
 <div class="container">
 	<main id="content">
-        <div th:if="${session.SecurityInfo.orgContactId} == ${listProcurementsModel.orgContactId}" class="row"><h2>My Procurements</h1></div>
-        <div th:if="${session.SecurityInfo.orgContactId} != ${listProcurementsModel.orgContactId}" class="row"><h2>Procurements by [[${listProcurementsModel.orgContact.contact.forename}]] [[${listProcurementsModel.orgContact.contact.surname}]]</h1></div>
-
-        <div th:if="${session.SecurityInfo.orgContactId} == ${listProcurementsModel.orgContactId}" class="row"><h3>Welcome [[${listProcurementsModel.orgContact.contact.forename}]]. Here you can see all your IT procurements - both those in progress and complete.</h2></div>
-        <div th:if="${session.SecurityInfo.orgContactId} != ${listProcurementsModel.orgContactId}" class="row"><h3>Welcome . Here you can see all IT procurements made by [[${listProcurementsModel.orgContact.contact.forename}]] [[${listProcurementsModel.orgContact.contact.surname}]] - both those in progress and complete.</h2></div>
+        <div th:if="${session.SecurityInfo.orgContactId} == ${listProcurementsModel.orgContactId}" class="row">
+        	<h2>My Procurements</h2>
+        </div>
+        <div th:if="${session.SecurityInfo.orgContactId} != ${listProcurementsModel.orgContactId}" class="row">
+        	<h2>Procurements by [[${listProcurementsModel.orgContact.contact.forename}]] [[${listProcurementsModel.orgContact.contact.surname}]]</h2>
+        </div>
+        <div th:if="${session.SecurityInfo.orgContactId} == ${listProcurementsModel.orgContactId}" class="row">
+        	<h3>Welcome [[${listProcurementsModel.orgContact.contact.forename}]]. Here you can see all your IT procurements - both those in progress and complete.</h3>
+        </div>
+        <div th:if="${session.SecurityInfo.orgContactId} != ${listProcurementsModel.orgContactId}" class="row">
+        	<h3>Welcome . Here you can see all IT procurements made by [[${listProcurementsModel.orgContact.contact.forename}]] [[${listProcurementsModel.orgContact.contact.surname}]] - both those in progress and complete.</h3>
+        </div>
 
 		<br />
        	<a href="/buyingprocess" th:href="@{'/buyingprocess'}"><button class="btn" type="button" style="width:150px; padding:6px;">Start New</button></a>
 
-        <div class="row"><h3>Open procurements</h2></div>
+        <div class="row">
+        <h3>Open procurements</h3></div>
 		<table class="table table-striped">
 			<thead>
 		    	<tr>
@@ -30,7 +38,10 @@
 		  	</thead>
 			<tbody>
 				<tr th:each="proc : ${listProcurementsModel.openProcurements}">
-					<th scope="row"><a th:text="${proc.name}" th:href="@{'/buyingprocess/' + ${proc.id} + '/gotoProcurement'}"></a></th>
+					<th scope="row">
+						<a th:text="${proc.name}" th:href="@{'/buyingprocess/' + ${proc.id} + '/gotoProcurement'}"></a>
+						<a class="minor-link" th:href="@{/buyingprocess/procurement/{procurementId}/edit-name(procurementId=${proc.id})}">Rename</a>
+					</th>
 			    	<td th:text="${proc.status.name}">Draft</td>
 			    	<td>Not yet implemented</td>
 			    	<td th:text="${#temporals.format(proc.lastUpdated, 'dd MMM yyyy')}">32 Jan 2019</td>
@@ -38,7 +49,8 @@
 			</tbody>
 		</table>
 
-        <div class="row"><h3>Completed procurements</h2></div>
+        <div class="row">
+        <h3>Completed procurements</h3></div>
 		<table class="table table-striped">
 			<thead>
 		    	<tr>

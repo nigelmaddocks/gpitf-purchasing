@@ -4,7 +4,7 @@ html {
 
 body {
 	font-family: "Frutiger W01", Arial !important;
-	font-size: 16px !important;
+	font-size: 16px;
 	line-height: 1.15 !important;
 	
     opacity:0.0;
@@ -17,23 +17,23 @@ body > header {
 }
 
 h1 {
-	font-weight: bold; font-size: 2em; color: #425563; !important;
+	font-weight: bold; font-size: 2em; color: #425563;
 }
 
 h2 {
-	font-weight: bold; font-size: 1.5em; color: #425563; !important;
+	font-weight: bold; font-size: 1.5em; color: #425563;
 }
 
 h3 {
-	font-weight: bold; font-size: 1.17em; color: #425563; !important;
+	font-weight: bold; font-size: 1.17em; color: #425563;
 }
 
 h4 {
-	font-weight: bold; font-size: 1.00em; color: #425563; !important;
+	font-weight: bold; font-size: 1.00em; color: #425563;
 }
 
 h5 {
-	font-weight: bold; font-size: 0.85em; color: #425563; !important;
+	font-weight: bold; font-size: 0.85em; color: #425563;
 }
 
 #content {
@@ -49,7 +49,7 @@ a.button:link, a.button:hover, a.button:visited {
 }
 
 #onboarding.dashboard.page .onboarding-stages li:last-child::after {
-	top: 1.8em; important!
+	top: 1.8em;
 }
 
 input[type='text'], input[type='email'], input[type='tel'], textarea {
@@ -74,4 +74,23 @@ input[type='text'], input[type='email'], input[type='tel'], textarea {
 
 .breadcrumb > li + li:before {  /* remove this to revert back to slash */
     content: "> ";
+}
+
+/**
+/* Other Styles
+*/
+
+a.minor-link, a.minor-link:link, a.minor-link:hover, a.minor-link:visited {
+	color: #005eb8;
+	font-size: 0.8em;
+	font-weight: normal;
+	margin-left: 0.5em;
+}
+a.minor-link::before {
+	color: #425563;
+	content: "["
+}
+a.minor-link::after {
+	color: #425563;
+	content: "]"
 }
