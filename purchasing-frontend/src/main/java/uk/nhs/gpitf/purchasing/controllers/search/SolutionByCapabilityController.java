@@ -52,13 +52,21 @@ public class SolutionByCapabilityController {
 
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 		Long procurementId = null;
+		Procurement procurement = null;
 		
 		if (optProcurementId.isPresent()) {
 			procurementId = optProcurementId.get();
 			if (procurementId != 0) {
 				Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 				if (optProcurement.isPresent()) {
-					Procurement procurement = optProcurement.get();
+					procurement = optProcurement.get();
+					
+					// If we've skipped the keyword search, then put it in the breadcrumb
+					if (procurement.getSearchKeyword() != null && procurement.getSearchKeyword().trim().length() > 0) {
+						Breadcrumbs.removeLast(request);
+						Breadcrumbs.register("By keyword", "/buyingprocess/" + procurement.getId() + "/solutionByKeyword", request);
+						Breadcrumbs.register("By capability", request);						
+					}
 					
 					// Check that the user is authorised to this procurement
 					if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
@@ -82,13 +90,17 @@ public class SolutionByCapabilityController {
 			}
 		}		
 
-		model = setupSolutionByCapability(procurementId, csvCapabilities, model);	
+		model = setupSolutionByCapability(procurement, csvCapabilities, model);	
         return "buying-process/searchSolutionByCapability";
     }	
 
-	private Model setupSolutionByCapability(Long procurementId, String csvCapabilities, Model model) {
+	private Model setupSolutionByCapability(Procurement procurement, String csvCapabilities, Model model) {
 		SearchSolutionByCapabilityModel myModel = new SearchSolutionByCapabilityModel();
-		myModel.setProcurementId(procurementId);
+		myModel.setProcurement(procurement);
+		myModel.setProcurementId(0L);
+		if (procurement != null) {
+			myModel.setProcurementId(procurement.getId());
+		}
 		myModel.setCsvCapabilities(csvCapabilities);
 		myModel.setAllCapabilities(onboardingService.orderByCoreThenName(onboardingService.findCapabilities()));
 		

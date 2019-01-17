@@ -75,6 +75,7 @@ public class SolutionByKeywordController {
 			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 			if (optProcurement.isPresent()) {
 				Procurement procurement = optProcurement.get();
+				searchModel.setProcurement(procurement);
 				
 				// Check that the user is authorised to this procurement
 				if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
@@ -89,6 +90,12 @@ public class SolutionByKeywordController {
 				if (procurement.getSearchKeyword() != null && procurement.getSearchKeyword().trim().length() > 0) {
 					searchModel.setSearchKeywords(procurement.getSearchKeyword());
 					searchModel.setSolutions(onboardingService.findSolutionsHavingKeywords(searchModel.getSearchKeywords()));
+					try {
+						procurement = procurementService.saveCurrentPosition(procurement.getId(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""));
+					} catch (Exception e) {
+			        	String message = "Could not save current position of procurement " + procurementId;
+			    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+					}
 				}
 			}
 		}
@@ -114,7 +121,8 @@ public class SolutionByKeywordController {
 				Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 				if (optProcurement.isPresent()) {
 					Procurement procurement = optProcurement.get();				
-					
+					searchModel.setProcurement(procurement);
+
 					// Check that the user is authorised to this procurement
 					if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
 					 && !secInfo.isAdministrator()) {
@@ -125,7 +133,8 @@ public class SolutionByKeywordController {
 					}
 
 					procurement =
-						procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.empty());
+						procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""));
+						//procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.empty());
 			
 					searchModel.setProcurementId(procurement.getId());
 				}

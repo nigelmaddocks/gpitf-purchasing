@@ -2,30 +2,38 @@
 <html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
 <head>
     <meta charset="UTF-8" />
-    <title>Purchasing - Keyword Search for Solutions</title>
+    <title>Capability Search Results</title>
 </head>
 <body>
 <section>
-    <div class="container">
-        <div class="row"><h2>Purchasing - Keyword Search for Solutions</h2></div>
+    <div class="container-large">
+        <div class="row">
+        	<h2>Capability Search Results
+        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+        	</h2>
+        </div>
         <form class="form-horizontal">
             <div class="form-group">
-                <div class="col-md-1">
+            	<div class="row">
+	                <div class="col-md-1">
+	                </div>
+	                <div class="col-md-10"><div class="mx-auto"><h3>Search Results</h3></div>
+	                </div>
+	                <div class="col-md-1">
+	                </div>
                 </div>
-                <div class="col-md-10"><div class="mx-auto"><h3>Search Results</h3></div>
-                </div>
-                <div class="col-md-1">
-                </div>
-                <div class="col-md-4" style="border:solid 0px">
-		            <div th:each="cap : ${myModel.allCapabilities}" class="form-groupX">		                
-	               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
-	               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
-	               		/>
-						<label class="col-md-11" th:text="${cap.name}" th:for="${'filterCapabilities_' + cap.id}" >Capability 1</label>		                
-		            </div>
-                </div>
-                <div class="col-md-8" style="border:solid 0px" id="foundSolutions">
-                </div>
+            	<div class="row">
+	                <div class="col-md-4" style="border:solid 0px;">
+			            <div th:each="cap : ${myModel.allCapabilities}" class="form-groupX">		                
+		               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
+		               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
+		               		/>
+							<label class="col-md-11" th:text="${cap.name}" th:for="${'filterCapabilities_' + cap.id}" >Capability 1</label>		                
+			            </div>
+	                </div>
+	                <div class="col-md-8" style="border:solid 0px" id="foundSolutions">
+	                </div>
+	        	</div>
             </div>
         </form>
     </div>

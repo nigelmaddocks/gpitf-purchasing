@@ -6,12 +6,14 @@ import java.util.List;
 import io.swagger.client.model.Capabilities;
 import lombok.Data;
 import lombok.Setter;
+import uk.nhs.gpitf.purchasing.entities.Procurement;
 import lombok.AccessLevel;
 
 @Data
 public class SearchSolutionByCapabilityModel {
 
 	private Long procurementId;
+	private Procurement procurement;
 
 	@Setter(AccessLevel.PUBLIC)
 	private String csvCapabilities;

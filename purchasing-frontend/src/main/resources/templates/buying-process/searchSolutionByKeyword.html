@@ -7,7 +7,9 @@
 <body>
 <section>
     <div class="container" style="background-color: #f0f4f5;">
-        <div class="row"><h2>Use the keyword search below. Then, select the result with the Capabilities that best meet your needs.</h2></div>
+        <div class="row"><h2>Use the keyword search below. Then, select the result with the Capabilities that best meet your needs.
+        <span th:if="${searchSolutionByKeywordModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${searchSolutionByKeywordModel.procurement.name}]])</span>
+        </h2></div>
         
         <form class="form-inline" th:object="${searchSolutionByKeywordModel}" th:action="@{'/buyingprocess/' + ${searchSolutionByKeywordModel.procurementId != null ? searchSolutionByKeywordModel.procurementId + '/' : ''} + 'solutionByKeyword'}" method="post">
 		

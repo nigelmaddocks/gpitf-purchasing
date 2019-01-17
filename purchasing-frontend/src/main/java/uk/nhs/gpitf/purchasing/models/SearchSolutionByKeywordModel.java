@@ -8,11 +8,13 @@ import javax.validation.constraints.Size;
 import io.swagger.client.model.Capabilities;
 import io.swagger.client.model.Solutions;
 import lombok.Data;
+import uk.nhs.gpitf.purchasing.entities.Procurement;
 
 @Data
 public class SearchSolutionByKeywordModel {
 	
 	private Long procurementId;
+	private Procurement procurement;
 	
 	@Size(min = 3, message="search term must be at least 3 characters")
 	private String searchKeywords;
