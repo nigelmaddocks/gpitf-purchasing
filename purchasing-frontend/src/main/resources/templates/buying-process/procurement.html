@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+<meta charset="UTF-8">
+<title>My Procurements</title>
+</head>
+<body>
+	<main th:with="hasProcurements=(${not #lists.isEmpty(procurements)})">
+		<h1 th:if="${hasProcurements}" th:text="|Welcome Back, ${session.SecurityInfo.forename}|">Welcome Back</h1>
+	 	<h1 th:if="${not hasProcurements}" th:text="|Hello, ${session.SecurityInfo.forename}|">Hello</h1>
+		<p>Which Procurement do you want to go to?</p>
+		<p th:if="${hasProcurements}">
+			<a class="btn button" href="" th:href="@{/buyingprocess/{procurementId}/gotoProcurement(procurementId=${procurements[0].id})}">Continue with last</a>
+		</p>
+		<p><a class="btn button" href="/buyingprocess/new-procurement" th:href="@{/buyingprocess/new-procurement}">Start new</a></p>
+		<p><a href="/buyingprocess/listProcurements" th:href="@{/buyingprocess/listProcurements}">View all Procurements</a></p>	
+	</main>
+</body>
+</html>
