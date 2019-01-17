@@ -68,24 +68,19 @@
 		$.getJSON( url)
 		.done(function( data ) {
 			//console.log(data);
-			
-			var newRow = $("<div class=\"col-md-12\">");
-			$("<div class=\"col-md-1\">").text("Rank (+1)").appendTo(newRow);
-			$("<div class=\"col-md-4\">").text("Solution").appendTo(newRow);
-			$("<div class=\"col-md-7\">").text("Description").appendTo(newRow);
-			newRow.appendTo("#foundSolutions");
 
+			var htmlTable = $("<table class=\"table table-striped\">");
+			var htmlHead = $("<thead>");
+			htmlHead.appendTo(htmlTable);
+			var htmlHeaderRow = $("<tr><th scope=\"col\">Rank</th><th scope=\"col\">Solution</th><th scope=\"col\">Description</th></tr>");
+			htmlHeaderRow.appendTo(htmlHead);
+			var htmlBody = $("<tbody>");
+			htmlBody.appendTo(htmlTable);
 			$.each( data, function( i, item ) {
-				//console.log(i);
-				newRow = $("<div class=\"col-md-12\">");
-				$("<div class=\"col-md-1\">").text(item.rank+1).appendTo(newRow);
-				$("<div class=\"col-md-4\">").text(item.solution.name).appendTo(newRow);
-				$("<div class=\"col-md-7\">").text(item.solution.description).appendTo(newRow);
-				newRow.appendTo("#foundSolutions");
+				var htmlRow = $("<tr><td scope=\"row\">" + (item.rank+1) + "</td><td>" + item.solution.name + "</td><td>" + item.solution.description + "</td></tr>");
+				htmlRow.appendTo(htmlBody);
 			});
-
-//			var newTable = $("<table class=\"table table-striped\">");
-			
+			htmlTable.appendTo("#foundSolutions");
 		});
    	}
     
