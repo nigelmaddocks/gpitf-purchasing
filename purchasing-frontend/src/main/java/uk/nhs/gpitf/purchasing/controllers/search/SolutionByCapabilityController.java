@@ -46,10 +46,15 @@ public class SolutionByCapabilityController {
         return "buying-process/searchSolutionByCapability";
     }	
 */	
-	@GetMapping(value = {"/buyingprocess/solutionByCapability/{csvCapabilities}", "/buyingprocess/{optProcurementId}/solutionByCapability/{csvCapabilities}"})
-	public String solutionByCapability(@PathVariable Optional<Long> optProcurementId, @PathVariable String csvCapabilities, Model model, RedirectAttributes attr, HttpServletRequest request) {
+	@GetMapping(value = {"/buyingprocess/solutionByCapability/{optCsvCapabilities}", "/buyingprocess/{optProcurementId}/solutionByCapability/{optCsvCapabilities}", "/buyingprocess/solutionByCapability", "/buyingprocess/{optProcurementId}/solutionByCapability"})
+	public String solutionByCapability(@PathVariable Optional<Long> optProcurementId, @PathVariable Optional<String> optCsvCapabilities, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.register("By capability", request);
 
+		String csvCapabilities =  null;
+		if (optCsvCapabilities.isPresent()) {
+			csvCapabilities = optCsvCapabilities.get();
+		}
+		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 		Long procurementId = null;
 		Procurement procurement = null;
@@ -77,7 +82,7 @@ public class SolutionByCapabilityController {
 			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 					}
 					try {
-						procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.of(csvCapabilities));
+						procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities));
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
