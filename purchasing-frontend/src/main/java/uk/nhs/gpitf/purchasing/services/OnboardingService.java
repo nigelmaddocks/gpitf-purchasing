@@ -167,7 +167,7 @@ public class OnboardingService {
 	 * WARNING: Non-api method that works over cached solutions and capabilities
 	 */
 	public List<RankedSolution> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList) {
-		int RANK_LIMIT = 3;
+		int RANK_LIMIT = 99;
 		String[] arrCapabilityIds = csvCapabilityList.split(",");
 		
 		// Clean the array

@@ -12,7 +12,7 @@
 		<p th:if="${hasProcurements}">
 			<a class="btn button" href="" th:href="@{/buyingprocess/{procurementId}/gotoProcurement(procurementId=${procurements[0].id})}">Continue with last</a>
 		</p>
-		<p><a class="btn button" href="/buyingprocess/new-procurement" th:href="@{/buyingprocess/new-procurement}">Start new</a></p>
+		<p><a class="btn button" href="/buyingprocess" th:href="@{/buyingprocess}">Start new</a></p>
 		<p><a href="/buyingprocess/listProcurements" th:href="@{/buyingprocess/listProcurements}">View all Procurements</a></p>	
 	</main>
 </body>
