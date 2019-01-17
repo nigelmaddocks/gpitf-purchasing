@@ -49,3 +49,25 @@ insert into capabilitiesimplemented (id, solutionid, capabilityid, status) value
 insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(118, '908C9350-7392-4CB9-9633-19E00C9469A3', 'CAP-N-019', 3);
 insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(119, '908C9350-7392-4CB9-9633-19E00C9469A3', 'CAP-N-009', 3);
 insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(120, '908C9350-7392-4CB9-9633-19E00C9469A3', 'CAP-N-020', 3); 
+
+-- Microtest
+
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(201, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-C-001', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(202, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-C-002', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(203, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-C-003', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(204, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-C-004', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(205, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-C-005', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(206, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-C-006', 3);
+
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(207, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-008', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(208, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-010', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(209, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-012', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(210, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-014', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(211, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-015', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(212, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-007', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(213, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-016', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(214, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-017', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(215, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-019', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(216, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-009', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(217, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-020', 3);
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(218, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'CAP-N-030', 3);

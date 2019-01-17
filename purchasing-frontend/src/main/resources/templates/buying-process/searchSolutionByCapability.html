@@ -68,6 +68,7 @@
 		$.getJSON( url)
 		.done(function( data ) {
 			//console.log(data);
+			
 			var newRow = $("<div class=\"col-md-12\">");
 			$("<div class=\"col-md-1\">").text("Rank (+1)").appendTo(newRow);
 			$("<div class=\"col-md-4\">").text("Solution").appendTo(newRow);
@@ -82,6 +83,9 @@
 				$("<div class=\"col-md-7\">").text(item.solution.description).appendTo(newRow);
 				newRow.appendTo("#foundSolutions");
 			});
+
+//			var newTable = $("<table class=\"table table-striped\">");
+			
 		});
    	}
     
