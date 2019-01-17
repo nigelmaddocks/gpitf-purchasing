@@ -118,10 +118,10 @@ public class SolutionByKeywordController {
 		if (optProcurementId.isPresent()) {
 			long procurementId = optProcurementId.get();
 			try {
+				Procurement procurement = null;
 				Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 				if (optProcurement.isPresent()) {
-					Procurement procurement = optProcurement.get();				
-					searchModel.setProcurement(procurement);
+					procurement = optProcurement.get();				
 
 					// Check that the user is authorised to this procurement
 					if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
@@ -132,12 +132,15 @@ public class SolutionByKeywordController {
 			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 					}
 
-					procurement =
-						procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""));
+					procurement = procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""));
 						//procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.empty());
 			
-					searchModel.setProcurementId(procurement.getId());
+				} else {
+					procurement = procurementService.saveCurrentPosition(0, secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""));
 				}
+				searchModel.setProcurement(procurement);
+				searchModel.setProcurementId(procurement.getId());
+
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
