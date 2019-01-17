@@ -5,6 +5,7 @@ import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -32,7 +33,7 @@ public class Procurement {
 	@Size(max = 255)
 	private String name;
 
-	private LocalDate startedDate;
+	private LocalDateTime startedDate;
     
     @ManyToOne(optional=false)
     @JoinColumn(name = "org_contact")
@@ -42,10 +43,13 @@ public class Procurement {
     @JoinColumn(name = "status")
 	private ProcStatus status;
 
-	private LocalDate statusLastChangedDate;
+	private LocalDateTime statusLastChangedDate;
 
-	private LocalDate lastUpdated;
+	private LocalDateTime lastUpdated;
 
-	private LocalDate completedDate;
+	private LocalDateTime completedDate;
     
+	private String searchKeyword;
+	
+	private String csvCapabilities;
 }

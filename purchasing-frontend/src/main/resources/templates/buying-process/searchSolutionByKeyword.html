@@ -7,9 +7,11 @@
 <body>
 <section>
     <div class="container" style="background-color: #f0f4f5;">
-        <div class="row"><h2>Use the keyword search below. Then, select the result with the Capabilities that best meet your needs.</h2></div>
+        <div class="row"><h2>Use the keyword search below. Then, select the result with the Capabilities that best meet your needs.
+        <span th:if="${searchSolutionByKeywordModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${searchSolutionByKeywordModel.procurement.name}]])</span>
+        </h2></div>
         
-        <form class="form-inline" th:object="${searchSolutionByKeywordModel}" th:action="@{/buyingprocess/solutionByKeyword}" method="post">
+        <form class="form-inline" th:object="${searchSolutionByKeywordModel}" th:action="@{'/buyingprocess/' + ${searchSolutionByKeywordModel.procurementId != null ? searchSolutionByKeywordModel.procurementId + '/' : ''} + 'solutionByKeyword'}" method="post">
 		
 		<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
 		    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.message}"></p>    
@@ -60,9 +62,10 @@
 			<div th:each="solution : *{solutions}" class="row"> 
 				<div class="panel panel-default solution-list-entry">
 					<div>
-						<input type="radio"
+						<input type="radio" name="selectedCapabilities"
 		                	th:field="*{selectedSolution}"
-        					th:value="${solution.id}" />					
+        					th:value="${searchSolutionByKeywordModel.getSolutionCapabilitiesCsv().get(solution)}"
+        					th:onclick="capabilitySearch(this.value)" />					
 					</div>
 					<div>
 						<h3 th:text="${solution.name}"></h3>       
@@ -80,7 +83,15 @@
     </div>
 </section>    
 
-<script>
+<script th:inline="javascript">
+	function capabilitySearch(value) {
+		/*<![CDATA[*/
+        var url = /*[[@{'/buyingprocess/' + ${searchSolutionByKeywordModel.procurementId != null ? searchSolutionByKeywordModel.procurementId + '/' : ''} + 'solutionByCapability/'}]]*/;
+        /*]]>*/
+        
+		url += value
+		location.href = url;
+	}
 </script>
 </body>
 </html>

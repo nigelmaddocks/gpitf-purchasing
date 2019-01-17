@@ -158,6 +158,96 @@ public class OnboardingService {
 	    return arl;
 	}
 	
+	public static class RankedSolution {
+		public int rank;
+		public Solutions solution;
+	}
+	
+	/**
+	 * WARNING: Non-api method that works over cached solutions and capabilities
+	 */
+	public List<RankedSolution> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList) {
+		int RANK_LIMIT = 3;
+		String[] arrCapabilityIds = csvCapabilityList.split(",");
+		
+		// Clean the array
+		List<String> lstCapabilityIds = new ArrayList<>();
+		for (String capabilityId : arrCapabilityIds) {
+			if (capabilityId != null && capabilityId.trim().length() > 0) {
+				lstCapabilityIds.add(capabilityId.trim());
+			}
+		}
+		arrCapabilityIds = lstCapabilityIds.toArray(new String[] {});
+		
+		HashSet<String> hshSolutionIds = new HashSet<>();
+		for (String capabilityId : arrCapabilityIds) {
+			capabilityId = capabilityId.trim();
+			if (capabilityId.length() > 0) {
+				String[] arrSolutionIds = capabilitiesImplementedCache.getCapabilityIdSolutionIds().get(capabilityId);
+				if (arrSolutionIds != null) {
+					hshSolutionIds.addAll(Arrays.asList(arrSolutionIds));
+				}
+			}
+		}
+		
+		List<RankedSolution> arlRankedSolutions = new ArrayList<>();
+		for (String solutionId : hshSolutionIds) {
+			String[] arrSolnCapabilities = capabilitiesImplementedCache.getSolutionIdCapabilityIds().get(solutionId);
+			
+			int iSolutionDeficient = 0;
+			for (String requestedCapability : arrCapabilityIds) {
+				boolean bRequestedCapabilityFound = false;
+				for (String solutionCapability : arrSolnCapabilities) {
+					if (requestedCapability.equals(solutionCapability)) {
+						bRequestedCapabilityFound = true;
+						continue;
+					}
+				}
+				if (!bRequestedCapabilityFound) {
+					iSolutionDeficient++;
+				}
+			}
+			
+			int iSolutionExceeds = 0;
+			for (String solutionCapability : arrSolnCapabilities) {
+				boolean bSolutionCapabilityFound = false;
+				for (String requestedCapability : arrCapabilityIds) {
+					if (requestedCapability.equals(solutionCapability)) {
+						bSolutionCapabilityFound = true;
+						continue;
+					}
+				}			
+				if (!bSolutionCapabilityFound) {
+					iSolutionExceeds++;
+				}
+			}		
+			
+			int iRank = iSolutionDeficient + iSolutionExceeds;
+			
+			RankedSolution rankedSolution = new RankedSolution();
+			rankedSolution.rank = iRank;
+			rankedSolution.solution = capabilitiesImplementedCache.getSolutions().get(solutionId);
+			
+			arlRankedSolutions.add(rankedSolution);
+		}
+		
+		// Shuffle solutions of equal rank
+		List<RankedSolution> arlReturnedSolutions = new ArrayList<>();
+
+		for (int iRank=0; iRank<=RANK_LIMIT; iRank++) {
+			List<RankedSolution> arlSolutionsOfRank = new ArrayList<>();
+			for (var rs : arlRankedSolutions) {
+				if (rs.rank == iRank) {
+					arlSolutionsOfRank.add(rs);
+				}
+			}
+			Collections.shuffle(arlSolutionsOfRank);
+			arlReturnedSolutions.addAll(arlSolutionsOfRank);
+		}
+
+	    return arlReturnedSolutions;
+	}
+	
 	/**
 	 * WARNING: Non-api method that works over cached solutions and capabilities
 	 */

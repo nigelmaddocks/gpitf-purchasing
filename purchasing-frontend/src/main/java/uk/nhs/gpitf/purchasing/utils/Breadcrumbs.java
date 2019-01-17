@@ -63,6 +63,13 @@ public class Breadcrumbs implements Serializable {
 		request.getSession().setAttribute("Breadcrumbs", objBreadcrumbs);
 	}
 	
+	public static void removeLast(HttpServletRequest request) {
+		Breadcrumbs objBreadcrumbs = (Breadcrumbs)request.getSession().getAttribute("Breadcrumbs");
+		if (objBreadcrumbs.breadcrumbs.size() > 0) {
+			objBreadcrumbs.breadcrumbs.remove(objBreadcrumbs.breadcrumbs.size()-1);
+		}
+	}
+	
 	public static List<Breadcrumb> renderable(HttpServletRequest request) {
 		Breadcrumbs objBreadcrumbs = (Breadcrumbs)request.getSession().getAttribute("Breadcrumbs");
 		if (objBreadcrumbs == null) {
