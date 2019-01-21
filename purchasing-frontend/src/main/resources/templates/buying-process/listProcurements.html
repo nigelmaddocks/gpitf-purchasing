@@ -15,6 +15,7 @@
         <div th:if="${session.SecurityInfo.orgContactId} != ${listProcurementsModel.orgContactId}" class="row">
         	<h2>Procurements by [[${listProcurementsModel.orgContact.contact.forename}]] [[${listProcurementsModel.orgContact.contact.surname}]]</h2>
         </div>
+        
         <div th:if="${session.SecurityInfo.orgContactId} == ${listProcurementsModel.orgContactId}" class="row">
         	<h3>Welcome [[${listProcurementsModel.orgContact.contact.forename}]]. Here you can see all your IT procurements - both those in progress and complete.</h3>
         </div>
@@ -62,7 +63,10 @@
 		  	</thead>
 			<tbody>
 				<tr th:each="proc : ${listProcurementsModel.completedProcurements}">
-					<th scope="row"><a th:text="${proc.name}"></a></th>
+					<th scope="row">
+						<a th:text="${proc.name}"></a>
+						<a class="minor-link" th:href="@{/buyingprocess/procurement/{procurementId}/edit-name(procurementId=${proc.id})}">Rename</a>
+					</th>
 			    	<td><a onclick="take me to a page that displays the procurement summary">View summary</a></td>
 			    	<td><a onclick="take me to a page that displays the contract">View contract</a></td>
 			    	<td th:text="${#temporals.format(proc.completedDate, 'dd MMM yyyy')}">32 Jan 2019</td>

@@ -119,11 +119,12 @@ public class BuyingProcessController {
 	}
 
 	@GetMapping("/procurement")
-	public String procurement(HttpServletRequest request, Model model) {
+	public String procurement(Model model, HttpServletRequest request) {
 	  Breadcrumbs.register("My Procurements", request);
 
 	  SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 	  List<Procurement> procurementList = procurementService.getUncompletedByOrgContactOrderByLastUpdated(secInfo.getOrgContactId());
+
 	  model.addAttribute("procurements", procurementList);
 
 	  return PATH + PAGE_PROCUREMENT;
