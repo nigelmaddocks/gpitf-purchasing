@@ -1,8 +1,14 @@
 -- SQL Server - Capabilities Implemented
 
-if not exists (select * from capabilities where name='Meds Verification') insert into capabilities (id, name) values ('CAP-N-901', 'Meds Verification');
+if not exists (select * from capabilities where name='Meds Verification') begin
+	insert into capabilities (id, name) values ('CAP-N-901', 'Meds Verification');
+	insert into capabilityframework (capabilityid, frameworkid) values('CAP-N-901', '5A8D06DD-8C32-4821-AC65-BD47294ACD8E');
+end
 
-if not exists (select * from capabilities where name='Telecare') insert into capabilities (id, name) values ('CAP-N-902', 'Telecare');
+if not exists (select * from capabilities where name='Telecare') begin
+	insert into capabilities (id, name) values ('CAP-N-902', 'Telecare');
+	insert into capabilityframework (capabilityid, frameworkid) values('CAP-N-902', '5A8D06DD-8C32-4821-AC65-BD47294ACD8E');
+end
 
 
 -- Vision 3
