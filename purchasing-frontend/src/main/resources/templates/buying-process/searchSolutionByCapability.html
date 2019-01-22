@@ -6,7 +6,18 @@
 </head>
 <body>
 <section>
-    <div class="container-large">
+    <div class="container">
+ 	<div class="panel panel-default">
+	<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
+		<h3>1A. Who you're buying for
+        </h3>	
+	</div>
+	<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
+		<h3>1B. Capabilities selected
+        </h3>	
+	</div>
+	<div class="panel-body" style="background-color: #f0f4f5;">
+    
         <div class="row">
         	<h2>Capability Search Results
         	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
@@ -37,14 +48,17 @@
             </div>
         </form>
     </div>
+    </div>
 </section>    
 
 <script>
     $("form").on("click", ":checkbox[name='filterCapabilities']", function(event){
 		//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
 		var selectedCapabilities = "";
+		var selectedCapabilityNames = "";
 		$("input[name=" + event.target.name + "]:checked").each( function () {
 			selectedCapabilities += "," + this.id.split(event.target.name+'_')[1].trim();
+			selectedCapabilityNames += ", " + $(this).siblings().first().text().trim();
 		});
 		//alert("selectedCapabilities: " + selectedCapabilities);
 		$("#foundSolutions").empty();
