@@ -129,19 +129,28 @@ public class SolutionByCapabilityController {
 		// Set up the user's CCGs
 		if (secInfo.getOrganisationTypeId() == OrgType.CCG || secInfo.getOrganisationTypeId() == OrgType.CSU) {
 			List<Organisation> myCCGs = new ArrayList<>();
+			String myCsvCCGIDs = "";
 			Organisation myOrganisation = organisationRepository.findById(secInfo.getOrganisationId()).get();
 			if (secInfo.getOrganisationTypeId() == OrgType.CCG) {
 				myCCGs.add(myOrganisation);
+				myCsvCCGIDs = "" + myOrganisation.getId();
 			}
 			if (secInfo.getOrganisationTypeId() == OrgType.CSU) {
 				try {
 					RelationshipType relTypeCSUtoCCG = (RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CSU_TO_CCG);
 					myCCGs = orgRelationshipService.getOrganisationsByParentOrgAndRelationshipType(myOrganisation, relTypeCSUtoCCG);
+					for (var org : myCCGs) {
+						myCsvCCGIDs += "," + org.getId();
+					}
+					if (myCsvCCGIDs.length() > 0) {
+						myCsvCCGIDs = myCsvCCGIDs.substring(1);
+					}
 				} catch (Exception e) {					
 				}
 			}
 			
 			myModel.setMyCCGs(myCCGs);
+			myModel.setMyCsvCCGIDs(myCsvCCGIDs);
 		}
 
 		

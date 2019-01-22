@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import uk.nhs.gpitf.purchasing.entities.OrgRelationship;
 import uk.nhs.gpitf.purchasing.entities.OrgType;
@@ -32,6 +33,9 @@ public class OrganisationDataController {
     
     @Autowired
     private RelationshipTypeService relationshipTypeService;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @GetMapping(value = "/organisationData/all")
     public List<Organisation> getAllOrganisations() {
@@ -45,6 +49,9 @@ public class OrganisationDataController {
     		@PathVariable("parentOrg") long parentOrgId,
     		@PathVariable("relationshipType") long relationshipTypeId
     		) {
+    	
+    	objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    	
     	List<Organisation> list;
     	Organisation parentOrg = new Organisation();
     	parentOrg.setId(parentOrgId);

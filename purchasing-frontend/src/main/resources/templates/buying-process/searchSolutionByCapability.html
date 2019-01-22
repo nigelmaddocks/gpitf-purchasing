@@ -36,12 +36,20 @@
         		</div>
         	</div>
 			<div class="row">
-				<div class="col-md-12 capability-section-header-sub-text" id="selectedCapabilityNames">
+				<div id="selectedCapabilityNames" class="col-md-12 capability-section-header-sub-text">
 				</div>
         	</div>
 		</div>
 		
 		<div id="practicePanel" class="panel-body" style="background-color: #f0f4f5;">
+    
+	        <div class="row">
+	        	<h2>My Sites
+	        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+	        	</h2>
+	        	<h4>Select sites to add them to your Procurement basket.</h4>
+	        </div>
+		
 			<div class="panel-group" id="accordion">
 			  <div th:each="ccg, iter : ${myModel.myCCGs}" class="panel panel-default">
 			    <div class="panel-heading">
@@ -53,10 +61,7 @@
 			    </div>
 			    <div id="collapse1" th:id="'ccg-' + ${ccg.id}" class="panel-collapse collapse in"
 			    	th:class="'panel-collapse collapse ' + ${iter.index==0?'in':''}">
-			    	<div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-			      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-			      minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-			      commodo consequat.</div>
+			    	<div th:id="'practices-' + ${ccg.id}" class="panel-body">Practice List.</div>
   					</div>    
 			    </div>
 			</div>
@@ -169,13 +174,70 @@
 		});
    	}
     
-    $( document ).ready(function() {
-       var csvCapabilities = '[[${myModel.csvCapabilities}]]';
+    function getPracticesForCCG(ccgId) {
+		//console.log(csvCapabilities);
+		$("#practices-" + ccgId).empty();
+		var url = "/organisationData/" + ccgId + "/" + [[${T(uk.nhs.gpitf.purchasing.entities.OrgType).PRESCRIBING_PRACTICE}]];
+		$.getJSON( url)
+		.done(function( data ) {
+			//console.log(data);
 
-       showCapabilityPanel(true);
-       refreshCapabilityNames();
-       searchCapabilitiesForSolutions(csvCapabilities);
+			var htmlTable = $("<table class=\"table table-striped\">");
+			var htmlHead = $("<thead>");
+			htmlHead.appendTo(htmlTable);
+			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th></tr>");
+			htmlHeaderRow.appendTo(htmlHead);
+			var htmlBody = $("<tbody>");
+			htmlBody.appendTo(htmlTable);
+			$.each( data, function( i, item ) {
+				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.id + "\" onclick=\"addRemovePractice(this, '" + item.orgCode + "', " + item.patientCount + ")\" /></td><td>" + item.nameProperCase + "</td><td>" + item.orgCode + "</td><td>" + item.patientCount + "</td></tr>");
+				htmlRow.appendTo(htmlBody);
+			});
+			htmlTable.appendTo("#practices-" + ccgId);
+		});
+   	}
+    
+    function addRemovePractice(element, orgCode, patientCount) {
+    	selectedPractices += element.checked?1:-1;
+       	selectedPracticePatients += (element.checked?1:-1) * patientCount;
+    	if (element.checked) {
+           	selectedPracticeIds += element.value + ",";
+    	} else {
+    		selectedPracticeIds = selectedPracticeIds.replace("," + element.value + ",", ",");
+    	}
+    	refreshSelectedPractices();
+    }
+    
+    function refreshSelectedPractices() {
+		if ($("#selectedPractices") != null) {
+			$("#selectedPractices").text("Selected practices: " + selectedPractices + ", patients: " + selectedPracticePatients + ", practice Ids: " + selectedPracticeIds.substring(1, Math.max(selectedPracticeIds.length-2, 1)));
+		}
+    	
+    }
+    
+    // On document ready, perform a capability search
+   	var selectedPractices = 0;
+   	var selectedPracticeIds = ",";
+   	var selectedPracticePatients = 0;
+    $( document ).ready(function() {
+       	var csvCapabilities = '[[${myModel.csvCapabilities}]]';
+       	var arrMyCsvIDs = '[[${myModel.myCsvCCGIDs}]]'.split(",");
+       	for (var idx=0; idx<arrMyCsvIDs.length; idx++) {
+			$('#ccg-' + arrMyCsvIDs[idx]).on('hidden.bs.collapse', function () {
+				$("#practices-" + this.id.split("-")[1]).empty();
+			});    	   
+			$('#ccg-' + arrMyCsvIDs[idx]).on('show.bs.collapse', function () {
+				getPracticesForCCG(this.id.split("-")[1]);
+			});    	   
+		}
+       	getPracticesForCCG(arrMyCsvIDs[0]);       
+
+       	showCapabilityPanel(true);
+       	refreshCapabilityNames();
+       	searchCapabilitiesForSolutions(csvCapabilities);
     });
+    
+    
     
 </script>
 </body>

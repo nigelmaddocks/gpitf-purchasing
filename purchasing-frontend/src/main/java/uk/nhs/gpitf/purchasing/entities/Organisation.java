@@ -16,14 +16,18 @@ import javax.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="organisation", schema="purchasing")
 @Data
 public class Organisation {
 	@Transient
+	@JsonIgnore
 	PatientCountRunRepository patientCountRunRepository;
 	
 	@Transient
+	@JsonIgnore
 	PatientCountRepository patientCountRepository;
 	
 	
@@ -70,6 +74,7 @@ public class Organisation {
     }
     
     @Transient
+    @JsonIgnore
     public PatientCount getLatestPatientCount() {
     	if (orgType.getId() == OrgType.PRESCRIBING_PRACTICE) {
     		if (patientCountRunRepository == null || patientCountRepository == null) {

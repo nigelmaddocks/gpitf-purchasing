@@ -32,4 +32,5 @@ public class SearchSolutionByCapabilityModel {
 	}
 	
 	private List<Organisation> myCCGs;
+	private String myCsvCCGIDs;
 }
