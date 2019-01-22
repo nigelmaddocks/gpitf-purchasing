@@ -15,6 +15,7 @@
 	<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
 		<h3>1B. Capabilities selected
         </h3>	
+        <div id="selectedCapabilityNames" class="capability-section-header-sub-text"></div>
 	</div>
 	<div class="panel-body" style="background-color: #f0f4f5;">
     
@@ -58,9 +59,10 @@
 		var selectedCapabilityNames = "";
 		$("input[name=" + event.target.name + "]:checked").each( function () {
 			selectedCapabilities += "," + this.id.split(event.target.name+'_')[1].trim();
-			selectedCapabilityNames += ", " + $(this).siblings().first().text().trim();
 		});
 		//alert("selectedCapabilities: " + selectedCapabilities);
+
+		refreshCapabilityNames();
 		$("#foundSolutions").empty();
 		if (selectedCapabilities.length > 0) {
 			selectedCapabilities = selectedCapabilities.substring(1);
@@ -69,6 +71,20 @@
 		}
 	});
 
+    function refreshCapabilityNames() {
+		var selectedCapabilityNames = "";
+		$("input[name=filterCapabilities]:checked").each( function () {
+			selectedCapabilityNames += ", " + $(this).siblings().first().text().trim();
+		});
+		if (selectedCapabilityNames.length > 0) {
+			selectedCapabilityNames = selectedCapabilityNames.substring(2);
+		}
+		if ($("#selectedCapabilityNames") != null) {
+			$("#selectedCapabilityNames").text(selectedCapabilityNames);
+		}
+    	
+    }
+    
     function updateProcurementWithCapabilities(procurementId, csvCapabilities) {
 		var url = "[[${T(uk.nhs.gpitf.purchasing.controllers.search.SolutionByCapabilityController).ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES}]]" + procurementId + '/' + csvCapabilities;
 		$.getJSON( url)
@@ -101,7 +117,8 @@
     $( document ).ready(function() {
        var csvCapabilities = '[[${myModel.csvCapabilities}]]';
 
-    	searchCapabilitiesForSolutions(csvCapabilities);
+       refreshCapabilityNames();
+       searchCapabilitiesForSolutions(csvCapabilities);
     });
     
 </script>

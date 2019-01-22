@@ -55,6 +55,12 @@
 	color: #005eb8;
 }
 
+.capability-section-header-sub-text {
+	font-size: 0.90rem;
+	font-weight: 500;
+	color: #768692;
+}
+
 .table thead th { 
   background-color: #005ab8;
   color: white;
