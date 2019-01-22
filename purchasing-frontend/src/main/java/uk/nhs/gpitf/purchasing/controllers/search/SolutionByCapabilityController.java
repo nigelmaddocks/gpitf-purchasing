@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing.controllers.search;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,12 +18,19 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import io.swagger.client.model.Solutions;
+import uk.nhs.gpitf.purchasing.entities.OrgType;
+import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.entities.RelationshipType;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByCapabilityModel;
+import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
+import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
+import uk.nhs.gpitf.purchasing.services.OrganisationService;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller 
@@ -30,6 +38,15 @@ public class SolutionByCapabilityController {
 	
 	@Autowired
 	OnboardingService onboardingService;
+	
+	@Autowired
+	OrganisationRepository organisationRepository;
+	
+	@Autowired
+	OrganisationService organisationService;
+	
+	@Autowired
+	OrgRelationshipService orgRelationshipService;
 	
 	@Autowired
 	ProcurementRepository procurementRepository;
@@ -93,13 +110,13 @@ public class SolutionByCapabilityController {
 					}
 				}
 			}
-		}		
+		}
 
-		model = setupSolutionByCapability(procurement, csvCapabilities, model);	
+		model = setupSolutionByCapability(secInfo, procurement, csvCapabilities, model);	
         return "buying-process/searchSolutionByCapability";
     }	
 
-	private Model setupSolutionByCapability(Procurement procurement, String csvCapabilities, Model model) {
+	private Model setupSolutionByCapability(SecurityInfo secInfo, Procurement procurement, String csvCapabilities, Model model) {
 		SearchSolutionByCapabilityModel myModel = new SearchSolutionByCapabilityModel();
 		myModel.setProcurement(procurement);
 		myModel.setProcurementId(0L);
@@ -109,9 +126,29 @@ public class SolutionByCapabilityController {
 		myModel.setCsvCapabilities(csvCapabilities);
 		myModel.setAllCapabilities(onboardingService.orderByCoreThenName(onboardingService.findCapabilities()));
 		
+		// Set up the user's CCGs
+		if (secInfo.getOrganisationTypeId() == OrgType.CCG || secInfo.getOrganisationTypeId() == OrgType.CSU) {
+			List<Organisation> myCCGs = new ArrayList<>();
+			Organisation myOrganisation = organisationRepository.findById(secInfo.getOrganisationId()).get();
+			if (secInfo.getOrganisationTypeId() == OrgType.CCG) {
+				myCCGs.add(myOrganisation);
+			}
+			if (secInfo.getOrganisationTypeId() == OrgType.CSU) {
+				try {
+					RelationshipType relTypeCSUtoCCG = (RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CSU_TO_CCG);
+					myCCGs = orgRelationshipService.getOrganisationsByParentOrgAndRelationshipType(myOrganisation, relTypeCSUtoCCG);
+				} catch (Exception e) {					
+				}
+			}
+			
+			myModel.setMyCCGs(myCCGs);
+		}
+
+		
 		model.addAttribute("myModel", myModel);
 		
 		return model;
+		
 	}
 
 

@@ -6,6 +6,7 @@ import java.util.List;
 import io.swagger.client.model.Capabilities;
 import lombok.Data;
 import lombok.Setter;
+import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import lombok.AccessLevel;
 
@@ -29,4 +30,6 @@ public class SearchSolutionByCapabilityModel {
 	public boolean inInitialCapabilities(String capabilityId) {
 		return Arrays.stream(arrInitialCapabilities).anyMatch(capabilityId::equals);
 	}
+	
+	private List<Organisation> myCCGs;
 }
