@@ -8,16 +8,44 @@
 <section>
     <div class="container">
  	<div class="panel panel-default">
-	<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
-		<h3>1A. Who you're buying for
-        </h3>	
-	</div>
-	<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
-		<h3>1B. Capabilities selected
-        </h3>	
-        <div id="selectedCapabilityNames" class="capability-section-header-sub-text"></div>
-	</div>
-	<div class="panel-body" style="background-color: #f0f4f5;">
+ 	
+		<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
+			<div class="row">
+				<div class="col-md-10">
+					<h3>1A. Who you're buying for
+			        </h3>	
+		        </div>
+		        <div class="col-md-2"><br />
+			        <a onclick="showCapabilityPanel(false);" href="#">Add answer</a>
+		        </div>
+		    </div>
+			<div class="row">
+		        <div id="selectedPractices" class="col-md-12 capability-section-header-sub-text">Add sites to reveal baseline pricing and Interoperability percentage in search results
+	        	</div>
+	        </div>
+		</div>
+	
+		<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
+			<div class="row">
+				<div class="col-md-10">
+					<h3>1B. Capabilities selected
+			        </h3>	
+			    </div>
+		        <div class="col-md-2"><br />
+        			<a onclick="showCapabilityPanel(true);" href="#">Add answer</a>
+        		</div>
+        	</div>
+			<div class="row">
+				<div class="col-md-12 capability-section-header-sub-text" id="selectedCapabilityNames">
+				</div>
+        	</div>
+		</div>
+		
+		<div id="practicePanel" class="panel-body" style="background-color: #f0f4f5;">
+		This is the practice panel
+		</div>
+		
+		<div id="capabilityPanel" class="panel-body" style="background-color: #f0f4f5;">
     
         <div class="row">
         	<h2>Capability Search Results
@@ -48,7 +76,7 @@
 	        	</div>
             </div>
         </form>
-    </div>
+    	</div>
     </div>
 </section>    
 
@@ -85,6 +113,16 @@
     	
     }
     
+    function showCapabilityPanel(show) {
+    	if (show) {
+    		$("#capabilityPanel").show();
+    		$("#practicePanel").hide();
+    	} else {
+    		$("#capabilityPanel").hide();
+    		$("#practicePanel").show();
+    	}
+    }
+    
     function updateProcurementWithCapabilities(procurementId, csvCapabilities) {
 		var url = "[[${T(uk.nhs.gpitf.purchasing.controllers.search.SolutionByCapabilityController).ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES}]]" + procurementId + '/' + csvCapabilities;
 		$.getJSON( url)
@@ -117,6 +155,7 @@
     $( document ).ready(function() {
        var csvCapabilities = '[[${myModel.csvCapabilities}]]';
 
+       showCapabilityPanel(true);
        refreshCapabilityNames();
        searchCapabilitiesForSolutions(csvCapabilities);
     });
