@@ -1,6 +1,7 @@
 package uk.nhs.gpitf.purchasing.models;
 
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 
 import io.swagger.client.model.Capabilities;
@@ -36,4 +37,14 @@ public class SearchSolutionByCapabilityModel {
 	
 	private String csvPractices;
 	private long patientCount;
+	
+	private Hashtable<Long, String> selectedCCGPracticeIds = new Hashtable<>();
+	
+	public String getSelectedCCGPracticeIds(long ccgId) {
+		if (selectedCCGPracticeIds.containsKey(ccgId)) {
+			return selectedCCGPracticeIds.get(ccgId);
+		} else {
+			return ",";
+		}
+	}
 }

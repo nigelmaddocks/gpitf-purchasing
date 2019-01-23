@@ -109,7 +109,7 @@
     </div>
 </section>    
 
-<script>
+<script th:inline="javascript">
     $("form").on("click", ":checkbox[name='filterCapabilities']", function(event){
 		//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
 		var selectedCapabilities = "";
@@ -156,7 +156,7 @@
     	var token = $("meta[name='_csrf']").attr("content");
     	var header = $("meta[name='_csrf_header']").attr("content");
 
-		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES}]]";
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES}]];
 		var sendInfo = {
 			"procurementId"	: procurementId,
 			"csvCapabilities" : csvCapabilities
@@ -182,7 +182,7 @@
     	var token = $("meta[name='_csrf']").attr("content");
     	var header = $("meta[name='_csrf_header']").attr("content");
 
-		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_UPDATE_PROCUREMENT_WITH_PRACTICES}]]";
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_UPDATE_PROCUREMENT_WITH_PRACTICES}]];
 		var sendInfo = {
 			"procurementId"	: procurementId,
 			"csvPractices" : selectedPracticeIds
@@ -206,7 +206,7 @@
     
     function searchCapabilitiesForSolutions(csvCapabilities) {
 		//console.log(csvCapabilities);
-		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]]" + csvCapabilities;
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities;
 		$.getJSON( url)
 		.done(function( data ) {
 			//console.log(data);
@@ -277,19 +277,26 @@
     
     function refreshSelectedCCGPractices(ccgId) {
 		if ($("#selectedCCGPractices-" + ccgId) != null) {
-			$("#selectedCCGPractices-" + ccgId).text("Selected practices: " + (arrSelectedCCGPracticeIds[""+ccgId].split(",").length-2));
+			var thisCCGPracticesSelected = arrSelectedCCGPracticeIds[""+ccgId].split(",").length-2;
+			if (thisCCGPracticesSelected != 0) {
+				$("#selectedCCGPractices-" + ccgId).text("Selected practices: " + thisCCGPracticesSelected);
+			} else {
+				$("#selectedCCGPractices-" + ccgId).text("");
+			}
 		}
     	
     }
     
     // On document ready, setup "selected practices" variables and perform a capability search
-   	var selectedPracticeIds = '[[${myModel.csvPractices}]]';
+   	var selectedPracticeIds = [[${myModel.csvPractices}]];
    	var selectedPractices = selectedPracticeIds.split(",").length-2;
    	var arrSelectedCCGPracticeIds = [];
+  	
+   	
    	var selectedPracticePatients = [[${myModel.patientCount}]];
     $( document ).ready(function() {
-       	var csvCapabilities = '[[${myModel.csvCapabilities}]]';
-       	var arrMyCsvCCGIDs = '[[${myModel.myCsvCCGIDs}]]'.split(",");
+       	var csvCapabilities = [[${myModel.csvCapabilities}]];
+       	var arrMyCsvCCGIDs = [[${myModel.myCsvCCGIDs}]].split(",");
        	for (var idx=0; idx<arrMyCsvCCGIDs.length; idx++) {
 			$('#ccg-' + arrMyCsvCCGIDs[idx]).on('hidden.bs.collapse', function () {
 				$("#practices-" + this.id.split("-")[1]).empty();
@@ -305,6 +312,12 @@
        	refreshCapabilityNames();
        	searchCapabilitiesForSolutions(csvCapabilities);
        	refreshSelectedPractices();
+       	
+       	/*[# th:each="ccg : ${myModel.myCCGs}"]*/
+        arrSelectedCCGPracticeIds['[[${ccg.id}]]'] = [[${myModel.getSelectedCCGPracticeIds(ccg.id)}]];
+        refreshSelectedCCGPractices([[${ccg.id}]]);
+    	/*[/]*/
+            	
     });
     
     

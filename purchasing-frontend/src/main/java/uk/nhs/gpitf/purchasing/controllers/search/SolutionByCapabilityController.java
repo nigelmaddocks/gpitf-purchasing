@@ -156,9 +156,24 @@ public class SolutionByCapabilityController {
 				} catch (Exception e) {					
 				}
 			}
-			
 			myModel.setMyCCGs(myCCGs);
 			myModel.setMyCsvCCGIDs(myCsvCCGIDs);
+			
+			// Set up the Practice IDs for each CCG
+			for (Organisation ccg : myCCGs) {
+				try {
+					String csv = ",";
+					List<Organisation> practices = orgRelationshipService.getOrganisationsByParentOrgAndRelationshipType(ccg, (RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE));
+					for (Organisation practice : practices) {
+						if (myModel.getCsvPractices().contains("," + practice.getId() + ",")) {
+							csv += practice.getId() + ",";
+						}
+					}
+					myModel.getSelectedCCGPracticeIds().put(ccg.getId(), csv);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		
