@@ -125,6 +125,11 @@ public class SolutionByCapabilityController {
 		myModel.setProcurementId(0L);
 		if (procurement != null) {
 			myModel.setProcurementId(procurement.getId());
+			myModel.setCsvPractices("," + procurement.getCsvPractices() + ",");
+			myModel.setPatientCount(organisationService.getPatientCountForOrganisationsInList(procurement.getCsvPractices()));
+		}
+		if (myModel.getCsvPractices() == null || myModel.getCsvPractices().length() == 0) {
+			myModel.setCsvPractices(",");
 		}
 		myModel.setCsvCapabilities(csvCapabilities);
 		myModel.setAllCapabilities(onboardingService.orderByCoreThenName(onboardingService.findCapabilities()));

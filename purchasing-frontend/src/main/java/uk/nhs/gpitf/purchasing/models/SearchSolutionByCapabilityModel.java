@@ -33,4 +33,7 @@ public class SearchSolutionByCapabilityModel {
 	
 	private List<Organisation> myCCGs;
 	private String myCsvCCGIDs;
+	
+	private String csvPractices;
+	private long patientCount;
 }

@@ -283,10 +283,10 @@
     }
     
     // On document ready, setup "selected practices" variables and perform a capability search
-   	var selectedPractices = 0;
-   	var selectedPracticeIds = ",";
+   	var selectedPracticeIds = '[[${myModel.csvPractices}]]';
+   	var selectedPractices = selectedPracticeIds.split(",").length-2;
    	var arrSelectedCCGPracticeIds = [];
-   	var selectedPracticePatients = 0;
+   	var selectedPracticePatients = [[${myModel.patientCount}]];
     $( document ).ready(function() {
        	var csvCapabilities = '[[${myModel.csvCapabilities}]]';
        	var arrMyCsvCCGIDs = '[[${myModel.myCsvCCGIDs}]]'.split(",");
@@ -304,6 +304,7 @@
        	showCapabilityPanel(true);
        	refreshCapabilityNames();
        	searchCapabilitiesForSolutions(csvCapabilities);
+       	refreshSelectedPractices();
     });
     
     

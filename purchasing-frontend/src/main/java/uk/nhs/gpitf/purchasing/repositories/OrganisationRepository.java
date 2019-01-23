@@ -27,4 +27,6 @@ public interface OrganisationRepository extends CrudRepository<Organisation, Lon
 	@Query("SELECT orgrel FROM OrgRelationship orgrel INNER JOIN Organisation op on op.id = orgrel.parentOrg INNER JOIN Organisation o on o.id = orgrel.childOrg WHERE op.orgCode = :orgCode AND orgrel.relationshipType = :relType ORDER BY o.name")
 	List<OrgRelationship> findOrgAndParentsByRelTypeAndParentOrgCodeOrderByChildName(@Param("relType") RelationshipType relType, @Param("orgCode") String orgCode);
 
+	@Query("SELECT SUM(patientCount) as returnVal FROM PatientCount pc WHERE pc.run = (SELECT MAX(id) FROM PatientCountRun) AND pc.id in :ids")
+	Object getPatientCountForIds(@Param("ids") List<Long> ids);
 }

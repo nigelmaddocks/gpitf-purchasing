@@ -9,6 +9,7 @@ import uk.nhs.gpitf.purchasing.entities.*;
 import uk.nhs.gpitf.purchasing.repositories.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -87,4 +88,14 @@ public class OrganisationService {
         return coll;
     }    
 */
+    public long getPatientCountForOrganisationsInList(String csvOrgIds) {
+    	String[] arrStringCsvOrgId = csvOrgIds.split(",");
+    	ArrayList<Long> arlOrgIds = new ArrayList<>();
+    	for (String sOrgId : arrStringCsvOrgId) {
+    		arlOrgIds.add(Long.valueOf(sOrgId));
+    	}
+    	Object object = thisRepository.getPatientCountForIds(arlOrgIds);
+    	
+    	return (long)object;
+    }
 }
