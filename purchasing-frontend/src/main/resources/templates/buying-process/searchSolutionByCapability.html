@@ -178,6 +178,32 @@
 		;
 	}
     
+    function updateProcurementWithPracticesPOST(procurementId) {
+    	var token = $("meta[name='_csrf']").attr("content");
+    	var header = $("meta[name='_csrf_header']").attr("content");
+
+		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_UPDATE_PROCUREMENT_WITH_PRACTICES}]]";
+		var sendInfo = {
+			"procurementId"	: procurementId,
+			"csvPractices" : selectedPracticeIds
+		};
+		$.ajax({
+		    type: 'POST',
+		    beforeSend: function(request) {
+		        request.setRequestHeader(header, token);
+		    },
+		    url: url,
+		    data: JSON.stringify (sendInfo),
+		    //success: function(data) { alert('data: ' + data); },
+		    contentType: "application/json",
+		    dataType: 'json'
+		})
+		.fail(function(error) {
+			console.error(error);
+        })
+		;
+	}
+    
     function searchCapabilitiesForSolutions(csvCapabilities) {
 		//console.log(csvCapabilities);
 		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]]" + csvCapabilities;
@@ -239,6 +265,7 @@
     	}
     	refreshSelectedPractices();
     	refreshSelectedCCGPractices(ccgId);
+    	updateProcurementWithPracticesPOST([[${myModel.procurementId}]]);
     }
     
     function refreshSelectedPractices() {
