@@ -123,7 +123,7 @@
 		$("#foundSolutions").empty();
 		if (selectedCapabilities.length > 0) {
 			selectedCapabilities = selectedCapabilities.substring(1);
-			updateProcurementWithCapabilities([[${myModel.procurementId}]], selectedCapabilities)
+			updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities)
 			searchCapabilitiesForSolutions(selectedCapabilities);
 		}
 	});
@@ -152,12 +152,31 @@
     	}
     }
     
-    function updateProcurementWithCapabilities(procurementId, csvCapabilities) {
-		var url = "[[${T(uk.nhs.gpitf.purchasing.controllers.search.SolutionByCapabilityController).ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES}]]" + procurementId + '/' + csvCapabilities;
-		$.getJSON( url)
-		.done(function( data ) {
-		});
-   	}
+    function updateProcurementWithCapabilitiesPOST(procurementId, csvCapabilities) {
+    	var token = $("meta[name='_csrf']").attr("content");
+    	var header = $("meta[name='_csrf_header']").attr("content");
+
+		var url = "[[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES}]]";
+		var sendInfo = {
+			"procurementId"	: procurementId,
+			"csvCapabilities" : csvCapabilities
+		};
+		$.ajax({
+		    type: 'POST',
+		    beforeSend: function(request) {
+		        request.setRequestHeader(header, token);
+		    },
+		    url: url,
+		    data: JSON.stringify (sendInfo),
+		    //success: function(data) { alert('data: ' + data); },
+		    contentType: "application/json",
+		    dataType: 'json'
+		})
+		.fail(function(error) {
+			console.error(error);
+        })
+		;
+	}
     
     function searchCapabilitiesForSolutions(csvCapabilities) {
 		//console.log(csvCapabilities);

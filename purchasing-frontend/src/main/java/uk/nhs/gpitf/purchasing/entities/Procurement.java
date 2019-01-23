@@ -13,14 +13,18 @@ import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="procurement", schema="purchasing")
 @Data
 public class Procurement {
 	@Transient
+	@JsonIgnore
 	PatientCountRunRepository patientCountRunRepository;
 	
 	@Transient
+	@JsonIgnore
 	PatientCountRepository patientCountRepository;
 	
 	
@@ -52,4 +56,6 @@ public class Procurement {
 	private String searchKeyword;
 	
 	private String csvCapabilities;
+	
+	private String csvPractices;
 }

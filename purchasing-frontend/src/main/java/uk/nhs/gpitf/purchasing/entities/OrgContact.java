@@ -15,6 +15,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 
 @Entity
@@ -41,6 +43,7 @@ public class OrgContact {
         orphanRemoval = true
     )
     @JoinTable(name = "org_contact_role", schema="purchasing", joinColumns = @JoinColumn(name = "org_contact"), inverseJoinColumns = @JoinColumn(name = "id"))
+    @JsonIgnore
     private List<OrgContactRole> orgContactRoles = new ArrayList<>();
 
     public String getRolesAsString() {
