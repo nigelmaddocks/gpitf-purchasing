@@ -89,6 +89,9 @@ public class OrganisationService {
     }    
 */
     public long getPatientCountForOrganisationsInList(String csvOrgIds) {
+    	if (csvOrgIds == null || csvOrgIds.trim().length() == 0) {
+    		return 0L;
+    	}
     	String[] arrStringCsvOrgId = csvOrgIds.split(",");
     	ArrayList<Long> arlOrgIds = new ArrayList<>();
     	for (String sOrgId : arrStringCsvOrgId) {
