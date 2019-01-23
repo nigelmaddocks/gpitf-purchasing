@@ -51,19 +51,26 @@
 	        </div>
 		
 			<div class="panel-group" id="accordion">
-			  <div th:each="ccg, iter : ${myModel.myCCGs}" class="panel panel-default">
-			    <div class="panel-heading">
-			      <h4 class="panel-title">
-			        <a data-toggle="collapse" data-parent="#accordion" 
-			        href="#collapse1" th:href="'#ccg-' + ${ccg.id}"
-			        th:text="${ccg.name}">CCG Name</a>
-			      </h4>
-			    </div>
-			    <div id="collapse1" th:id="'ccg-' + ${ccg.id}" class="panel-collapse collapse in"
-			    	th:class="'panel-collapse collapse ' + ${iter.index==0?'in':''}">
-			    	<div th:id="'practices-' + ${ccg.id}" class="panel-body">Practice List.</div>
+				<div th:each="ccg, iter : ${myModel.myCCGs}" class="panel panel-default">
+			    	<div class="panel-heading">
+			    	 	<div class="row">
+							<div class="col-md-10">
+			      				<h4 class="panel-title">
+			        				<a data-toggle="collapse" data-parent="#accordion" 
+				        				href="#collapse1" th:href="'#ccg-' + ${ccg.id}"
+				        				th:text="${ccg.name}">CCG Name</a>
+			      				</h4>
+			      			</div>
+				        	<div id="selectedCCGPractices-xxx" th:id="'selectedCCGPractices-' + ${ccg.id}"
+				        		class="col-md-2 capability-section-header-sub-text">
+			        		</div>
+			      		</div>
+			    	</div>
+			    	<div id="collapse1" th:id="'ccg-' + ${ccg.id}" class="panel-collapse collapse in"
+			    		th:class="'panel-collapse collapse ' + ${iter.index==0?'in':''}">
+			    		<div th:id="'practices-' + ${ccg.id}" class="panel-body">Practice List.</div>
   					</div>    
-			    </div>
+				</div>
 			</div>
 		</div>
 		
@@ -190,22 +197,29 @@
 			var htmlBody = $("<tbody>");
 			htmlBody.appendTo(htmlTable);
 			$.each( data, function( i, item ) {
-				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.id + "\" onclick=\"addRemovePractice(this, '" + item.orgCode + "', " + item.patientCount + ")\" /></td><td>" + item.nameProperCase + "</td><td>" + item.orgCode + "</td><td>" + item.patientCount + "</td></tr>");
+				var checked = "";
+				if (arrSelectedCCGPracticeIds[""+ccgId].includes("," + item.id + ",")) {
+					checked = "checked";
+				}
+				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.id + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.nameProperCase + "</td><td>" + item.orgCode + "</td><td>" + item.patientCount + "</td></tr>");
 				htmlRow.appendTo(htmlBody);
 			});
 			htmlTable.appendTo("#practices-" + ccgId);
 		});
    	}
     
-    function addRemovePractice(element, orgCode, patientCount) {
+    function addRemovePractice(element, ccgId, patientCount) {
     	selectedPractices += element.checked?1:-1;
        	selectedPracticePatients += (element.checked?1:-1) * patientCount;
     	if (element.checked) {
            	selectedPracticeIds += element.value + ",";
+           	arrSelectedCCGPracticeIds[""+ccgId] += element.value + ",";
     	} else {
     		selectedPracticeIds = selectedPracticeIds.replace("," + element.value + ",", ",");
+    		arrSelectedCCGPracticeIds[""+ccgId] = arrSelectedCCGPracticeIds[""+ccgId].replace("," + element.value + ",", ",");
     	}
     	refreshSelectedPractices();
+    	refreshSelectedCCGPractices(ccgId);
     }
     
     function refreshSelectedPractices() {
@@ -215,22 +229,31 @@
     	
     }
     
-    // On document ready, perform a capability search
+    function refreshSelectedCCGPractices(ccgId) {
+		if ($("#selectedCCGPractices-" + ccgId) != null) {
+			$("#selectedCCGPractices-" + ccgId).text("Selected practices: " + (arrSelectedCCGPracticeIds[""+ccgId].split(",").length-2));
+		}
+    	
+    }
+    
+    // On document ready, setup "selected practices" variables and perform a capability search
    	var selectedPractices = 0;
    	var selectedPracticeIds = ",";
+   	var arrSelectedCCGPracticeIds = [];
    	var selectedPracticePatients = 0;
     $( document ).ready(function() {
        	var csvCapabilities = '[[${myModel.csvCapabilities}]]';
-       	var arrMyCsvIDs = '[[${myModel.myCsvCCGIDs}]]'.split(",");
-       	for (var idx=0; idx<arrMyCsvIDs.length; idx++) {
-			$('#ccg-' + arrMyCsvIDs[idx]).on('hidden.bs.collapse', function () {
+       	var arrMyCsvCCGIDs = '[[${myModel.myCsvCCGIDs}]]'.split(",");
+       	for (var idx=0; idx<arrMyCsvCCGIDs.length; idx++) {
+			$('#ccg-' + arrMyCsvCCGIDs[idx]).on('hidden.bs.collapse', function () {
 				$("#practices-" + this.id.split("-")[1]).empty();
 			});    	   
-			$('#ccg-' + arrMyCsvIDs[idx]).on('show.bs.collapse', function () {
+			$('#ccg-' + arrMyCsvCCGIDs[idx]).on('show.bs.collapse', function () {
 				getPracticesForCCG(this.id.split("-")[1]);
-			});    	   
+			});  
+			arrSelectedCCGPracticeIds[""+arrMyCsvCCGIDs[idx]] = ",";
 		}
-       	getPracticesForCCG(arrMyCsvIDs[0]);       
+       	getPracticesForCCG(arrMyCsvCCGIDs[0]);       
 
        	showCapabilityPanel(true);
        	refreshCapabilityNames();
