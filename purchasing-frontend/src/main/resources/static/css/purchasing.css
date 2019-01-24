@@ -35,6 +35,13 @@
 	colour: blue;
 }
 
+.solution-list-entry  input[type=checkbox] {
+	margin-top:1.4em;
+	margin-left:1.0em;
+	margin-right:1.0em;
+	colour: blue;
+}
+
 .solution-list-entry  h3 {
 	color:black;
 }
@@ -45,10 +52,18 @@
 	font-weight: 500;
 }
 
+.solution-list-entry  article {
+  -webkit-column-count: 2;
+  -moz-column-count: 2;
+  column-count: 2;
+  padding: 0.25rem;
+  width: 100%;
+}
+
 .solution-list-entry  h5 {
 	font-size: 0.80em;
 	font-weight: 500;	
-	line-height: 0.6em;
+	margin: 0.1rem;
 }
 
 .solution-list-entry  h5:first-of-type {

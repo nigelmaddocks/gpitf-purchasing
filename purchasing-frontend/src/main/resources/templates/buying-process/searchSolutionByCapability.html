@@ -210,7 +210,7 @@
 		$.getJSON( url)
 		.done(function( data ) {
 			//console.log(data);
-
+/*
 			var htmlTable = $("<table class=\"table table-striped\">");
 			var htmlHead = $("<thead>");
 			htmlHead.appendTo(htmlTable);
@@ -223,6 +223,32 @@
 				htmlRow.appendTo(htmlBody);
 			});
 			htmlTable.appendTo("#foundSolutions");
+*/
+			$.each( data, function( i, item ) {
+				var htmlSolnListEntry = $("<div class=\"panel panel-default solution-list-entry\" style=\"width:95%;\">");
+				var htmlDivCheck = $("<div>");
+				htmlDivCheck.appendTo(htmlSolnListEntry);
+				var htmlCheck = $("<input type=\"checkbox\" name=\"selectedSolution\" value=\"" + item.solution.id + "\" >");
+				htmlCheck.appendTo(htmlDivCheck);
+				
+				var htmlDivSoln = $("<div>");
+				htmlDivSoln.appendTo(htmlSolnListEntry);
+				var htmlSolnName = $("<h3>" + item.solution.name + "</h3>");
+				htmlSolnName.appendTo(htmlDivSoln);
+				var htmlSolnDesc = $("<h4>" + item.solution.description + "</h4>");
+				htmlSolnDesc.appendTo(htmlDivSoln);
+				var htmlSolnCapabilitiesArticle = $("<article>");
+				htmlSolnCapabilitiesArticle.appendTo(htmlDivSoln);
+				var htmlSolnCapabilitiesTitle = $("<h5>Capabilities:</h5>");
+				htmlSolnCapabilitiesTitle.appendTo(htmlSolnCapabilitiesArticle);
+				
+				$.each( item.capabilities, function( i2, capability ) {
+					var htmlSolnCapabilitiesItem = $("<h5>" + capability.name + "</h5>");
+					htmlSolnCapabilitiesItem.appendTo(htmlSolnCapabilitiesArticle);					
+				});
+				
+				htmlSolnListEntry.appendTo("#foundSolutions");
+			});
 		});
    	}
     

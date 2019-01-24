@@ -70,9 +70,11 @@
 					<div>
 						<h3 th:text="${solution.name}"></h3>       
 						<h4 th:text="${solution.description}"></h4>  
-						<h5>Capabilities:</h5>
-						<h5 th:each="capability : ${searchSolutionByKeywordModel.solutionCapabilities.get(solution)}" th:text="${capability.name}">
-						</h5>
+						<article>
+							<h5>Capabilities:</h5>
+							<h5 th:each="capability : ${searchSolutionByKeywordModel.solutionCapabilities.get(solution)}" th:text="${capability.name}">
+							</h5>
+						</article>
 					</div>
 				</div>    
 			</div>		

@@ -161,6 +161,7 @@ public class OnboardingService {
 	public static class RankedSolution {
 		public int rank;
 		public Solutions solution;
+		public Capabilities[] capabilities;
 	}
 	
 	/**
@@ -245,6 +246,17 @@ public class OnboardingService {
 			arlReturnedSolutions.addAll(arlSolutionsOfRank);
 		}
 
+		// Add each solution's capabilities
+		
+		for (var rs : arlReturnedSolutions) {
+			String[] capabilityIds = capabilitiesImplementedCache.getSolutionIdCapabilityIds().get(rs.solution.getId());
+			Capabilities[] capabilities = new Capabilities[capabilityIds.length];
+			for (int idx=0; idx<capabilityIds.length; idx++) {
+				capabilities[idx] = capabilitiesImplementedCache.getCapabilities().get(capabilityIds[idx]);
+			}
+			rs.capabilities = capabilities;
+		}
+		
 	    return arlReturnedSolutions;
 	}
 	
