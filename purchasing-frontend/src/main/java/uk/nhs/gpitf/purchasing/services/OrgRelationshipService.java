@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import uk.nhs.gpitf.purchasing.entities.*;
 import uk.nhs.gpitf.purchasing.repositories.*;
+import uk.nhs.gpitf.purchasing.repositories.results.OrgRelAndSolution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,18 @@ public class OrgRelationshipService {
         	coll.add(orgRel.getChildOrg());
         }
         coll.sort((object1, object2) -> (object1.getName()+object1.getOrgCode()).compareToIgnoreCase(object2.getName()+object2.getOrgCode()));
+        return coll;
+    }    
+
+    /**
+     * Returns Organisations and Core System for a parent Organisation via a relationship type ordered by Name and OrgCode
+     * @param parentOrg
+     * @param relationshipType
+     */
+    public List<OrgRelAndSolution> getOrganisationsCoreSystemByParentOrgAndRelationshipType(Organisation parentOrg, RelationshipType relationshipType) {
+        List<OrgRelAndSolution> coll = new ArrayList<>();
+        thisRepository.findAllWithCoreSystemByParentOrgAndRelationshipType(parentOrg, relationshipType).forEach(coll::add);
+        coll.sort((object1, object2) -> (object1.organisationName+object1.organisationCode).compareToIgnoreCase(object2.organisationName+object2.organisationCode));
         return coll;
     }    
 

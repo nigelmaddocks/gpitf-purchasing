@@ -257,7 +257,7 @@
     function getPracticesForCCG(ccgId) {
 		//console.log(csvCapabilities);
 		$("#practices-" + ccgId).empty();
-		var url = "/organisationData/" + ccgId + "/" + [[${T(uk.nhs.gpitf.purchasing.entities.OrgType).PRESCRIBING_PRACTICE}]];
+		var url = "/organisationCoreSystemData/" + ccgId + "/" + [[${T(uk.nhs.gpitf.purchasing.entities.OrgType).PRESCRIBING_PRACTICE}]];
 		$.getJSON( url)
 		.done(function( data ) {
 			//console.log(data);
@@ -265,16 +265,16 @@
 			var htmlTable = $("<table class=\"table table-striped\">");
 			var htmlHead = $("<thead>");
 			htmlHead.appendTo(htmlTable);
-			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th></tr>");
+			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th><th scope=\"col\">Foundation System</th></tr>");
 			htmlHeaderRow.appendTo(htmlHead);
 			var htmlBody = $("<tbody>");
 			htmlBody.appendTo(htmlTable);
 			$.each( data, function( i, item ) {
 				var checked = "";
-				if (arrSelectedCCGPracticeIds[""+ccgId].includes("," + item.id + ",")) {
+				if (arrSelectedCCGPracticeIds[""+ccgId].includes("," + item.organisationId + ",")) {
 					checked = "checked";
 				}
-				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.id + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.nameProperCase + "</td><td>" + item.orgCode + "</td><td>" + item.patientCount + "</td></tr>");
+				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + item.patientCount + "</td><td>" + item.formattedSolution + "</td></tr>");
 				htmlRow.appendTo(htmlBody);
 			});
 			htmlTable.appendTo("#practices-" + ccgId);
