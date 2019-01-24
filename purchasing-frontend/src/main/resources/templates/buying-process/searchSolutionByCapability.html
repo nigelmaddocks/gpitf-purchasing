@@ -231,10 +231,12 @@
 				var htmlCheck = $("<input type=\"checkbox\" name=\"selectedSolution\" value=\"" + item.solution.id + "\" >");
 				htmlCheck.appendTo(htmlDivCheck);
 				
-				var htmlDivSoln = $("<div>");
+				var htmlDivSoln = $("<div class=\"solution-content\">");
 				htmlDivSoln.appendTo(htmlSolnListEntry);
 				var htmlSolnName = $("<h3>" + item.solution.name + "</h3>");
 				htmlSolnName.appendTo(htmlDivSoln);
+				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (item.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£/patient</div>");
+				htmlSolnPrice.appendTo(htmlDivSoln);
 				var htmlSolnDesc = $("<h4>" + item.solution.description + "</h4>");
 				htmlSolnDesc.appendTo(htmlDivSoln);
 				var htmlSolnCapabilitiesArticle = $("<article>");

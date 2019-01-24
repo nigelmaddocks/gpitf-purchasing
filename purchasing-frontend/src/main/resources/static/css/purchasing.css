@@ -24,8 +24,14 @@
 	margin-left: 1em;
 }
 
-.solution-list-entry > div {
-	borderXX: 1px black solid;
+.solution-list-entry .solution-content {
+	width: 100%;
+}
+
+.solution-list-entry .price {
+	float: right;
+	color: #005eb8;
+	margin: 1rem;
 }
 
 .solution-list-entry  input[type=radio] {
@@ -44,6 +50,7 @@
 
 .solution-list-entry  h3 {
 	color:black;
+	display: inline-block;
 }
 
 .solution-list-entry  h4 {
