@@ -91,7 +91,7 @@ public class OnboardingService {
 	}
 	
 	public List<Capabilities> orderByCoreThenName(List<Capabilities> list) {
-		list.sort((object1, object2) -> (object1.getId().substring(0,5) +object1.getName()).compareToIgnoreCase(object2.getId().substring(0,5) +object2.getName()));
+		list.sort((object1, object2) -> (object1.getType() + object1.getName()).compareToIgnoreCase(object2.getType() + object2.getName()));
 		return list;
 	}
 	

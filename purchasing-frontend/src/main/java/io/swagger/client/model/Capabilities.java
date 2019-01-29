@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A list of potential competencies a ‘solution’ can perform or provide eg  * Mobile working  * Training  * Prescribing  * Installation  Note that a ‘capability’ has a link to zero or one previous ‘capability’  Generally, only interested in current ‘capability’
  */
 @ApiModel(description = "A list of potential competencies a ‘solution’ can perform or provide eg  * Mobile working  * Training  * Prescribing  * Installation  Note that a ‘capability’ has a link to zero or one previous ‘capability’  Generally, only interested in current ‘capability’")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2018-12-11T12:47:15.885Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
 public class Capabilities {
   @JsonProperty("id")
   private String id = null;

@@ -1,0 +1,26 @@
+.page-main-heading {
+  margin: 2em 0 1em;
+
+  h1 {
+    color: $color-nhs-black;
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 1rem;
+    margin: .3em 0 0;
+  }
+
+  p {
+    line-height: 1.33;
+    margin: .5em 0 0;
+    max-width: 770px;
+  }
+
+  .instructions {
+    color: $color-nhs-dark-grey;
+    font-weight: bolder;
+  }
+}

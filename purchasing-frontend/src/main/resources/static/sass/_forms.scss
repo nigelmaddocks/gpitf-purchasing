@@ -1,6 +1,11 @@
 $width-input-border: 2px;
 $radius-input-border: 0;
 
+// apply global focus ring style. body ancestor is to prevent IE11 focusing the entire page.
+body *:focus {
+  outline: 3px solid $color-nhs-warm-yellow;
+}
+
 input[type='text'],
 input[type='email'],
 input[type='tel'],
@@ -17,6 +22,18 @@ textarea {
 
   .control.invalid & {
     border-color: $color-input-invalid-border;
+  }
+}
+
+.control {
+  .character-count {
+    color: $color-collapsible-fieldset-validations-fg;
+    font-size: smaller;
+    margin-top: .25em;
+
+    &.invalid {
+      color: $color-nhs-red;
+    }
   }
 }
 
@@ -97,16 +114,6 @@ fieldset {
         font-weight: bold;
       }
 
-      .validations {
-        list-style-type: disc;
-        margin: .5em 0 .5em 2em;
-
-        li {
-          color: $color-collapsible-fieldset-validations-fg;
-          font-size: smaller;
-        }
-      }
-
       .info {
         color: $color-collapsible-fieldset-validations-fg;
         font-size: smaller;
@@ -129,46 +136,31 @@ fieldset {
         }
       }
     }
-
-    details.help-reveal {
-      margin: .25em 0;
-      width: 40em;
-
-      & > summary {
-        background-color: $color-help-reveal-summary-bg;
-        color: $color-help-reveal-summary-fg;
-
-        .title {
-          text-decoration: underline;
-        }
-      }
-
-      & > .contents {
-        background-color: $color-help-reveal-contents-bg;
-        border-left: 4px solid $color-help-reveal-contents-border;
-        color: $color-help-reveal-contents-fg;
-        margin: .3em 0;
-        padding: .1em 0;
-
-        p {
-          font-size: smaller;
-          margin: .5em 0;
-          padding-left: 1em;
-        }
-      }
-    }
   }
 }
 
+a.submit-button {
+  text-decoration: none;
+  color:white;
+  &:hover {
+    background-color: $color-button-hover-bg;
+    color: $color-button-hover-fg;
+  }
+}
+
+a.submit-button,
 button,
 [type='button'],
 [type='submit'],
 .button {
   background-color: $color-button-bg;
-  border-radius: 3px;
+  border: 0;
+  border-bottom: 1px solid $color-nhs-black;
   color: $color-button-fg;
+  cursor: pointer;
+  font-size: .9rem;
   min-width: 5em;
-  padding: .25em 1em;
+  padding: .4em 1em .3em;
   transition: background-color .25s;
 
   &:hover {
@@ -179,6 +171,32 @@ button,
   &[disabled],
   &.disabled {
     background-color: $color-button-disabled-bg;
+    border: 1px solid $color-button-disabled-fg;
     color: $color-button-disabled-fg;
+    cursor: default;
+    transition: none;
+  }
+}
+
+#errors {
+  border: 3px solid $color-input-invalid-border;
+  margin-top: 1em;
+  padding: .5em 1em;
+  width: 70%;
+
+  h2 {
+    font-size: 120%;
+    margin: 0;
+  }
+
+  ul {
+    color: $color-nhs-blue;
+    list-style-type: disc;
+    margin-bottom: 1em;
+    margin-left: 1.5em;
+
+    li {
+      margin-top: .75em;
+    }
   }
 }

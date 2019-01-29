@@ -129,7 +129,7 @@ public class SolutionByCapabilityController {
 			myModel.setCsvPractices("," + procurement.getCsvPractices() + ",");
 			myModel.setPatientCount(organisationService.getPatientCountForOrganisationsInList(procurement.getCsvPractices()));
 		}
-		if (myModel.getCsvPractices() == null || myModel.getCsvPractices().length() == 0) {
+		if (myModel.getCsvPractices() == null || myModel.getCsvPractices().equals(",null,") || myModel.getCsvPractices().length() == 0) {
 			myModel.setCsvPractices(",");
 		}
 		myModel.setCsvCapabilities(csvCapabilities);

@@ -48,6 +48,7 @@
 
     legend {
       color: $color-capability-selector-group-fg;
+      cursor: pointer;
       font-size: 1.2em;
       font-weight: bold;
 
@@ -56,6 +57,20 @@
         display: inline-block;
         font-size: larger;
         padding-right: .25em;
+      }
+    }
+
+    &.collapsed {
+      max-height: 2em;
+
+      legend {
+        &::before {
+          content: '▶';
+        }
+      }
+
+      > *:not(legend) {
+        display: none;
       }
     }
 
@@ -80,7 +95,7 @@
         max-height: 14rem;
         margin: 1.5em .5em 1.5em .5em;
         overflow: hidden;
-        padding: 1rem 1.5rem;
+        padding: 1rem 1.25rem;
         position: relative;
         width: 18rem;
         max-width: 17rem;
@@ -125,9 +140,15 @@
         &.gp-extracts-verification.selected { background-image: url('/img/capabilities/gp-extracts-verification-y.png'); }
         &.communication-management { background-image: url('/img/capabilities/communication-management.png'); }
         &.communication-management.selected { background-image: url('/img/capabilities/communication-management-y.png'); }
-        &.e-consultations-patient-service-user-to-professional { background-image: url('/img/capabilities/e-consultations-patient-service-user-to-professional.png'); }
+        &.e-consultations-patient-service-user-to-professional {
+          background-image: url('/img/capabilities/e-consultations-patient-service-user-to-professional.png');
+          .name { font-size: 95%; }
+        }
         &.e-consultations-patient-service-user-to-professional.selected { background-image: url('/img/capabilities/e-consultations-patient-service-user-to-professional-y.png'); }
-        &.e-consultations-professional-to-professional { background-image: url('/img/capabilities/e-consultations-professional-to-professional.png'); }
+        &.e-consultations-professional-to-professional {
+          background-image: url('/img/capabilities/e-consultations-professional-to-professional.png');
+          .name { font-size: 95%; }
+        }
         &.e-consultations-professional-to-professional.selected { background-image: url('/img/capabilities/e-consultations-professional-to-professional-y.png'); }
         &.medicines-optimisation { background-image: url('/img/capabilities/medicines-optimisation.png'); }
         &.medicines-optimisation.selected { background-image: url('/img/capabilities/medicines-optimisation-y.png'); }
@@ -153,7 +174,10 @@
         &.risk-stratification.selected { background-image: url('/img/capabilities/risk-stratification-y.png'); }
         &.caseload-management { background-image: url('/img/capabilities/caseload-management.png'); }
         &.caseload-management.selected { background-image: url('/img/capabilities/caseload-management-y.png'); }
-        &.data-analytics-for-integrated-and-federated-care { background-image: url('/img/capabilities/data-analytics-for-integrated-and-federated-care.png'); }
+        &.data-analytics-for-integrated-and-federated-care {
+          background-image: url('/img/capabilities/data-analytics-for-integrated-and-federated-care.png');
+          .name { font-size: 95%; }
+        }
         &.data-analytics-for-integrated-and-federated-care.selected { background-image: url('/img/capabilities/data-analytics-for-integrated-and-federated-care-y.png'); }
 
         &:not(.revealed):hover {
@@ -169,16 +193,40 @@
         }
 
         .description {
+          line-height: 1.45;
+          max-height: 7.25rem;
           opacity: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
           .full-description-link {
             display: none;
           }
+
+          &::after {
+            bottom: -.3em;
+            content: '⟩';
+            display: none;
+            font-size: 250%;
+            left: 47.5%;
+            position: absolute;
+            transform: rotate(90deg);
+          }
         }
 
         &:hover .description {
+          // From https://stackoverflow.com/a/52454350 for Webkit compatible browsers
+          // to support block-level text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 6;
+          -webkit-box-orient: vertical;
+
           opacity: 1;
           transition: opacity .2s ease-in;
+
+          &::after {
+            display: inline-block;
+          }
         }
 
         .name {
@@ -226,7 +274,13 @@
             .description {
               margin-bottom: 2em;
               margin-top: 0;
+              max-height: none;
               opacity: 1;
+              text-overflow: all;
+
+              &::after {
+                display: none;
+              }
             }
 
             & > *:not(.description) {
@@ -248,8 +302,8 @@
               display: flex;
               flex-direction: row;
 
-              .controls {
-                width: 40%;
+              .preamble {
+                margin-left: 1em;
               }
             }
 
@@ -274,6 +328,9 @@
               }
 
               ~ label.checked {
+                white-space: nowrap;
+                width: 40%;
+
                 .selected {
                   color: $color-nhs-green;
                   padding-right: 3em;

@@ -35,7 +35,7 @@ import java.util.List;
  * An Extended Solution with its corresponding Technical Contacts, ClaimedCapability, ClaimedStandard et al
  */
 @ApiModel(description = "An Extended Solution with its corresponding Technical Contacts, ClaimedCapability, ClaimedStandard et al")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2018-12-11T12:47:15.885Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
 public class SolutionEx {
   @JsonProperty("solution")
   private Solutions solution = null;

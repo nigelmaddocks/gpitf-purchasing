@@ -33,6 +33,7 @@
         }
       }
 
+      &.failed,
       &.rejected {
         td {
           &.status,
@@ -46,6 +47,10 @@
 
   details.quick-links {
     color: $color-nhs-blue;
+
+    > summary {
+      cursor: pointer;
+    }
 
     ul {
       list-style-type: disc;
@@ -162,6 +167,7 @@
         flex-grow: 1;
       }
     }
+
     &.has-file {
       .remove {
         display: inline;
@@ -179,6 +185,23 @@
         }
       }
     }
+
+    .owner {
+      [name='ownerId'] {
+        display: none;
+      }
+
+      &.changing {
+        [name='ownerId'] {
+          display: inline-block;
+        }
+
+        #change-owner-button,
+        .current-owner {
+          display: none;
+        }
+      }
+    }
   }
 
   #submit-for-compliance {
@@ -186,6 +209,30 @@
 
     &::after {
       content: ' ❯';
+    }
+  }
+}
+
+
+#compliance-confirmation {
+  section {
+    background: $color-nhs-light-grey;
+    border: 2px solid $color-nhs-mid-grey;
+    margin: 1em;
+    padding: 1em;
+
+    div.section-header {
+      h2 {
+        margin: 0.1em;
+      }
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-content: center;
+    }
+
+    p, a {
+      margin-bottom: 2em;
     }
   }
 }

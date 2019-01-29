@@ -1,8 +1,10 @@
 details.help-reveal {
-  margin-bottom: .5em;
+  margin: .5em 0;
+  width: 70%;
 
   > summary {
     color: $color-help-reveal-summary-fg;
+    cursor: pointer;
 
     .title {
       text-decoration: underline;
@@ -14,9 +16,13 @@ details.help-reveal {
     border-left: 3px solid $color-help-reveal-border;
     color: $color-help-reveal-contents-fg;
     font-size: smaller;
-    font-weight: lighter;
+    font-weight: normal;
+    line-height: 1.33;
     margin-top: .5em;
-    padding: .5em 0 .5em 1em;
-    width: 60%;
+    padding: .3em 0 .3em 1em;
+
+    & > p {
+      margin: .3em 0;
+    }
   }
 }
