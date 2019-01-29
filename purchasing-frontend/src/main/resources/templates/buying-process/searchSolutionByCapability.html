@@ -274,7 +274,7 @@
 				if (arrSelectedCCGPracticeIds[""+ccgId].includes("," + item.organisationId + ",")) {
 					checked = "checked";
 				}
-				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + item.patientCount + "</td><td>" + item.formattedSolution + "</td></tr>");
+				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + (item.patientCount==null?"":item.patientCount) + "</td><td>" + item.formattedSolution + "</td></tr>");
 				htmlRow.appendTo(htmlBody);
 			});
 			htmlTable.appendTo("#practices-" + ccgId);
@@ -298,7 +298,8 @@
     
     function refreshSelectedPractices() {
 		if ($("#selectedPractices") != null) {
-			$("#selectedPractices").text("Selected practices: " + selectedPractices + ", patients: " + selectedPracticePatients + ", practice Ids: " + selectedPracticeIds.substring(1, Math.max(selectedPracticeIds.length-2, 1)));
+			//$("#selectedPractices").text("Selected practices: " + selectedPractices + ", patients: " + selectedPracticePatients + ", practice Ids: " + selectedPracticeIds.substring(1, Math.max(selectedPracticeIds.length-2, 1)));
+			$("#selectedPractices").text("Selected practices: " + selectedPractices + ", patients: " + selectedPracticePatients);
 		}
     	
     }

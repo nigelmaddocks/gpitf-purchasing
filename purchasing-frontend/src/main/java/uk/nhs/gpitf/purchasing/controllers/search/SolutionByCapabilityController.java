@@ -28,6 +28,7 @@ import uk.nhs.gpitf.purchasing.entities.RelationshipType;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByCapabilityModel;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
+import uk.nhs.gpitf.purchasing.repositories.results.Ids;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
@@ -163,12 +164,21 @@ public class SolutionByCapabilityController {
 			for (Organisation ccg : myCCGs) {
 				try {
 					String csv = ",";
+/* replaced by code below so that one-pass SQL is issued rather than loads of SELECTs for child orgs				
 					List<Organisation> practices = orgRelationshipService.getOrganisationsByParentOrgAndRelationshipType(ccg, (RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE));
 					for (Organisation practice : practices) {
 						if (myModel.getCsvPractices().contains("," + practice.getId() + ",")) {
 							csv += practice.getId() + ",";
 						}
 					}
+*/					
+					List<Ids> practiceIds = orgRelationshipService.getChildIdsByParentOrgAndRelationshipType(ccg, (RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE));
+					for (Ids practiceId : practiceIds) {
+						if (myModel.getCsvPractices().contains("," + practiceId.id + ",")) {
+							csv += practiceId.id + ",";
+						}
+					}
+
 					myModel.getSelectedCCGPracticeIds().put(ccg.getId(), csv);
 				} catch (Exception e) {
 					e.printStackTrace();
