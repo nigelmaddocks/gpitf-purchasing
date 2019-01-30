@@ -1,6 +1,7 @@
 package uk.nhs.gpitf.purchasing.cache;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
@@ -19,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 
 @Data
@@ -34,8 +36,10 @@ public class CapabilitiesImplementedCache {
 	private Hashtable<String, String[]> capabilityIdSolutionIds = new Hashtable<>();
 	private Hashtable<String, String[]> solutionIdCapabilityIds = new Hashtable<>();
 	private Hashtable<String, Capabilities> capabilities = new Hashtable<>();
-	private Hashtable<String, Solutions> solutions = new Hashtable<>();
+	private Hashtable<String, SolutionEx2> solutions = new Hashtable<>();
 	private Hashtable<String, Organisations> organisations = new Hashtable<>();
+	private ArrayList<String> foundationCapabilityIds = new ArrayList<>();
+
 
 	
 	@Getter(AccessLevel.NONE)
@@ -58,13 +62,25 @@ public class CapabilitiesImplementedCache {
 		Hashtable<String, String[]> newCapabilityIdSolutionIds = new Hashtable<>();
 		Hashtable<String, String[]> newSolutionIdCapabilityIds = new Hashtable<>();
 		Hashtable<String, Capabilities> newCapabilities = new Hashtable<>();
-		Hashtable<String, Solutions> newSolutions = new Hashtable<>();
+		Hashtable<String, SolutionEx2> newSolutions = new Hashtable<>();
 		Hashtable<String, Organisations> newOrganisations = new Hashtable<>();
+		ArrayList<String> newFoundationCapabilityIds = new ArrayList<>();
 		
 		List<Capabilities> capabilities = onboardingService.findCapabilitiesByFramework(onboardingService.getDefaultFramework());
-		List<Solutions> solutions = onboardingService.findSolutionsByFramework(onboardingService.getDefaultFramework());
+		List<Solutions> tmpSolutions = onboardingService.findSolutionsByFramework(onboardingService.getDefaultFramework());
+		List<SolutionEx2> solutions = new ArrayList<>();
+		for (var tmpSolution : tmpSolutions) {
+			solutions.add(new SolutionEx2(tmpSolution));
+		}
+		
+		for (var capability : capabilities) {
+			if (capability.getType().equals("C")) {
+				newFoundationCapabilityIds.add(capability.getId());
+			}
+		}
+		
 		List<CapabilitiesImplemented> capabilitiesImplemented = new ArrayList<>();
-		for (Solutions solution : solutions) {
+		for (SolutionEx2 solution : solutions) {
 			List<CapabilitiesImplemented> ciForSolution = onboardingService.findCapabilitiesImplementedBySolution(solution.getId());
 			capabilitiesImplemented.addAll(ciForSolution);
 					// Add to newSolutions
@@ -75,6 +91,10 @@ public class CapabilitiesImplementedCache {
 				arrCapabilities[idx] = ci.getCapabilityId();
 				idx++;
 			}
+			// Determine if solution contains all foundation capabilities
+			boolean bContainsAllFoundationCapabilities = Arrays.asList(arrCapabilities).containsAll(newFoundationCapabilityIds);
+			solution.setFoundation(bContainsAllFoundationCapabilities);
+			
 			// Add to newSolutionIdCapabilityIds
 			newSolutionIdCapabilityIds.put(solution.getId(), arrCapabilities);
 		}
@@ -101,6 +121,7 @@ public class CapabilitiesImplementedCache {
 		this.capabilities = newCapabilities;
 		this.solutions = newSolutions;
 		this.organisations = newOrganisations;
+		this.foundationCapabilityIds = newFoundationCapabilityIds;
 		System.out.println("*** CapabilitiesImplemented loaded into Cache ***");
 
 	}
