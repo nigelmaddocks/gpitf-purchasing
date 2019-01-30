@@ -16,6 +16,11 @@ body > header {
 	max-width:100%; !important;
 }
 
+/* To stop breadcrumb from being right-justified from styles.css scss */
+body > header .bottom nav {
+	justify-content: flex-start;
+}
+
 h1 {
 	font-weight: bold; font-size: 2em; color: #425563;
 }
