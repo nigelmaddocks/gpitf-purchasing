@@ -7,9 +7,11 @@ import uk.nhs.gpitf.purchasing.entities.*;
 import uk.nhs.gpitf.purchasing.repositories.*;
 import uk.nhs.gpitf.purchasing.repositories.results.Ids;
 import uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolution;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrgRelationshipService {
@@ -63,9 +65,19 @@ public class OrgRelationshipService {
      * @param parentOrg
      * @param relationshipType
      */
-    public List<OrgAndCountAndSolution> getOrganisationsCoreSystemByParentOrgAndRelationshipType(Organisation parentOrg, RelationshipType relationshipType) {
+    public List<OrgAndCountAndSolution> getOrganisationsCoreSystemByParentOrgAndRelationshipType(Organisation parentOrg, RelationshipType relationshipType,
+    		Optional<String> optFilterByName, Optional<String> optFilterByCode, Optional<String> optFilterBySystem ) {
         List<OrgAndCountAndSolution> coll = new ArrayList<>();
         thisRepository.findAllWithCoreSystemByParentOrgAndRelationshipType(parentOrg, relationshipType).forEach(coll::add);
+        if (optFilterByName.isPresent()) {
+        	coll.removeIf(e -> !GUtils.nullToString(e.organisationName).toUpperCase().contains(optFilterByName.get().toUpperCase()));
+        }
+        if (optFilterByCode.isPresent()) {
+        	coll.removeIf(e -> !GUtils.nullToString(e.organisationCode).toUpperCase().contains(optFilterByCode.get().toUpperCase()));
+        }
+        if (optFilterBySystem.isPresent()) {
+        	coll.removeIf(e -> !GUtils.nullToString(e.formatSolution()).toUpperCase().contains(optFilterBySystem.get().toUpperCase()));
+        }
         coll.sort((object1, object2) -> (object1.organisationName+object1.organisationCode).compareToIgnoreCase(object2.organisationName+object2.organisationCode));
         return coll;
     }    

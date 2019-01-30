@@ -82,4 +82,9 @@ public class GUtils {
        
         return retval;
     }	
+    
+    /** Returns string or empty string if null */
+    public static String nullToString(String value) {
+    	return value == null ? "" : value;
+    }
 }
