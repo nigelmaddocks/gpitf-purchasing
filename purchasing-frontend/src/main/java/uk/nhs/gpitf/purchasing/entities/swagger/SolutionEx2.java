@@ -3,6 +3,8 @@ package uk.nhs.gpitf.purchasing.entities.swagger;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.springframework.beans.BeanUtils;
+
 import io.swagger.client.model.Solutions;
 import lombok.Data;
 
@@ -12,18 +14,7 @@ public class SolutionEx2 extends Solutions {
 	private BigDecimal price;
 	
 	public SolutionEx2 (Solutions solutions) {
-		this.setId(				solutions.getId());
-		this.setName(			solutions.getName());
-		this.setDescription(	solutions.getDescription());
-		this.setCreatedById(	solutions.getCreatedById());
-		this.setCreatedOn(		solutions.getCreatedOn());
-		this.setModifiedById(	solutions.getModifiedById());
-		this.setModifiedOn(		solutions.getModifiedOn());
-		this.setOrganisationId(	solutions.getOrganisationId());
-		this.setPreviousId(		solutions.getPreviousId());
-		this.setProductPage(	solutions.getProductPage());
-		this.setStatus(			solutions.getStatus());
-		this.setVersion(		solutions.getVersion());
+		BeanUtils.copyProperties(solutions, this);
 	}
 	
 	public SolutionEx2 (Solutions solutions, boolean foundation) {
