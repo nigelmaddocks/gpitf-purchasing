@@ -1,5 +1,7 @@
 package uk.nhs.gpitf.purchasing.cache;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -91,6 +93,17 @@ public class CapabilitiesImplementedCache {
 				arrCapabilities[idx] = ci.getCapabilityId();
 				idx++;
 			}
+			
+			// Calculate a static price based on name and capabilities
+			long byteTotal = 0;
+			for (byte thisByte : solution.getName().getBytes()) {
+				byteTotal += (int) thisByte;
+			}
+			BigDecimal price = BigDecimal.valueOf(byteTotal).divide(BigDecimal.valueOf(solution.getName().getBytes().length), 3, RoundingMode.HALF_UP); 
+			price = price.divide(BigDecimal.valueOf(1000), 3, RoundingMode.HALF_UP);
+			price = price.multiply(BigDecimal.valueOf(arrCapabilities.length));
+			solution.setPrice(price);
+			
 			// Determine if solution contains all foundation capabilities
 			boolean bContainsAllFoundationCapabilities = Arrays.asList(arrCapabilities).containsAll(newFoundationCapabilityIds);
 			solution.setFoundation(bContainsAllFoundationCapabilities);

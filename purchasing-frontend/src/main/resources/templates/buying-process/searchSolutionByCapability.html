@@ -142,8 +142,20 @@
     	
     }
     
+    function getSelectedCapabilitiesCsv() {
+		var selectedCapabilities = "";
+		$("input[name=filterCapabilities]:checked").each( function () {
+			selectedCapabilities += "," + $(this).attr('id').split($(this).attr('name')+'_')[1].trim();
+		});
+		if (selectedCapabilities.length > 0) {
+			selectedCapabilities = selectedCapabilities.substring(1);
+		}
+		return selectedCapabilities;
+    }
+    
     function showCapabilityPanel(show) {
     	if (show) {
+    		searchCapabilitiesForSolutions(getSelectedCapabilitiesCsv());
     		$("#capabilityPanel").show();
     		$("#practicePanel").hide();
     	} else {
@@ -209,6 +221,7 @@
 		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities;
 		$.getJSON( url)
 		.done(function( data ) {
+			$("#foundSolutions").empty();
 			//console.log(data);
 /*
 			var htmlTable = $("<table class=\"table table-striped\">");
@@ -235,7 +248,12 @@
 				htmlDivSoln.appendTo(htmlSolnListEntry);
 				var htmlSolnName = $("<h3>" + item.solution.name + "</h3>");
 				htmlSolnName.appendTo(htmlDivSoln);
-				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (item.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£/patient</div>");
+				
+				var solutionPrice = "" + item.solution.price + "/patient";
+				if (selectedPracticePatients > 0) {
+					solutionPrice = "" + (item.solution.price * selectedPracticePatients).toFixed(2);
+				}
+				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (item.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£" + solutionPrice + "</div>");
 				htmlSolnPrice.appendTo(htmlDivSoln);
 				var htmlSolnDesc = $("<h4>" + item.solution.description + "</h4>");
 				htmlSolnDesc.appendTo(htmlDivSoln);
