@@ -276,11 +276,11 @@
 			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th><th scope=\"col\">Foundation System</th></tr>");
 			htmlHeaderRow.appendTo(htmlHead);
 			var htmlSelectorRow = $("<tr>" +
-					"<td scope=\"col\"><input type=\"checkbox\" name=\"selAllOrg-" + ccgId + "\" /></td>" + 
-					"<td scope=\"col\"><input type=\"text\" id=\"filterByName\" value=\"" + filterByNameText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" /></td>" + 
-					"<td scope=\"col\"><input type=\"text\" id=\"filterByCode\" value=\"" + filterByCodeText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" style=\"width: 8rem !important;\" /></td>" +
+					"<td scope=\"col\"><input type=\"checkbox\" name=\"selAllOrg-" + ccgId + "\" onchange=\"checkAllOrgs(this.checked);\" /></td>" + 
+					"<td scope=\"col\"><input type=\"text\" id=\"filterByName\" autocomplete=\"off\" value=\"" + filterByNameText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" /></td>" + 
+					"<td scope=\"col\"><input type=\"text\" id=\"filterByCode\" autocomplete=\"off\" value=\"" + filterByCodeText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" style=\"width: 8rem !important;\" /></td>" +
 					"<td scope=\"col\"></td>" +
-					"<td scope=\"col\"><input type=\"text\" id=\"filterBySystem\" value=\"" + filterBySystemText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" /></td>" +
+					"<td scope=\"col\"><input type=\"text\" id=\"filterBySystem\" autocomplete=\"off\" value=\"" + filterBySystemText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" /></td>" +
 					"</tr>");
 			htmlSelectorRow.appendTo(htmlHead);
 
@@ -297,6 +297,14 @@
 			htmlTable.appendTo("#practices-" + ccgId);
 		});
    	}
+    
+    function checkAllOrgs(toChecked) {
+    	$('input[name=selOrg]').each( function () {
+    		if ($(this).prop('checked') != toChecked) {
+        		$(this).trigger('click');
+    		}
+    	});
+    }
     
     function addRemovePractice(element, ccgId, patientCount) {
     	selectedPractices += element.checked?1:-1;
