@@ -282,7 +282,7 @@
 			});
 			
 			
-			if (solutionsCount > [[${myModel.SHORTLIST_MAX}]]) {
+			if (selectedPractices <= 0 || solutionsCount > [[${myModel.SHORTLIST_MAX}]]) {
 				$("#btnShortlist").hide();
 			} else {
 				$("#btnShortlist").show();
