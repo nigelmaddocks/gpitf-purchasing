@@ -53,3 +53,6 @@ security:
 logging.level.org.hibernate.SQL: debug
 #show sql values
 #logging.level.org.hibernate.type.descriptor.sql: trace
+
+sysparam.shortlist.max: 5
+

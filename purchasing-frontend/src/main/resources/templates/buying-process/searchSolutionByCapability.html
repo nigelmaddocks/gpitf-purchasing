@@ -77,9 +77,16 @@
 		<div id="capabilityPanel" class="panel-body capabilitysearch-capability-panel" >
     
         <div class="row">
-        	<h2>Capability Search Results
-        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
-        	</h2>
+        	<div class="col-md-10">
+        		<h2>Capability Search Results
+        		<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+        		</h2>
+        	</div>
+        	<div class="col-md-2">
+        		<br />
+		     	<button id="btnShortlist" class="btn btn-default" style="display:none;" type="button" onclick="alert('going to create a shortlist')">Create Shortlist</button>
+		    </div>
+        	
         </div>
         <form class="form-horizontal">
             <div class="form-group">
@@ -222,6 +229,7 @@
 		$.getJSON( url)
 		.done(function( data ) {
 			$("#foundSolutions").empty();
+			$("#btnShortlist").hide();
 			//console.log(data);
 /*
 			var htmlTable = $("<table class=\"table table-striped\">");
@@ -237,7 +245,10 @@
 			});
 			htmlTable.appendTo("#foundSolutions");
 */
+			var solutionsCount = 0
 			$.each( data, function( i, item ) {
+				solutionsCount++;
+				
 				var htmlSolnListEntry = $("<div class=\"panel panel-default solution-list-entry\" style=\"width:95%;\">");
 				var htmlDivCheck = $("<div>");
 				htmlDivCheck.appendTo(htmlSolnListEntry);
@@ -269,6 +280,13 @@
 				
 				htmlSolnListEntry.appendTo("#foundSolutions");
 			});
+			
+			
+			if (solutionsCount > [[${myModel.SHORTLIST_MAX}]]) {
+				$("#btnShortlist").hide();
+			} else {
+				$("#btnShortlist").show();
+			}
 		});
    	}
     

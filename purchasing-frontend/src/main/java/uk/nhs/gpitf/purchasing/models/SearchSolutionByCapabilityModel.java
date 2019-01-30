@@ -47,4 +47,6 @@ public class SearchSolutionByCapabilityModel {
 			return ",";
 		}
 	}
+	
+	private String SHORTLIST_MAX;
 }

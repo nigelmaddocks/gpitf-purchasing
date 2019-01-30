@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,6 +59,9 @@ public class SolutionByCapabilityController {
 	@Autowired
 	ProcurementService procurementService;
     
+	@Value("${sysparam.shortlist.max}")
+    private String SHORTLIST_MAX;
+	
     private static final Logger logger = LoggerFactory.getLogger(SolutionByCapabilityController.class);
 /*	
 	@GetMapping("/buyingprocess/solutionByCapability/{csvCapabilities}")
@@ -122,6 +126,7 @@ public class SolutionByCapabilityController {
 
 	private Model setupSolutionByCapability(SecurityInfo secInfo, Procurement procurement, String csvCapabilities, Model model) {
 		SearchSolutionByCapabilityModel myModel = new SearchSolutionByCapabilityModel();
+		myModel.setSHORTLIST_MAX(SHORTLIST_MAX);
 		myModel.setProcurement(procurement);
 		myModel.setProcurementId(0L);
 		if (procurement != null) {
