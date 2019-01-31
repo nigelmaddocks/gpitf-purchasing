@@ -62,6 +62,8 @@ public class ShortlistController {
 
 	@GetMapping(value = {"/buyingprocess/{procurementId}/directShortlistInitialise"})
 	public String directShortlistInitialise(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
+		Breadcrumbs.removeTitle("By capability", request);
+		Breadcrumbs.removeTitle("By keyword", request);
 		Breadcrumbs.register("Shortlist", request);
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
@@ -86,6 +88,18 @@ public class ShortlistController {
 	    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
 	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 			}
+			
+			if (procurement.getStatus().getId() != ProcStatus.DRAFT) {
+	        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
+	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		attr.addFlashAttribute("security_message", message);
+	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+			}
+		} else {
+        	String message = "procurement " + procurementId + " not found";
+    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", message);
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 		}
 
 		// Perform a capability search and verify that the number of results is still below the threshold

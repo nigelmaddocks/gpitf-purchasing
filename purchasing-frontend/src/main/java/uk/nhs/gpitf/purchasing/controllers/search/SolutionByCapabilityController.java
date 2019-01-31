@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import io.swagger.client.model.Solutions;
 import uk.nhs.gpitf.purchasing.entities.OrgType;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
+import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.entities.RelationshipType;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByCapabilityModel;
@@ -74,6 +75,7 @@ public class SolutionByCapabilityController {
 	@GetMapping(value = {"/buyingprocess/solutionByCapability/{optCsvCapabilities}", "/buyingprocess/{optProcurementId}/solutionByCapability/{optCsvCapabilities}", "/buyingprocess/solutionByCapability", "/buyingprocess/{optProcurementId}/solutionByCapability"})
 	public String solutionByCapability(@PathVariable Optional<Long> optProcurementId, @PathVariable Optional<String> optCsvCapabilities, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.register("By capability", request);
+		
 
 		String csvCapabilities =  null;
 		if (optCsvCapabilities.isPresent()) {
@@ -90,6 +92,13 @@ public class SolutionByCapabilityController {
 				Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 				if (optProcurement.isPresent()) {
 					procurement = optProcurement.get();
+					
+					if (procurement.getStatus().getId() != ProcStatus.DRAFT) {
+			        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
+			    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+			    		attr.addFlashAttribute("security_message", message);
+			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+					}
 					
 					// If we've skipped the keyword search, then put it in the breadcrumb
 					if (procurement.getSearchKeyword() != null && procurement.getSearchKeyword().trim().length() > 0) {
