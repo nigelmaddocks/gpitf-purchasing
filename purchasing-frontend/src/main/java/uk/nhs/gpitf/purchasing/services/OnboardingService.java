@@ -400,6 +400,13 @@ public class OnboardingService {
 		return returnedList;
 		
 	}
+
+	/**
+	 * WARNING: Non-api method that works over cached solutions and capabilities
+	 */
+	public SolutionEx2 getSolutionEx2ById(String id) {
+		return capabilitiesImplementedCache.getSolutions().get(id);
+	}
 	
 	// -------------------------------------------------------------------------------------------------------
 	

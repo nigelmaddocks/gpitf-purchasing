@@ -7,11 +7,85 @@
 <body>
 <section>
     <div class="container">
- 	<div class="panel panel-default">
- 	
 		<h3>Buying Shortlist</h3>	
-	</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">Shortlisted Solutions</div>
+			
+			<div class="panel-body">
+				<table class="table">
+					<thead>
+						<tr style="font-weight: 600;">
+							<td>Solution</td>
+							<td>Foundation</td>
+							<td style="text-align: right; padding-right: 20px;">Price</td>
+							<td>Action</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="solution : ${shortlistModel.solutions}">
+							<td th:text="${solution.getName()}"></td>
+							<td th:text="${solution.foundation?'Yes':''}"></td>
+							<td th:text="${'£ ' + shortlistModel.getPrice(solution.id)}" style="text-align: right; padding-right: 20px;"></td>
+							<td><button th:if="${!solution.foundation}" th:id="${'btnDirectAward-'+solution.getId()}" id="btnDirectAward-" class="btn btn-default" style="display:noneX;" type="button" onclick="alert('Direct award');">Direct award</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+        <form class="form-horizontal" th:object="${shortlistModel}" th:action="@{/buyingprocess/shortlist}" method="post">
+            <input type="hidden" th:field="*{procurementId}" />
+            <input type="hidden" th:field="*{numberOfPractices}" />
+        
+			<div class="panel panel-default">
+				<div class="panel-heading">Additional Configuration</div>
+				<div class="panel-body">
+					<div class="row">
+		                <div class="col-md-3" style="text-align: right;">Number of practices:</div>
+						<div class="col-md-3" th:text="${shortlistModel.numberOfPractices}"></div>
+						
+		                <label class="col-md-3 control-label">Number of patients:</label>
+						<div th:class="${#fields.hasErrors('numberOfPatients')}? 'col-md-3 has-error' : 'col-md-3'">
+			            	<input type="text" th:field="*{numberOfPatients}" class="form-control" placeholder="number of patients" autocomplete="off" />
+			                <span th:if="${#fields.hasErrors('numberOfPatients')}" class="help-block">[[${#fields.errors('numberOfPatients')[0]}]]</span>
+			            </div>
+					</div>
+					<div class="row">
+		                <label class="col-md-3 control-label">Contract Start:</label>
+						<div th:class="${#fields.hasErrors('contractStart')}? 'col-md-3 has-error' : 'col-md-3'">
+							<div class="input-group date" data-provide="datepicker">
+				            	<input type="text" th:field="*{contractStart}" class="form-control" placeholder="contract start date" autocomplete="off" />
+				            	<div class="input-group-addon">
+	        						<span class="glyphicon glyphicon-th"></span>
+	    						</div>
+				                <span th:if="${#fields.hasErrors('contractStart')}" class="help-block">[[${#fields.errors('contractStart')[0]}]]</span>
+				            </div>
+			            </div>
+		                <label class="col-md-3 control-label">Contract End:</label>
+						<div th:class="${#fields.hasErrors('contractEnd')}? 'col-md-3 has-error' : 'col-md-3'">
+							<div class="input-group date" data-provide="datepicker">
+				            	<input type="text" th:field="*{contractEnd}" class="form-control" placeholder="contract end date" autocomplete="off" />
+				            	<div class="input-group-addon">
+	        						<span class="glyphicon glyphicon-th"></span>
+	    						</div>
+				                <span th:if="${#fields.hasErrors('contractEnd')}" class="help-block">[[${#fields.errors('contractEnd')[0]}]]</span>
+				            </div>
+			            </div>
+					</div>
+				</div>
+				<div class="panel-footer">
+					<button id="btnRecalculate" class="btn btn-default" style="display:noneX;" type="button" onclick="forms[0].submit();">Recalculate Prices</button>
+				</div>
+			</div>
+		</form>
 	</div>
 </section>
+
+<script th:inline="javascript">
+
+$('#datepicker').datepicker({ format: 'dd/mm/yyyy' });
+
+</script>
 </body>
 </html>

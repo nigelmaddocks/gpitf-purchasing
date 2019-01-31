@@ -2,13 +2,11 @@ package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.nhs.gpitf.purchasing.entities.OrgType;
@@ -25,10 +25,10 @@ import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.entities.RelationshipType;
+import uk.nhs.gpitf.purchasing.models.OrgContactModel;
 import uk.nhs.gpitf.purchasing.models.ShortlistModel;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
-import uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolution;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
@@ -170,14 +170,66 @@ public class ShortlistController {
 	public String directShortlist(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.register("Shortlist", request);
 		
-		ShortlistModel shortListModel = new ShortlistModel();
-		model.addAttribute("shortListModel", shortListModel);
-		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
+		Object rtnObject = procurementSecurityValidation(secInfo, procurementId, attr);
+		if (rtnObject instanceof String) {
+			return (String) rtnObject;
+		}
+		Procurement procurement = (Procurement)rtnObject;
+		
+		setupModel(secInfo, procurement, model);
+		
+		return "buying-process/shortlist";
+	}
+	
+	@PostMapping("/buyingprocess/shortlist")
+	public String directShortlistRecalculate(
+			@Valid ShortlistModel shortlistModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
+		
+		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+		
+		long procurementId = shortlistModel.getProcurementId();
+		Object rtnObject = procurementSecurityValidation(secInfo, procurementId, attr);
+		if (rtnObject instanceof String) {
+			return (String) rtnObject;
+		}
+		Procurement procurement = (Procurement)rtnObject;
+		
+		setupModelCollections(shortlistModel, procurement);;
+		
+		return "buying-process/shortlist";	
+	}
+	
+	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model) {
+		
+		ShortlistModel shortlistModel = new ShortlistModel();
+		
+		shortlistModel.setProcurementId(procurement.getId());
+		
+		setupModelCollections(shortlistModel, procurement);
+		
+		shortlistModel.setNumberOfPractices(procurement.getCsvPractices().split(",").length);
+		shortlistModel.setNumberOfPatients(procurement.getInitialPatientCount());
+		
+		model.addAttribute("shortlistModel", shortlistModel);
+		
+		return model;
+	}
+	
+	private void setupModelCollections(ShortlistModel shortlistModel, Procurement procurement) {		
+		String[] arrSolutionIds = procurement.getCsvShortlistSolutions().split(",");
+		for (String solutionId : arrSolutionIds) {
+			if (solutionId.trim().length() > 0) {
+				shortlistModel.getSolutions().add(onboardingService.getSolutionEx2ById(solutionId));
+			}
+		}			
+	}
+	
+	private Object procurementSecurityValidation(SecurityInfo secInfo, long procurementId, RedirectAttributes attr) {
 		if (procurementId == 0) {
         	String message = "Unidentified route to shortlist";
-    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		logger.warn(secInfo.loggerSecurityMessage(message));
     		attr.addFlashAttribute("security_message", message);
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 		}	
@@ -191,24 +243,25 @@ public class ShortlistController {
 			if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
 			 && !secInfo.isAdministrator()) {
 	        	String message = "view procurement " + procurementId;
-	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		logger.warn(secInfo.loggerSecurityMessage(message));
 	    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
 	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 			}
 			
 			if (procurement.getStatus().getId() != ProcStatus.SHORTLIST) {
 	        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
-	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		logger.warn(secInfo.loggerSecurityMessage(message));
 	    		attr.addFlashAttribute("security_message", message);
 	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 			}
 		} else {
         	String message = "procurement " + procurementId + " not found";
-    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		logger.warn(secInfo.loggerSecurityMessage(message));
     		attr.addFlashAttribute("security_message", message);
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 		}
 		
-		return "buying-process/shortlist";
+		return procurement;
+		
 	}
 }

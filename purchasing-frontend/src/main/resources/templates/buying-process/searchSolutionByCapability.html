@@ -377,6 +377,14 @@
     	
     }
     
+    function proceedToShortlist() {
+		/*<![CDATA[*/
+        var url = /*[[@{'/buyingprocess/directShortlistInitialise/' + ${myModel.procurement.id}}]]*/;
+    	/*]]>*/
+
+    	location.href = url;
+    }
+    
     // On document ready, setup "selected practices" variables and perform a capability search
    	var selectedPracticeIds = [[${myModel.csvPractices}]];
    	var selectedPractices = selectedPracticeIds.split(",").length-2;
@@ -410,13 +418,6 @@
             	
     });
     
-    function proceedToShortlist() {
-		/*<![CDATA[*/
-        var url = /*[[@{'/buyingprocess/directShortlistInitialise/' + ${myModel.procurement.id}}]]*/;
-    	/*]]>*/
-
-    	location.href = url;
-    }
     
 </script>
 </body>
