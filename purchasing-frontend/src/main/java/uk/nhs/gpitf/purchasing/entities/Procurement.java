@@ -58,4 +58,8 @@ public class Procurement {
 	private String csvCapabilities;
 	
 	private String csvPractices;
+	
+	private String csvShortlistSolutions;
+	
+	private Integer initialPatientCount;
 }
