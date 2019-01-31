@@ -60,7 +60,7 @@ public class ShortlistController {
 	
     private static final Logger logger = LoggerFactory.getLogger(ShortlistController.class);
 
-	@GetMapping(value = {"/buyingprocess/{procurementId}/directShortlistInitialise"})
+	@GetMapping(value = {"/buyingprocess/directShortlistInitialise/{procurementId}"})
 	public String directShortlistInitialise(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.removeTitle("By capability", request);
 		Breadcrumbs.removeTitle("By keyword", request);
@@ -163,5 +163,52 @@ public class ShortlistController {
 		
 		return "buying-process/shortlist";
 
+	}
+	
+
+	@GetMapping(value = {"/buyingprocess/shortlist/{procurementId}"})
+	public String directShortlist(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
+		Breadcrumbs.register("Shortlist", request);
+		
+		ShortlistModel shortListModel = new ShortlistModel();
+		model.addAttribute("shortListModel", shortListModel);
+		
+		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+
+		if (procurementId == 0) {
+        	String message = "Unidentified route to shortlist";
+    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", message);
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+		}	
+		
+		Procurement procurement = null;
+		Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
+		if (optProcurement.isPresent()) {
+			procurement = optProcurement.get();
+			
+			// Check that the user is authorised to this procurement
+			if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
+			 && !secInfo.isAdministrator()) {
+	        	String message = "view procurement " + procurementId;
+	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
+	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+			}
+			
+			if (procurement.getStatus().getId() != ProcStatus.SHORTLIST) {
+	        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
+	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		attr.addFlashAttribute("security_message", message);
+	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+			}
+		} else {
+        	String message = "procurement " + procurementId + " not found";
+    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", message);
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+		}
+		
+		return "buying-process/shortlist";
 	}
 }
