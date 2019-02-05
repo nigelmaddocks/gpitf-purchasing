@@ -27,6 +27,8 @@
 							<td th:text="${solution.foundation?'Yes':''}"></td>
 							<td th:text="${'£ ' + shortlistModel.getPrice(solution.id)}" style="text-align: right; padding-right: 20px;"></td>
 							<td><button th:if="${!solution.foundation}" th:id="${'btnDirectAward-'+solution.getId()}" id="btnDirectAward-" class="btn btn-default" style="display:noneX;" type="button" onclick="alert('Direct award');">Direct award</button>
+							<td><button th:id="${'btnRemove-'+solution.getId()}" id="btnRemove-" class="btn shortlist-remove" type="button" data-toggle="modal" 
+								data-target="#removeSolutionPanel" th:data-solution-name="${solution.getName()}" th:data-solution-id="${solution.getId()}" >Remove</button>
 							</td>
 						</tr>
 					</tbody>
@@ -52,24 +54,33 @@
 			            </div>
 					</div>
 					<div class="row">
-		                <label class="col-md-3 control-label">Contract Start:</label>
-						<div th:class="${#fields.hasErrors('contractStart')}? 'col-md-3 has-error' : 'col-md-3'">
-							<div class="input-group date" data-provide="datepicker">
-				            	<input type="text" th:field="*{contractStart}" class="form-control" placeholder="contract start date" autocomplete="off" />
+		                <label class="col-md-3 control-label">Planned Contract Start:</label>
+						<div th:class="${#fields.hasErrors('plannedContractStart')}? 'col-md-3 has-error' : 'col-md-3'">
+							<div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy">
+				            	<input type="text" th:field="*{plannedContractStart}" class="form-control" placeholder="contract start date" autocomplete="off" />
 				            	<div class="input-group-addon">
 	        						<span class="glyphicon glyphicon-th"></span>
 	    						</div>
-				                <span th:if="${#fields.hasErrors('contractStart')}" class="help-block">[[${#fields.errors('contractStart')[0]}]]</span>
+				                <span th:if="${#fields.hasErrors('plannedContractStart')}" class="help-block">[[${#fields.errors('plannedContractStart')[0]}]]</span>
 				            </div>
 			            </div>
-		                <label class="col-md-3 control-label">Contract End:</label>
-						<div th:class="${#fields.hasErrors('contractEnd')}? 'col-md-3 has-error' : 'col-md-3'">
-							<div class="input-group date" data-provide="datepicker">
-				            	<input type="text" th:field="*{contractEnd}" class="form-control" placeholder="contract end date" autocomplete="off" />
-				            	<div class="input-group-addon">
-	        						<span class="glyphicon glyphicon-th"></span>
-	    						</div>
-				                <span th:if="${#fields.hasErrors('contractEnd')}" class="help-block">[[${#fields.errors('contractEnd')[0]}]]</span>
+		                <label class="col-md-3 control-label">Duration</label>
+						<div th:class="${#fields.hasErrors('contractMonthsYears')}? 'col-md-1 has-error' : 'col-md-1'">
+							<div class="input-group">
+							    <select class="form-control" th:field="*{contractMonthsYears}" id="ddlContractMonthsYears" style="width: 80px;">
+							    <option value="">Years</option>
+							    <option th:each="year : ${shortlistModel.possibleContractMonthsYears}" th:value="${year}" th:text="${year + ' year' + (year==1?'':'s')}"></option>
+							    </select>
+				                <span th:if="${#fields.hasErrors('contractMonthsYears')}" class="help-block">[[${#fields.errors('contractMonthsYears')[0]}]]</span>
+				            </div>
+			            </div>
+						<div th:class="${#fields.hasErrors('contractMonthsYears')}? 'col-md-2 has-error' : 'col-md-2'">
+							<div class="input-group">
+							    <select class="form-control" th:field="*{contractMonthsMonths}" id="ddlContractMonthsMonths" style="width: 90px;">
+							    <option value="">Months</option>
+							    <option th:each="month : ${shortlistModel.possibleContractMonthsMonths}" th:value="${month}" th:text="${month + ' month' + (month==1?'':'s')}"></option>
+							    </select>
+				                <span th:if="${#fields.hasErrors('contractMonthsYears')}" class="help-block">[[${#fields.errors('contractMonthsYears')[0]}]]</span>
 				            </div>
 			            </div>
 					</div>
@@ -77,6 +88,37 @@
 				<div class="panel-footer">
 					<button id="btnRecalculate" class="btn btn-default" style="display:noneX;" type="button" onclick="forms[0].submit();">Recalculate Prices</button>
 				</div>
+				
+				<!-- Solution Removal Reason selection -->
+				<div class="modal fade" id="removeSolutionPanel" tabindex="-1" role="dialog" aria-labelledby="removeSolutionLabel" aria-hidden="true">
+				  <input type="hidden" th:field="*{removeSolutionId}" />
+				  <div class="modal-dialog" role="document">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="exampleModalLabel">Remove Solution from Shortlist</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+				      <div class="modal-body" style="padding: 2rem;">
+				        <form>
+				          <div class="form-group">
+				            <label for="removalReasonId" class="col-form-label">Reason for removal:</label>
+						    <select class="form-control" th:field="*{removalReasonId}" id="ddlRemovalReasonId">
+						    <option value="0">Removal Reason</option>
+						    <option th:each="reason : ${shortlistModel.removalReasons}" th:value="${reason.id}" th:text="${reason.name}"></option>
+						    </select>
+				          </div>
+				        </form>
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				        <button type="button" class="btn btn-primary shortlist-remove">Remove Solution</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>	
+			
 			</div>
 		</form>
 	</div>
@@ -84,7 +126,25 @@
 
 <script th:inline="javascript">
 
-$('#datepicker').datepicker({ format: 'dd/mm/yyyy' });
+$('#removeSolutionPanel').on('show.bs.modal', function (event) {
+	var button = $(event.relatedTarget) // Button that triggered the modal
+	var solutionName = button.data('solution-name') // Extract info from data-* attributes
+	var solutionId = button.data('solution-id') // Extract info from data-* attributes
+	var modal = $(this)
+	modal.find('.modal-title').text('Remove solution "' + solutionName + '"');
+	modal.find('#removeSolutionId').val(solutionId);
+});
+
+$('#removeSolutionPanel').on('hide.bs.modal', function (event) {
+	var modal = $(this)
+	modal.find('#removeSolutionId').val("");
+});
+
+$("#removeSolutionPanel").on("click", ".btn-primary", function() {
+    //alert('remove solution ' + $("#removeSolutionId").val());
+    document.forms[0].submit();
+});
+
 
 </script>
 </body>

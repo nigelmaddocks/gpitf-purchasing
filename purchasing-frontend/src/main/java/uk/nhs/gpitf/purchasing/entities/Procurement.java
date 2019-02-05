@@ -6,6 +6,8 @@ import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -58,8 +60,20 @@ public class Procurement {
 	private String csvCapabilities;
 	
 	private String csvPractices;
-	
-	private String csvShortlistSolutions;
+    
+    @OneToMany(
+    	fetch = FetchType.LAZY
+        //cascade = CascadeType.ALL, 
+        //orphanRemoval = true
+    )
+    @JoinTable(name = "proc_shortlist", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
+    @JsonIgnore
+    private List<ProcShortlist> shortlistItems = new ArrayList<>();
 	
 	private Integer initialPatientCount;
+	
+	private LocalDate plannedContractStart;
+
+	private Integer contractMonths;
+
 }

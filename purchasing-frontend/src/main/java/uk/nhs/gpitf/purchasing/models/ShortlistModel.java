@@ -7,16 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
+import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
 import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 
 @Data
 public class ShortlistModel {
 	private long procurementId;
 	private List<SolutionEx2> solutions = new ArrayList<>();
+	private List<ProcShortlistRemovalReason> removalReasons = new ArrayList<>();
+
 	private int numberOfPractices = 0;
 	private int numberOfPatients = 0;
-	private LocalDate contractStart = null;
-	private LocalDate contractEnd = null;
+	private LocalDate plannedContractStart = null;
+	public Integer contractMonthsYears = null;
+	public Integer contractMonthsMonths = null;
+	public String removeSolutionId = null;
+	public Long removalReasonId = null;
+	private int[] possibleContractMonthsYears  = new int[] {0,1,2,3,4,5,6,7,8,9,10};
+	private int[] possibleContractMonthsMonths = new int[] {0,1,2,3,4,5,6,7,8,9,10,11}; 
 	
 	public BigDecimal getPrice(String solutionId) {
 		for (var solution : solutions) {

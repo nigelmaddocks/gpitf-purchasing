@@ -97,3 +97,12 @@
 	background-color: #CDDFF0;
 	overflow: auto;
 }
+
+.shortlist-remove {
+	background-color: #DA291C;
+}
+
+.shortlist-remove:hover {
+	background-color: #DA291C !important;
+	filter: brightness(80%);
+}
