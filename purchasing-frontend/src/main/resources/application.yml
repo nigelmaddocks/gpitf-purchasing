@@ -55,4 +55,4 @@ logging.level.org.hibernate.SQL: debug
 #logging.level.org.hibernate.type.descriptor.sql: trace
 
 sysparam.shortlist.max: 5
-
+sysparam.directaward.maxvalue: 20000

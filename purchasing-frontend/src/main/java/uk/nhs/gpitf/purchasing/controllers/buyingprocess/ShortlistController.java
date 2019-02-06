@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,9 @@ public class ShortlistController {
 	
 	@Value("${sysparam.shortlist.max}")
     private String SHORTLIST_MAX;
+	
+	@Value("${sysparam.directaward.maxvalue}")
+    private String DIRECTAWARD_MAXVALUE;
 	
     private static final Logger logger = LoggerFactory.getLogger(ShortlistController.class);
 
@@ -219,6 +223,9 @@ public class ShortlistController {
 		}
 		Procurement procurement = (Procurement)rtnObject;
 		
+		shortlistModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
+		setupModelCollections(shortlistModel, procurement);;
+		
 		// Validate that if a solution is being removed, a reason is given
 		if (!bindingResult.hasErrors()) {			
 			if (shortlistModel.removeSolutionId != null && shortlistModel.removeSolutionId.trim().length() > 0) {
@@ -232,6 +239,14 @@ public class ShortlistController {
 			}
 		}
 		
+		// Validate that if a direct award is being made for a solution, that the value is less than the threshold
+		if (!bindingResult.hasErrors()) {			
+			if (shortlistModel.directAwardSolutionId != null && shortlistModel.directAwardSolutionId.trim().length() > 0) {
+				if (shortlistModel.getPrice(shortlistModel.directAwardSolutionId).compareTo(new BigDecimal(Integer.valueOf(DIRECTAWARD_MAXVALUE))) > 0) {
+					bindingResult.addError(new ObjectError("directAward", "Cannot directly award if the value is £" + DIRECTAWARD_MAXVALUE + " or greater"));
+				}
+			}
+		}
 		
 		// Remove a solution if the model attribute non-blank
 		if (!bindingResult.hasErrors()) {
@@ -261,7 +276,13 @@ public class ShortlistController {
 			}
 		}
 		
-		setupModelCollections(shortlistModel, procurement);;
+		// Reset any fields that lead to actions
+		if (!bindingResult.hasErrors()) {
+			shortlistModel.setRemoveSolutionId("");
+			shortlistModel.setRemovalReasonId(null);
+			shortlistModel.setRemovalReasonText("");
+			shortlistModel.setDirectAwardSolutionId("");
+		}		
 		
 		return "buying-process/shortlist";	
 	}
@@ -269,6 +290,7 @@ public class ShortlistController {
 	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model) {
 		
 		ShortlistModel shortlistModel = new ShortlistModel();
+		shortlistModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
 		
 		shortlistModel.setProcurementId(procurement.getId());
 		

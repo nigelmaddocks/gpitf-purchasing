@@ -27,6 +27,8 @@ public class ShortlistModel {
 	public Long removalReasonId = null;
 	@Size(max = 255)
 	public String removalReasonText = "";
+	public int DIRECTAWARD_MAXVALUE = 0;
+	public String directAwardSolutionId = "";
 	private int[] possibleContractMonthsYears  = new int[] {0,1,2,3,4,5,6,7,8,9,10};
 	private int[] possibleContractMonthsMonths = new int[] {0,1,2,3,4,5,6,7,8,9,10,11}; 
 	
@@ -37,5 +39,18 @@ public class ShortlistModel {
 			}
 		}
 		return BigDecimal.ZERO;
+	}
+	
+	public boolean canDirectAward(String solutionId) {
+		BigDecimal price = getPrice(solutionId);
+		if (price.compareTo(new BigDecimal(DIRECTAWARD_MAXVALUE)) > 0) {
+			return false;
+		}
+		for (var solution : solutions) {
+			if (solution.getId().equals(solutionId)) {
+				return !solution.isFoundation();
+			}
+		}
+		return false;
 	}
 }
