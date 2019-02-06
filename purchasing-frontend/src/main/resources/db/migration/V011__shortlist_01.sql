@@ -1,7 +1,8 @@
 ALTER TABLE purchasing.procurement 
 DROP COLUMN csv_shortlist_solutions,
 ADD COLUMN planned_contract_start DATE NULL,
-ADD COLUMN contract_months INT NULL;
+ADD COLUMN contract_months INT NULL,
+ADD COLUMN patient_count INT NULL; 
 
 CREATE TABLE purchasing.proc_shortlist_removal_reason (
   id BIGINT PRIMARY KEY,

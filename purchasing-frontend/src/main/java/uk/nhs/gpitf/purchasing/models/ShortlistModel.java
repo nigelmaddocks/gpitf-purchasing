@@ -43,14 +43,14 @@ public class ShortlistModel {
 	
 	public boolean canDirectAward(String solutionId) {
 		BigDecimal price = getPrice(solutionId);
-		if (price.compareTo(new BigDecimal(DIRECTAWARD_MAXVALUE)) > 0) {
-			return false;
-		}
+		return price.compareTo(new BigDecimal(DIRECTAWARD_MAXVALUE)) <= 0;
+		// Direct award no longer depends on whether foundation solution
+/*		
 		for (var solution : solutions) {
 			if (solution.getId().equals(solutionId)) {
 				return !solution.isFoundation();
 			}
 		}
-		return false;
+*/
 	}
 }

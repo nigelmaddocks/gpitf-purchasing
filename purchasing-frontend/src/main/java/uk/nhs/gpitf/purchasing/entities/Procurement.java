@@ -75,5 +75,7 @@ public class Procurement {
 	private LocalDate plannedContractStart;
 
 	private Integer contractMonths;
+	
+	private Integer patientCount;
 
 }

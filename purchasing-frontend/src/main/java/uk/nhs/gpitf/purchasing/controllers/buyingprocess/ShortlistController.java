@@ -280,6 +280,14 @@ public class ShortlistController {
 			}
 		}
 		
+		// Store any new procurement attributes
+		if (!bindingResult.hasErrors()) {
+			procurement.setPlannedContractStart(shortlistModel.getPlannedContractStart());
+			procurement.setContractMonths(shortlistModel.getContractMonthsYears() * 12 + shortlistModel.getContractMonthsMonths());
+			procurement.setPatientCount(shortlistModel.getNumberOfPatients());
+			procurementRepository.save(procurement);
+		}
+		
 		// Reset any fields that lead to actions
 		if (!bindingResult.hasErrors()) {
 			shortlistModel.setRemoveSolutionId("");
@@ -301,7 +309,12 @@ public class ShortlistController {
 		setupModelCollections(shortlistModel, procurement);
 		
 		shortlistModel.setNumberOfPractices(procurement.getCsvPractices().split(",").length);
-		shortlistModel.setNumberOfPatients(procurement.getInitialPatientCount());
+		shortlistModel.setNumberOfPatients(procurement.getPatientCount() == null ? procurement.getInitialPatientCount() : procurement.getPatientCount());
+		shortlistModel.setPlannedContractStart(procurement.getPlannedContractStart());
+		if (procurement.getContractMonths() != null) {
+			shortlistModel.setContractMonthsYears(procurement.getContractMonths() / 12);
+			shortlistModel.setContractMonthsMonths(procurement.getContractMonths() % 12);
+		}
 		
 		model.addAttribute("shortlistModel", shortlistModel);
 		
