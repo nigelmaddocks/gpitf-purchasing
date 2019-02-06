@@ -12,6 +12,7 @@ spring:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
+#    show-sql: true          
   thymeleaf:
     cache: false 
   servlet:
@@ -48,3 +49,10 @@ security:
     sso:
       login-path: /login
 
+#show sql statement
+logging.level.org.hibernate.SQL: debug
+#show sql values
+#logging.level.org.hibernate.type.descriptor.sql: trace
+
+sysparam.shortlist.max: 5
+sysparam.directaward.maxvalue: 20000

@@ -5,10 +5,13 @@ import org.springframework.stereotype.Service;
 
 import uk.nhs.gpitf.purchasing.entities.*;
 import uk.nhs.gpitf.purchasing.repositories.*;
-import uk.nhs.gpitf.purchasing.repositories.results.OrgRelAndSolution;
+import uk.nhs.gpitf.purchasing.repositories.results.Ids;
+import uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolution;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrgRelationshipService {
@@ -48,14 +51,33 @@ public class OrgRelationshipService {
         return coll;
     }    
 
+    /** Returns a collection of child Ids for the parent and relationship type.
+     * This is intended to be a quick database call without any object lookups.
+     */
+    public List<Ids> getChildIdsByParentOrgAndRelationshipType(Organisation parentOrg, RelationshipType relationshipType) {
+        List<Ids> coll = new ArrayList<>();
+        thisRepository.findAllChildIdsByParentOrgAndRelationshipType(parentOrg, relationshipType).forEach(coll::add);
+        return coll;
+    }
+    
     /**
      * Returns Organisations and Core System for a parent Organisation via a relationship type ordered by Name and OrgCode
      * @param parentOrg
      * @param relationshipType
      */
-    public List<OrgRelAndSolution> getOrganisationsCoreSystemByParentOrgAndRelationshipType(Organisation parentOrg, RelationshipType relationshipType) {
-        List<OrgRelAndSolution> coll = new ArrayList<>();
+    public List<OrgAndCountAndSolution> getOrganisationsCoreSystemByParentOrgAndRelationshipType(Organisation parentOrg, RelationshipType relationshipType,
+    		Optional<String> optFilterByName, Optional<String> optFilterByCode, Optional<String> optFilterBySystem ) {
+        List<OrgAndCountAndSolution> coll = new ArrayList<>();
         thisRepository.findAllWithCoreSystemByParentOrgAndRelationshipType(parentOrg, relationshipType).forEach(coll::add);
+        if (optFilterByName.isPresent()) {
+        	coll.removeIf(e -> !GUtils.nullToString(e.organisationName).toUpperCase().contains(optFilterByName.get().toUpperCase()));
+        }
+        if (optFilterByCode.isPresent()) {
+        	coll.removeIf(e -> !GUtils.nullToString(e.organisationCode).toUpperCase().contains(optFilterByCode.get().toUpperCase()));
+        }
+        if (optFilterBySystem.isPresent()) {
+        	coll.removeIf(e -> !GUtils.nullToString(e.formatSolution()).toUpperCase().contains(optFilterBySystem.get().toUpperCase()));
+        }
         coll.sort((object1, object2) -> (object1.organisationName+object1.organisationCode).compareToIgnoreCase(object2.organisationName+object2.organisationCode));
         return coll;
     }    

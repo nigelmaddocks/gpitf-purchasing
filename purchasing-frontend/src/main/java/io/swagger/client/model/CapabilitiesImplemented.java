@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A ‘capability’ which a ‘solution’ asserts that it provides.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘capability’ it has claimed.
  */
 @ApiModel(description = "A ‘capability’ which a ‘solution’ asserts that it provides.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘capability’ it has claimed.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2018-12-11T12:47:15.885Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
 public class CapabilitiesImplemented {
   @JsonProperty("capabilityId")
   private String capabilityId = null;

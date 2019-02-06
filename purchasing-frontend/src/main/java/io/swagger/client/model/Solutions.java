@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
  * A product and/or service provided by an ‘organisation’.  Note that a ‘solution’ has a link to zero or one previous ‘solution’  Generally, only interested in current ‘solution’  Standard MS Dynamics CRM entity
  */
 @ApiModel(description = "A product and/or service provided by an ‘organisation’.  Note that a ‘solution’ has a link to zero or one previous ‘solution’  Generally, only interested in current ‘solution’  Standard MS Dynamics CRM entity")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2018-12-11T12:47:15.885Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
 public class Solutions {
   @JsonProperty("id")
   private String id = null;

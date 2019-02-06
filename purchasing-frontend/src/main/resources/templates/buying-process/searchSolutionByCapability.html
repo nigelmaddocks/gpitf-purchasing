@@ -74,26 +74,33 @@
 			</div>
 		</div>
 		
-		<div id="capabilityPanel" class="panel-body" style="background-color: #f0f4f5;">
+		<div id="capabilityPanel" class="panel-body capabilitysearch-capability-panel" >
     
         <div class="row">
-        	<h2>Capability Search Results
-        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
-        	</h2>
+        	<div class="col-md-10">
+        		<h2>Capability Search
+        		<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+        		</h2>
+        	</div>
+        	<div class="col-md-2" th:if="${myModel.procurement != null}">
+        		<br />
+		     	<button id="btnShortlist" class="btn btn-default" style="display:none;" type="button" onclick="proceedToShortlist();">Create Shortlist</button>
+		    </div>
+        	
         </div>
         <form class="form-horizontal">
             <div class="form-group">
             	<div class="row">
 	                <div class="col-md-1">
 	                </div>
-	                <div class="col-md-10"><div class="mx-auto"><h3>Search Results</h3></div>
+	                <div class="col-md-3"><div class="mx-auto"><h3>Capabilities</h3></div>
 	                </div>
-	                <div class="col-md-1">
+	                <div class="col-md-8"><div class="text-center"><h3>Search Results</h3></div>
 	                </div>
                 </div>
             	<div class="row">
-	                <div class="col-md-4" style="border:solid 0px;">
-			            <div th:each="cap : ${myModel.allCapabilities}" class="form-groupX">		                
+	                <div class="col-md-4">
+			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : ''}" >		                
 		               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
 		               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
 		               		/>
@@ -142,8 +149,20 @@
     	
     }
     
+    function getSelectedCapabilitiesCsv() {
+		var selectedCapabilities = "";
+		$("input[name=filterCapabilities]:checked").each( function () {
+			selectedCapabilities += "," + $(this).attr('id').split($(this).attr('name')+'_')[1].trim();
+		});
+		if (selectedCapabilities.length > 0) {
+			selectedCapabilities = selectedCapabilities.substring(1);
+		}
+		return selectedCapabilities;
+    }
+    
     function showCapabilityPanel(show) {
     	if (show) {
+    		searchCapabilitiesForSolutions(getSelectedCapabilitiesCsv());
     		$("#capabilityPanel").show();
     		$("#practicePanel").hide();
     	} else {
@@ -209,6 +228,8 @@
 		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities;
 		$.getJSON( url)
 		.done(function( data ) {
+			$("#foundSolutions").empty();
+			$("#btnShortlist").hide();
 			//console.log(data);
 /*
 			var htmlTable = $("<table class=\"table table-striped\">");
@@ -224,7 +245,10 @@
 			});
 			htmlTable.appendTo("#foundSolutions");
 */
+			var solutionsCount = 0
 			$.each( data, function( i, item ) {
+				solutionsCount++;
+				
 				var htmlSolnListEntry = $("<div class=\"panel panel-default solution-list-entry\" style=\"width:95%;\">");
 				var htmlDivCheck = $("<div>");
 				htmlDivCheck.appendTo(htmlSolnListEntry);
@@ -235,7 +259,12 @@
 				htmlDivSoln.appendTo(htmlSolnListEntry);
 				var htmlSolnName = $("<h3>" + item.solution.name + "</h3>");
 				htmlSolnName.appendTo(htmlDivSoln);
-				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (item.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£/patient</div>");
+				
+				var solutionPrice = "" + item.solution.price + "/patient";
+				if (selectedPracticePatients > 0) {
+					solutionPrice = "" + (item.solution.price * selectedPracticePatients).toFixed(2);
+				}
+				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (item.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£" + solutionPrice + "</div>");
 				htmlSolnPrice.appendTo(htmlDivSoln);
 				var htmlSolnDesc = $("<h4>" + item.solution.description + "</h4>");
 				htmlSolnDesc.appendTo(htmlDivSoln);
@@ -251,13 +280,28 @@
 				
 				htmlSolnListEntry.appendTo("#foundSolutions");
 			});
+			
+			
+			if (selectedPractices <= 0 || solutionsCount > [[${myModel.SHORTLIST_MAX}]]) {
+				$("#btnShortlist").hide();
+			} else {
+				$("#btnShortlist").show();
+			}
 		});
    	}
     
-    function getPracticesForCCG(ccgId) {
+    function getPracticesForCCG(ccgId, filterByNameText, filterByCodeText, filterBySystemText) {
 		//console.log(csvCapabilities);
 		$("#practices-" + ccgId).empty();
 		var url = "/organisationCoreSystemData/" + ccgId + "/" + [[${T(uk.nhs.gpitf.purchasing.entities.OrgType).PRESCRIBING_PRACTICE}]];
+		if (typeof(filterByNameText) === "undefined") filterByNameText = "";
+		if (typeof(filterByCodeText) === "undefined") filterByCodeText = "";
+		if (typeof(filterBySystemText) === "undefined") filterBySystemText = "";
+		url += "?filterByName=" + filterByNameText;
+		url += "&filterByCode=" + filterByCodeText;
+		url += "&filterBySystem=" + filterBySystemText;
+		url = encodeURI(url);
+		
 		$.getJSON( url)
 		.done(function( data ) {
 			//console.log(data);
@@ -267,6 +311,15 @@
 			htmlHead.appendTo(htmlTable);
 			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th><th scope=\"col\">Foundation System</th></tr>");
 			htmlHeaderRow.appendTo(htmlHead);
+			var htmlSelectorRow = $("<tr>" +
+					"<td scope=\"col\"><input type=\"checkbox\" name=\"selAllOrg-" + ccgId + "\" onchange=\"checkAllOrgs(this.checked);\" /></td>" + 
+					"<td scope=\"col\"><input type=\"text\" id=\"filterByName\" autocomplete=\"off\" value=\"" + filterByNameText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" /></td>" + 
+					"<td scope=\"col\"><input type=\"text\" id=\"filterByCode\" autocomplete=\"off\" value=\"" + filterByCodeText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" style=\"width: 8rem !important;\" /></td>" +
+					"<td scope=\"col\"></td>" +
+					"<td scope=\"col\"><input type=\"text\" id=\"filterBySystem\" autocomplete=\"off\" value=\"" + filterBySystemText + "\" onblur=\"getPracticesForCCG(" + ccgId + ", $('#filterByName').val(), $('#filterByCode').val(), $('#filterBySystem').val()) \" /></td>" +
+					"</tr>");
+			htmlSelectorRow.appendTo(htmlHead);
+
 			var htmlBody = $("<tbody>");
 			htmlBody.appendTo(htmlTable);
 			$.each( data, function( i, item ) {
@@ -274,12 +327,20 @@
 				if (arrSelectedCCGPracticeIds[""+ccgId].includes("," + item.organisationId + ",")) {
 					checked = "checked";
 				}
-				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + item.patientCount + "</td><td>" + item.formattedSolution + "</td></tr>");
+				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + (item.patientCount==null?"":item.patientCount) + "</td><td>" + item.formattedSolution + "</td></tr>");
 				htmlRow.appendTo(htmlBody);
 			});
 			htmlTable.appendTo("#practices-" + ccgId);
 		});
    	}
+    
+    function checkAllOrgs(toChecked) {
+    	$('input[name=selOrg]').each( function () {
+    		if ($(this).prop('checked') != toChecked) {
+        		$(this).trigger('click');
+    		}
+    	});
+    }
     
     function addRemovePractice(element, ccgId, patientCount) {
     	selectedPractices += element.checked?1:-1;
@@ -298,7 +359,8 @@
     
     function refreshSelectedPractices() {
 		if ($("#selectedPractices") != null) {
-			$("#selectedPractices").text("Selected practices: " + selectedPractices + ", patients: " + selectedPracticePatients + ", practice Ids: " + selectedPracticeIds.substring(1, Math.max(selectedPracticeIds.length-2, 1)));
+			//$("#selectedPractices").text("Selected practices: " + selectedPractices + ", patients: " + selectedPracticePatients + ", practice Ids: " + selectedPracticeIds.substring(1, Math.max(selectedPracticeIds.length-2, 1)));
+			$("#selectedPractices").text("Selected practices: " + selectedPractices + ", patients: " + selectedPracticePatients);
 		}
     	
     }
@@ -313,6 +375,14 @@
 			}
 		}
     	
+    }
+    
+    function proceedToShortlist() {
+		/*<![CDATA[*/
+        var url = /*[[@{'/buyingprocess/directShortlistInitialise/' + ${myModel.procurement.id}}]]*/;
+    	/*]]>*/
+
+    	location.href = url;
     }
     
     // On document ready, setup "selected practices" variables and perform a capability search
@@ -347,7 +417,6 @@
     	/*[/]*/
             	
     });
-    
     
     
 </script>

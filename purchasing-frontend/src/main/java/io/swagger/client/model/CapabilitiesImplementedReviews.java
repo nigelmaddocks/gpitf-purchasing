@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
  * Initially, a &#39;message&#39; or response to &#39;evidence&#39; which supports a claim to a ‘capability’.  Thereafter, this will be a response to a previous message/response.
  */
 @ApiModel(description = "Initially, a 'message' or response to 'evidence' which supports a claim to a ‘capability’.  Thereafter, this will be a response to a previous message/response.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2018-12-11T12:47:15.885Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
 public class CapabilitiesImplementedReviews {
   @JsonProperty("id")
   private String id = null;

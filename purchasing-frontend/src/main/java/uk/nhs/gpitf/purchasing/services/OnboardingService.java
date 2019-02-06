@@ -25,6 +25,7 @@ import io.swagger.client.model.SearchResult;
 import io.swagger.client.model.Solutions;
 import io.swagger.client.model.Standards;
 import uk.nhs.gpitf.purchasing.cache.CapabilitiesImplementedCache;
+import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 
 @Service
 public class OnboardingService {
@@ -91,7 +92,7 @@ public class OnboardingService {
 	}
 	
 	public List<Capabilities> orderByCoreThenName(List<Capabilities> list) {
-		list.sort((object1, object2) -> (object1.getId().substring(0,5) +object1.getName()).compareToIgnoreCase(object2.getId().substring(0,5) +object2.getName()));
+		list.sort((object1, object2) -> (object1.getType() + object1.getName()).compareToIgnoreCase(object2.getType() + object2.getName()));
 		return list;
 	}
 	
@@ -160,7 +161,7 @@ public class OnboardingService {
 	
 	public static class RankedSolution {
 		public int rank;
-		public Solutions solution;
+		public SolutionEx2 solution;
 		public Capabilities[] capabilities;
 	}
 	
@@ -246,6 +247,21 @@ public class OnboardingService {
 			arlReturnedSolutions.addAll(arlSolutionsOfRank);
 		}
 
+		// If all the "foundation" capabilities were selected, then move the solutions having all the "foundation" capabilities to the top of the list
+		boolean bRequestHasAllFoundationCapabilities = Arrays.asList(arrCapabilityIds).containsAll(capabilitiesImplementedCache.getFoundationCapabilityIds());
+		if (bRequestHasAllFoundationCapabilities) {
+			List <RankedSolution> foundationSolutions = new ArrayList<>();
+			for (var rs : arlReturnedSolutions) {
+				if (rs.solution.isFoundation()) {
+					foundationSolutions.add(rs);
+				}
+			}
+			for (var rs : foundationSolutions) {
+				arlReturnedSolutions.remove(rs);
+			}
+			arlReturnedSolutions.addAll(0, foundationSolutions);
+		}
+		
 		// Add each solution's capabilities
 		
 		for (var rs : arlReturnedSolutions) {
@@ -383,6 +399,13 @@ public class OnboardingService {
 		
 		return returnedList;
 		
+	}
+
+	/**
+	 * WARNING: Non-api method that works over cached solutions and capabilities
+	 */
+	public SolutionEx2 getSolutionEx2ById(String id) {
+		return capabilitiesImplementedCache.getSolutions().get(id);
 	}
 	
 	// -------------------------------------------------------------------------------------------------------

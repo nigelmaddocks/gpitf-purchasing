@@ -10,6 +10,7 @@ html {
   box-sizing: border-box;
   color: $color-fg;
   font-family: 'Frutiger W01', Arial;
+  line-height: 1.33;
 }
 
 *, *:before, *:after {
@@ -65,12 +66,10 @@ a {
 
   // account for fixed header with JS support @see src/static/js/app.js
   padding-top: $header-total-height;
+}
 
-  .page-main-heading {
-    p {
-      font-weight: bold;
-    }
-  }
+#content.no-padding {
+  padding: $header-total-height 0 0 0;
 }
 
 body {
@@ -96,6 +95,12 @@ body > header {
     > nav {
       flex: auto;
     }
+
+    .auth {
+      .user {
+        padding-right: 1em;
+      }
+    }
   }
 
   .bottom {
@@ -105,14 +110,8 @@ body > header {
     padding: $header-padding;
 
     nav {
-      &.no-active-form {
-        margin: 0 auto;
-        width: 40%;
-
-        a {
-          margin-right: 2rem;
-        }
-      }
+      display: flex;
+      justify-content: flex-end;
 
       &.active-form {
         align-items: center;
@@ -156,9 +155,21 @@ body > header {
   }
 }
 
+body header div.white-control-bar {
+  background: $color-nhs-white;
+}
+
+body > header div.bottom.white-control-bar nav a {
+  color: $color-nhs-blue;
+}
+
 body > footer {
   a {
     color: $color-footer-link-fg;
+
+    &:hover {
+      text-decoration: underline;
+    }
 
     &:visited,
     &:active,
@@ -198,6 +209,27 @@ body > footer {
 
       a {
         text-decoration: underline;
+      }
+    }
+  }
+}
+
+main > .breadcrumb {
+  ol {
+    list-style-type: none;
+    margin-top: 1em;
+
+    li {
+      color: $color-nhs-blue;
+      display: inline-block;
+      font-size: smaller;
+
+      &::before {
+        content: '>';
+      }
+
+      &:first-child::before {
+        content: none;
       }
     }
   }

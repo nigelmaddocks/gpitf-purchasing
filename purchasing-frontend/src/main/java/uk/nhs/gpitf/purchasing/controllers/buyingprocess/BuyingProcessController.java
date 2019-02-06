@@ -77,9 +77,21 @@ public class BuyingProcessController {
 		        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
 				}
 
-				if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
-					return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + procurement.getCsvCapabilities().trim();
+				long procurementStatusId = procurement.getStatus().getId();
+				
+				if (procurementStatusId == ProcStatus.DRAFT) {
+					if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
+						return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + procurement.getCsvCapabilities().trim();
+					}
+				} else 
+				if (procurementStatusId == ProcStatus.SHORTLIST) {
+					return "redirect:/buyingprocess/shortlist/" + procurementId;
 				}
+				
+	        	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
+	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		attr.addFlashAttribute("security_message", message);
+	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
 			}
 		}
 
@@ -89,6 +101,7 @@ public class BuyingProcessController {
 
 	@GetMapping(value = {"/listProcurements", "/listProcurements/{optionalOrgContactId}"})
 	public String listProcurements(@PathVariable Optional<Long> optionalOrgContactId, HttpServletRequest request, Model model, RedirectAttributes attr) {
+		Breadcrumbs.removeTitle("My Procurements", request);
 		Breadcrumbs.register("Procurements", request);
 
 		long orgContactId;

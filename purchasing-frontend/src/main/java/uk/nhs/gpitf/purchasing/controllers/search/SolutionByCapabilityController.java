@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,11 +24,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import io.swagger.client.model.Solutions;
 import uk.nhs.gpitf.purchasing.entities.OrgType;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
+import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.entities.RelationshipType;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByCapabilityModel;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
+import uk.nhs.gpitf.purchasing.repositories.results.Ids;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
@@ -57,6 +60,9 @@ public class SolutionByCapabilityController {
 	@Autowired
 	ProcurementService procurementService;
     
+	@Value("${sysparam.shortlist.max}")
+    private String SHORTLIST_MAX;
+	
     private static final Logger logger = LoggerFactory.getLogger(SolutionByCapabilityController.class);
 /*	
 	@GetMapping("/buyingprocess/solutionByCapability/{csvCapabilities}")
@@ -69,6 +75,7 @@ public class SolutionByCapabilityController {
 	@GetMapping(value = {"/buyingprocess/solutionByCapability/{optCsvCapabilities}", "/buyingprocess/{optProcurementId}/solutionByCapability/{optCsvCapabilities}", "/buyingprocess/solutionByCapability", "/buyingprocess/{optProcurementId}/solutionByCapability"})
 	public String solutionByCapability(@PathVariable Optional<Long> optProcurementId, @PathVariable Optional<String> optCsvCapabilities, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.register("By capability", request);
+		
 
 		String csvCapabilities =  null;
 		if (optCsvCapabilities.isPresent()) {
@@ -85,6 +92,13 @@ public class SolutionByCapabilityController {
 				Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 				if (optProcurement.isPresent()) {
 					procurement = optProcurement.get();
+					
+					if (procurement.getStatus().getId() != ProcStatus.DRAFT) {
+			        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
+			    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+			    		attr.addFlashAttribute("security_message", message);
+			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+					}
 					
 					// If we've skipped the keyword search, then put it in the breadcrumb
 					if (procurement.getSearchKeyword() != null && procurement.getSearchKeyword().trim().length() > 0) {
@@ -121,6 +135,7 @@ public class SolutionByCapabilityController {
 
 	private Model setupSolutionByCapability(SecurityInfo secInfo, Procurement procurement, String csvCapabilities, Model model) {
 		SearchSolutionByCapabilityModel myModel = new SearchSolutionByCapabilityModel();
+		myModel.setSHORTLIST_MAX(SHORTLIST_MAX);
 		myModel.setProcurement(procurement);
 		myModel.setProcurementId(0L);
 		if (procurement != null) {
@@ -128,7 +143,7 @@ public class SolutionByCapabilityController {
 			myModel.setCsvPractices("," + procurement.getCsvPractices() + ",");
 			myModel.setPatientCount(organisationService.getPatientCountForOrganisationsInList(procurement.getCsvPractices()));
 		}
-		if (myModel.getCsvPractices() == null || myModel.getCsvPractices().length() == 0) {
+		if (myModel.getCsvPractices() == null || myModel.getCsvPractices().equals(",,") || myModel.getCsvPractices().equals(",null,") || myModel.getCsvPractices().length() == 0) {
 			myModel.setCsvPractices(",");
 		}
 		myModel.setCsvCapabilities(csvCapabilities);
@@ -163,12 +178,21 @@ public class SolutionByCapabilityController {
 			for (Organisation ccg : myCCGs) {
 				try {
 					String csv = ",";
+/* replaced by code below so that one-pass SQL is issued rather than loads of SELECTs for child orgs				
 					List<Organisation> practices = orgRelationshipService.getOrganisationsByParentOrgAndRelationshipType(ccg, (RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE));
 					for (Organisation practice : practices) {
 						if (myModel.getCsvPractices().contains("," + practice.getId() + ",")) {
 							csv += practice.getId() + ",";
 						}
 					}
+*/					
+					List<Ids> practiceIds = orgRelationshipService.getChildIdsByParentOrgAndRelationshipType(ccg, (RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE));
+					for (Ids practiceId : practiceIds) {
+						if (myModel.getCsvPractices().contains("," + practiceId.id + ",")) {
+							csv += practiceId.id + ",";
+						}
+					}
+
 					myModel.getSelectedCCGPracticeIds().put(ccg.getId(), csv);
 				} catch (Exception e) {
 					e.printStackTrace();
