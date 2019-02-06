@@ -240,8 +240,12 @@ public class ShortlistController {
 		}
 		
 		// Validate that if a direct award is being made for a solution, that the value is less than the threshold
-		if (!bindingResult.hasErrors()) {			
-			if (shortlistModel.directAwardSolutionId != null && shortlistModel.directAwardSolutionId.trim().length() > 0) {
+		if (!bindingResult.hasErrors()) {	
+			if (!bindingResult.hasErrors() && (shortlistModel.contractMonthsYears == null || shortlistModel.contractMonthsMonths == null)) {
+				bindingResult.addError(new ObjectError("directAward", "Please select the contract length"));
+			}
+			
+			if (!bindingResult.hasErrors() && shortlistModel.directAwardSolutionId != null && shortlistModel.directAwardSolutionId.trim().length() > 0) {
 				if (shortlistModel.getPrice(shortlistModel.directAwardSolutionId).compareTo(new BigDecimal(Integer.valueOf(DIRECTAWARD_MAXVALUE))) > 0) {
 					bindingResult.addError(new ObjectError("directAward", "Cannot directly award if the value is £" + DIRECTAWARD_MAXVALUE + " or greater"));
 				}
