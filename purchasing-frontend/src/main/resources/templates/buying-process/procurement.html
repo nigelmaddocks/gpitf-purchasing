@@ -9,11 +9,15 @@
 		<h1 th:if="${hasProcurements}" th:text="|Welcome Back, ${session.SecurityInfo.forename}|">Welcome Back</h1>
 	 	<h1 th:if="${not hasProcurements}" th:text="|Hello, ${session.SecurityInfo.forename}|">Hello</h1>
 		<p>Which Procurement do you want to go to?</p>
-		<p th:if="${hasProcurements}">
+		<div class="form-group" th:if="${hasProcurements}">
 			<a class="btn button" href="" th:href="@{/buyingprocess/{procurementId}/gotoProcurement(procurementId=${procurements[0].id})}">Continue with last</a>
-		</p>
-		<p><a class="btn button" href="/buyingprocess" th:href="@{/buyingprocess}">Start new</a></p>
-		<p><a href="/buyingprocess/listProcurements" th:href="@{/buyingprocess/listProcurements}">View all Procurements</a></p>	
+		</div>
+		<div class="form-group">
+			<a class="btn button" href="/buyingprocess" th:href="@{/buyingprocess}">Start new</a>
+		</div>
+		<div class="form-group">
+			<a href="/buyingprocess/listProcurements" th:href="@{/buyingprocess/listProcurements}">View all Procurements</a>
+		</div>	
 	</main>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 
+import static org.springframework.web.servlet.view.UrlBasedViewResolver.REDIRECT_URL_PREFIX;
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -8,8 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
@@ -17,7 +21,6 @@ import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
-import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
@@ -31,6 +34,7 @@ public class BuyingProcessController {
 	protected static final String PAGE_SEARCH_SOLUTIONS_MENU = "searchSolutionMenu";
 	protected static final String PAGE_LIST_PROCUREMENTS = "listProcurements";
 	protected static final String PAGE_PROCUREMENT = "procurement";
+	protected static final String PAGE_RENAME_PROCUREMENT = "procurementRename";
 
     @Autowired
     private OrgContactRepository orgContactRepository;
@@ -39,7 +43,7 @@ public class BuyingProcessController {
     private ProcurementService procurementService;
 
     @Autowired
-    private ProcurementRepository procurementRepository;
+    private LocalValidatorFactoryBean validator;
 
     private static final Logger logger = LoggerFactory.getLogger(BuyingProcessController.class);
 
@@ -60,7 +64,7 @@ public class BuyingProcessController {
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
 		if (procurementId != 0) {
-			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
+			Optional<Procurement> optProcurement = procurementService.findById(procurementId);
 			if (optProcurement.isPresent()) {
 				Procurement procurement = optProcurement.get();
 
@@ -130,4 +134,41 @@ public class BuyingProcessController {
 	  return PATH + PAGE_PROCUREMENT;
 	}
 
+	@GetMapping("/procurement/{procurementId}/edit-name")
+	public String editProcurementName(@PathVariable Long procurementId, Model model, HttpServletRequest request) {
+ 	  Breadcrumbs.register("Rename Procurement", request);
+
+ 	  Optional<Procurement> optProcurement = procurementService.findById(procurementId);
+ 	  if (optProcurement.isEmpty()) {
+ 	    // TODO Throw Exception instead and let handler handle?
+        return REDIRECT_URL_PREFIX + "/buyingprocess/listProcurements";
+ 	  }
+
+ 	  model.addAttribute("procurement", optProcurement.get());
+
+	  return PATH + PAGE_RENAME_PROCUREMENT;
+	}
+
+	@PostMapping("/procurement/edit-name")
+	public String updateProcurementName(Procurement procurement, BindingResult bindingResult, Model model) {
+
+	  Optional<Procurement> optProcurement = procurementService.findById(procurement.getId());
+	  if (optProcurement.isEmpty()) {
+	    // TODO Throw Exception instead and let handler handle?
+        return REDIRECT_URL_PREFIX + "/buyingprocess/listProcurements";
+	  }
+
+	  Procurement validatedProcurement = optProcurement.get();
+	  validatedProcurement.setName(procurement.getName());
+
+	  validator.validate(validatedProcurement, bindingResult);
+
+	  if (bindingResult.hasErrors()) {
+	    return PATH + PAGE_RENAME_PROCUREMENT;
+	  }
+
+	  procurementService.save(validatedProcurement);
+
+      return REDIRECT_URL_PREFIX + "/buyingprocess/listProcurements";
+    }
 }

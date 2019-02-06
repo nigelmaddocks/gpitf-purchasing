@@ -49,6 +49,7 @@ public class BuyingProcessControllerTest {
 
     MockMvc mockMvc = standaloneSetup(bpc).build();
     mockMvc.perform(get("/buyingprocess/procurement"))
+           .andExpect(model().attributeExists("procurements"))
            .andExpect(model().attribute("procurements", procurementList));
   }
 

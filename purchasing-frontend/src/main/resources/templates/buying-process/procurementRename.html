@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+<meta charset="UTF-8">
+<title>My Procurements</title>
+</head>
+<body>
+	<main>
+		<h1>Rename Procurement</h1>
+		<form action="" th:action="@{/buyingprocess/procurement/edit-name}" th:object="${procurement}" method="POST">
+			<input type="hidden" th:field="*{id}">
+			<ul class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}">
+  				<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+			</ul>
+			<div class="form-group">
+				<label for="name">Name</label>
+				<input type="text" class="form-control" th:field="*{name}">
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn button">Update</button>
+			</div>
+			<div class="form-group">
+				<a class="btn button" href="/buyingprocess/listProcurements" th:href="@{/buyingprocess/listProcurements}">Cancel</a>	
+			</div>
+		</form>
+	</main>
+</body>
+</html>
