@@ -29,8 +29,8 @@ public class Breadcrumbs implements Serializable {
 		int idxBreadcrumb = 0;
 		boolean bFound = false;
 		for (Breadcrumb breadcrumb : objBreadcrumbs.getBreadcrumbs()) {
-			if (url.equals(breadcrumb.getUrl())) {
-				for (int idxToRemove = idxBreadcrumb+1; idxToRemove < objBreadcrumbs.getBreadcrumbs().size(); idxToRemove++) {
+			if (url.equals(breadcrumb.getUrl()) || title.equals(breadcrumb.title)) {
+				for (int idxToRemove = idxBreadcrumb; idxToRemove < objBreadcrumbs.getBreadcrumbs().size(); idxToRemove++) {
 					objBreadcrumbs.getBreadcrumbs().remove(idxToRemove);
 				}
 				bFound = true;
@@ -39,9 +39,9 @@ public class Breadcrumbs implements Serializable {
 			idxBreadcrumb++;
 		}
 		
-		if (!bFound) {
+//		if (!bFound) {
 			objBreadcrumbs.getBreadcrumbs().add(new Breadcrumb(title, url));
-		}
+//		}
 		
 		request.getSession().setAttribute("Breadcrumbs", objBreadcrumbs);
 	}
