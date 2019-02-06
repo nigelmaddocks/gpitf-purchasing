@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.Size;
+
 import lombok.Data;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
 import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
@@ -23,6 +25,8 @@ public class ShortlistModel {
 	public Integer contractMonthsMonths = null;
 	public String removeSolutionId = null;
 	public Long removalReasonId = null;
+	@Size(max = 255)
+	public String removalReasonText = "";
 	private int[] possibleContractMonthsYears  = new int[] {0,1,2,3,4,5,6,7,8,9,10};
 	private int[] possibleContractMonthsMonths = new int[] {0,1,2,3,4,5,6,7,8,9,10,11}; 
 	

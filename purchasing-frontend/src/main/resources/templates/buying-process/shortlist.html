@@ -8,37 +8,43 @@
 <section>
     <div class="container">
 		<h3>Buying Shortlist</h3>	
-		<div class="panel panel-default">
-			<div class="panel-heading">Shortlisted Solutions</div>
-			
-			<div class="panel-body">
-				<table class="table">
-					<thead>
-						<tr style="font-weight: 600;">
-							<td>Solution</td>
-							<td>Foundation</td>
-							<td style="text-align: right; padding-right: 20px;">Price</td>
-							<td>Action</td>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="solution : ${shortlistModel.solutions}">
-							<td th:text="${solution.getName()}"></td>
-							<td th:text="${solution.foundation?'Yes':''}"></td>
-							<td th:text="${'£ ' + shortlistModel.getPrice(solution.id)}" style="text-align: right; padding-right: 20px;"></td>
-							<td><button th:if="${!solution.foundation}" th:id="${'btnDirectAward-'+solution.getId()}" id="btnDirectAward-" class="btn btn-default" style="display:noneX;" type="button" onclick="alert('Direct award');">Direct award</button>
-							<td><button th:id="${'btnRemove-'+solution.getId()}" id="btnRemove-" class="btn shortlist-remove" type="button" data-toggle="modal" 
-								data-target="#removeSolutionPanel" th:data-solution-name="${solution.getName()}" th:data-solution-id="${solution.getId()}" >Remove</button>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
+
 		
         <form class="form-horizontal" th:object="${shortlistModel}" th:action="@{/buyingprocess/shortlist}" method="post">
             <input type="hidden" th:field="*{procurementId}" />
             <input type="hidden" th:field="*{numberOfPractices}" />
+
+			<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+			    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.fieldName + ': ' + err.message}"></p>    
+			</div>
+	
+			<div class="panel panel-default">
+				<div class="panel-heading">Shortlisted Solutions</div>
+				
+				<div class="panel-body">
+					<table class="table">
+						<thead>
+							<tr style="font-weight: 600;">
+								<td>Solution</td>
+								<td>Foundation</td>
+								<td style="text-align: right; padding-right: 20px;">Price</td>
+								<td>Action</td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="solution : ${shortlistModel.solutions}">
+								<td th:text="${solution.getName()}"></td>
+								<td th:text="${solution.foundation?'Yes':''}"></td>
+								<td th:text="${'£ ' + shortlistModel.getPrice(solution.id)}" style="text-align: right; padding-right: 20px;"></td>
+								<td><button th:if="${!solution.foundation}" th:id="${'btnDirectAward-'+solution.getId()}" id="btnDirectAward-" class="btn btn-default" style="display:noneX;" type="button" onclick="alert('Direct award');">Direct award</button>
+								<td><button th:id="${'btnRemove-'+solution.getId()}" id="btnRemove-" class="btn shortlist-remove" type="button" data-toggle="modal" 
+									data-target="#removeSolutionPanel" th:data-solution-name="${solution.getName()}" th:data-solution-id="${solution.getId()}" >Remove</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
         
 			<div class="panel panel-default">
 				<div class="panel-heading">Additional Configuration</div>
@@ -101,15 +107,20 @@
 				        </button>
 				      </div>
 				      <div class="modal-body" style="padding: 2rem;">
-				        <form>
+				        <!-- <form> -->
 				          <div class="form-group">
 				            <label for="removalReasonId" class="col-form-label">Reason for removal:</label>
-						    <select class="form-control" th:field="*{removalReasonId}" id="ddlRemovalReasonId">
+						    <select class="form-control" th:field="*{removalReasonId}" id="ddlRemovalReasonId" onchange="removalReasonTextDisplay();">
 						    <option value="0">Removal Reason</option>
 						    <option th:each="reason : ${shortlistModel.removalReasons}" th:value="${reason.id}" th:text="${reason.name}"></option>
 						    </select>
+						    
+						    <div id="divAdditionalReasonText" style="display: none;">
+					            <label for="removalReasonText" class="col-form-label">Additional Text:</label>
+							    <input type="text" class="form-control" th:field="*{removalReasonText}" id="removalReasonText" autocomplete="off" />
+						    </div>
 				          </div>
-				        </form>
+				        <!-- </form> -->
 				      </div>
 				      <div class="modal-footer">
 				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -125,6 +136,14 @@
 </section>
 
 <script th:inline="javascript">
+
+function removalReasonTextDisplay() {
+	if ($('#ddlRemovalReasonId').val() == '[[${T(uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason).OTHER}]]') {
+		$('#divAdditionalReasonText').show();
+	} else {
+		$('#divAdditionalReasonText').hide();
+	}
+}
 
 $('#removeSolutionPanel').on('show.bs.modal', function (event) {
 	var button = $(event.relatedTarget) // Button that triggered the modal
@@ -145,6 +164,9 @@ $("#removeSolutionPanel").on("click", ".btn-primary", function() {
     document.forms[0].submit();
 });
 
+$( document ).ready(function() {
+	removalReasonTextDisplay();
+});
 
 </script>
 </body>

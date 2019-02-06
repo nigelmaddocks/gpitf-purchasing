@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -218,22 +219,44 @@ public class ShortlistController {
 		}
 		Procurement procurement = (Procurement)rtnObject;
 		
+		// Validate that if a solution is being removed, a reason is given
+		if (!bindingResult.hasErrors()) {			
+			if (shortlistModel.removeSolutionId != null && shortlistModel.removeSolutionId.trim().length() > 0) {
+				if (shortlistModel.removalReasonId == 0) {
+					bindingResult.addError(new ObjectError("removalReasonId", "Please specify a reason for removing a solution from the shortlist"));
+				} else 
+				if (shortlistModel.removalReasonId == ProcShortlistRemovalReason.OTHER
+				 && (shortlistModel.removalReasonText == null || shortlistModel.removalReasonText.trim().length() == 0)) {
+					bindingResult.addError(new ObjectError("removalReasonText", "When specifying \"Other\" as the reason for removal, please supply additional text"));
+				}
+			}
+		}
+		
+		
 		// Remove a solution if the model attribute non-blank
-		if (shortlistModel.removeSolutionId != null && shortlistModel.removeSolutionId.trim().length() > 0) {
-			String removeSolutionId = shortlistModel.removeSolutionId.trim();
-			for (ProcShortlist shortlistItem : procurement.getShortlistItems()) {
-				if (shortlistItem.getSolutionId().equals(removeSolutionId)) {
-					shortlistItem.setRemoved(true);
-					if (shortlistModel.removalReasonId != 0) {
-						try {
-							ProcShortlistRemovalReason removalReason = (ProcShortlistRemovalReason) GUtils.makeObjectForId(ProcShortlistRemovalReason.class, shortlistModel.removalReasonId);
-							shortlistItem.setRemovalReason(removalReason);
-						} catch (Exception e) {
-							e.printStackTrace();
+		if (!bindingResult.hasErrors()) {
+			if (shortlistModel.removeSolutionId != null && shortlistModel.removeSolutionId.trim().length() > 0) {
+				
+				String removeSolutionId = shortlistModel.removeSolutionId.trim();
+				for (ProcShortlist shortlistItem : procurement.getShortlistItems()) {
+					if (shortlistItem.getSolutionId().equals(removeSolutionId)) {
+						shortlistItem.setRemoved(true);
+						if (shortlistModel.removalReasonId != 0) {
+							try {
+								ProcShortlistRemovalReason removalReason = (ProcShortlistRemovalReason) GUtils.makeObjectForId(ProcShortlistRemovalReason.class, shortlistModel.removalReasonId);
+								shortlistItem.setRemovalReason(removalReason);
+								if (shortlistModel.removalReasonId == ProcShortlistRemovalReason.OTHER) {
+									shortlistItem.setRemovalReasonText(shortlistModel.removalReasonText);
+								} else {
+									shortlistItem.setRemovalReasonText(null);
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
+						procShortlistRepository.save(shortlistItem);
+						break;
 					}
-					procShortlistRepository.save(shortlistItem);
-					break;
 				}
 			}
 		}
