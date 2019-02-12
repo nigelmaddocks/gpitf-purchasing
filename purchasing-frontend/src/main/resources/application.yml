@@ -23,8 +23,10 @@ spring:
 onboarding.api.url: http://localhost:5100
 spring.jackson.serialization.write-dates-as-timestamps: false
 
-spring.session.store-type: redis
 server.servlet.session.timeout: 3600s # Session timeout. If a duration suffix is not specified, seconds will be used.
+server.port: 8220
+
+spring.session.store-type: redis
 spring.session.redis.flush-mode: on-save # Sessions flush mode.
 spring.session.redis.namespace: spring:session # Namespace for keys used to store sessions.
 spring.redis.host: localhost # Redis server host.
@@ -51,8 +53,10 @@ security:
 
 #show sql statement
 logging.level.org.hibernate.SQL: debug
+logging.level.org.springframework: info
+
 #show sql values
 #logging.level.org.hibernate.type.descriptor.sql: trace
 
-sysparam.shortlist.max: 5
+sysparam.shortlist.max: 4
 sysparam.directaward.maxvalue: 20000

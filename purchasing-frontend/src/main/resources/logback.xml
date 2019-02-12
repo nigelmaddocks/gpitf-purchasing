@@ -25,7 +25,6 @@
     </appender>
 
     <!-- LOGGERS -->
-    <logger name="com.nhsd.a2si" level="INFO" />
 
     <logger name="uk.nhs.gpitf.purchasing" level="DEBUG" />
 

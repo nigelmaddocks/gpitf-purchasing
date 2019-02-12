@@ -7,7 +7,7 @@
 	<groupId>uk.nhs.gpitf</groupId>
 	<artifactId>purchasing</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<name>gpitf-purchasing</name>
 	<description>GP IT Futures Purchasing</description>

@@ -295,6 +295,8 @@ public class ShortlistController {
 			shortlistModel.setRemovalReasonText("");
 			shortlistModel.setDirectAwardSolutionId("");
 		}		
+
+		setupModelCollections(shortlistModel, procurement); // again
 		
 		return "buying-process/shortlist";	
 	}
@@ -323,6 +325,7 @@ public class ShortlistController {
 	
 	private void setupModelCollections(ShortlistModel shortlistModel, Procurement procurement) {		
 //		String[] arrSolutionIds = procurement.getCsvShortlistSolutions().split(",");
+		shortlistModel.getSolutions().clear();
 		for (ProcShortlist shortlistItem : procurement.getShortlistItems()) {
 			String solutionId = shortlistItem.getSolutionId();
 			if (solutionId.trim().length() > 0 && shortlistItem.isRemoved() == false) {
