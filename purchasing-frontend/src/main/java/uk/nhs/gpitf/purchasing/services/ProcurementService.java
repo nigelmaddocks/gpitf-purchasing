@@ -5,16 +5,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
 
 @Service
 public class ProcurementService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcurementService.class);
 
     @Autowired
     private ProcurementRepository thisRepository;
@@ -59,12 +64,7 @@ public class ProcurementService {
     		procurement = createNewProcurement(orgContactId);
 
     	} else {
-    		Optional<Procurement>optProcurement = thisRepository.findById(procurementId);
-    		if (optProcurement.isEmpty()) {
-    			throw new Exception("Procurement " + procurementId + " not found");
-    		} else {
-    			procurement = optProcurement.get();
-    		}
+    	  findById(procurementId);
     	}
 
     	if (searchKeyword.isPresent()) {
@@ -84,16 +84,26 @@ public class ProcurementService {
     		procurement.setCsvPractices(sCsvPractices);
     	}
     	procurement.setLastUpdated(LocalDateTime.now());
-    	procurement = thisRepository.save(procurement);
+    	procurement = save(procurement);
 
     	return procurement;
     }
 
-    public Optional<Procurement> findById(Long procurementId) {
-      return thisRepository.findById(procurementId);
+    public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
+      Optional<Procurement> optProcurement = thisRepository.findById(procurementId);
+      if (optProcurement.isEmpty()) {
+        LOGGER.warn("An attempt to retrieve Procurement \"{}\" occurred. But could not be found.", procurementId);
+        throw new ProcurementNotFoundException("Procurement " + procurementId + " not found");
+      }
+
+      // Validation required to check User has access to requested procurement.
+      // Throw UnauthorizedDataAccessException if the case.
+      return optProcurement.get();
     }
 
     public Procurement save(Procurement procurement) {
+      // Validation required to check User has access to requested procurement.
+      // Throw UnauthorizedDataAccessException if the case.
       return thisRepository.save(procurement);
     }
 

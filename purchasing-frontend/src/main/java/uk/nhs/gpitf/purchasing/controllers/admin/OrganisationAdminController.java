@@ -4,18 +4,12 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
-import javax.validation.Validation;
-//import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,12 +19,10 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.nhs.gpitf.purchasing.entities.Contact;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.OrgRelationship;
@@ -77,20 +69,21 @@ public class OrganisationAdminController {
     private SecurityService securityService;
 
     @Autowired
+    @Qualifier("mvcValidator")
  	private Validator validator;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(OrganisationAdminController.class);
-    
+
 	@GetMapping("/admin")
 	public String getAdminMenu(Model model, HttpServletRequest request, Principal principal) {
 		Breadcrumbs.register("Admin", request);
-		
+
         return "adminMenu";
-    }	
-	
+    }
+
 	@GetMapping("/organisationAdmin/{id}")
 	public String getOrganisationById(@PathVariable Long id, Model model, HttpServletRequest request) {
-		model = getOrganisationModel(request, id, model);	
+		model = getOrganisationModel(request, id, model);
 		long iOrgType = ((OrganisationEditModel) model.asMap().get("organisationEditModel")).getOrganisation().getOrgType().getId();
 		String sShortOrgType = "";
 		switch ((int)iOrgType) {
@@ -100,8 +93,8 @@ public class OrganisationAdminController {
 		}
 		Breadcrumbs.register("View " + sShortOrgType, request);
         return "admin/organisationView";
-    }	
-	
+    }
+
 	@GetMapping("/organisationAdmin/edit/{id}")
 	public String getOrganisationForEditById(@PathVariable Long id, Model model, RedirectAttributes attr, HttpServletRequest request) {
         // Check the user is authorised to do this
@@ -111,19 +104,19 @@ public class OrganisationAdminController {
     		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;
         }
-		
-		model = getOrganisationModel(request, id, model);	
+
+		model = getOrganisationModel(request, id, model);
         return "admin/organisationEdit";
-    }	
-	
+    }
+
 	@PostMapping("/organisationAdmin/{id}")
 	public String updateOrganisation(@Valid
 			OrganisationEditModel orgEditModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
-		
+
         Organisation org = orgEditModel.getOrganisation();
-		
+
 		logger.debug("create/update organisation " + (org == null? 0L : org.getId()));
-        
+
         // Check the user is authorised to do this
         if (!securityService.canAdministerOrganisation(request, org == null? 0L : org.getId())) {
         	String message = "create/update organisation " + (org == null? 0L : org.getId());
@@ -140,7 +133,7 @@ public class OrganisationAdminController {
         		bindingResult.addError(fe2);
         	}
         }
-        
+
         if (!bindingResult.hasErrors()) {
 
         	// Delete the parent relationships the user flagged
@@ -161,7 +154,7 @@ public class OrganisationAdminController {
 		        			}
 		        		} else {
 				            bindingResult.addError(new ObjectError("Data Integrity",  "Could not identify correct parent organisation relationship to delete"));
-		        		}	        		
+		        		}
 		        	}
 		        }
         	}
@@ -184,22 +177,22 @@ public class OrganisationAdminController {
 		        			}
 		        		} else {
 				            bindingResult.addError(new ObjectError("Data Integrity",  "Could not identify correct OrgContact to mark as deleted"));
-		        		}	        		
+		        		}
 		        	}
 		        }
         	}
         }
-        
+
 
         if (!bindingResult.hasErrors()) {
 	        RelationshipType parentRelationshipType = new RelationshipType();
-	        
+
 	        if (org.getOrgType().getId() == OrgType.PRESCRIBING_PRACTICE) {
 	        	parentRelationshipType.setId(RelationshipType.CCG_TO_PRACTICE);
 	        } else if (org.getOrgType().getId() == OrgType.CCG) {
 	        	parentRelationshipType.setId(RelationshipType.CSU_TO_CCG);
 	        }
-	        
+
 	        if (orgEditModel.getNewParentOrgId() != 0 && parentRelationshipType != null) {
 	        	OrgRelationship orgRelationship = new OrgRelationship();
 	        	orgRelationship.setChildOrg(org);
@@ -212,7 +205,7 @@ public class OrganisationAdminController {
 		        }
 	        }
         }
-        
+
         if (!bindingResult.hasErrors()) {
 	        try {
 	        	organisationRepository.save(orgEditModel.getOrganisation());
@@ -220,7 +213,7 @@ public class OrganisationAdminController {
 	            bindingResult.addError(new ObjectError("Error on save Organisation",  dae.getMessage()));
 	        }
         }
-        
+
         // Add new OrgContact
         if (!bindingResult.hasErrors() && orgEditModel.getNewContact().hasAnyPropertySet()) {
         	Optional<Contact> optContact = contactRepository.findByEmail(orgEditModel.getNewContact().getEmail().toLowerCase());
@@ -231,7 +224,7 @@ public class OrganisationAdminController {
     	        	contactRepository.save(contact);
     	        } catch (DataAccessException dae) {
     	            bindingResult.addError(new ObjectError("Error on save Contact",  dae.getMessage()));
-    	        }    	        	
+    	        }
         	} else {
         		contact = optContact.get();
         		if (contact.isDeleted()) {
@@ -240,10 +233,10 @@ public class OrganisationAdminController {
         	        	contactRepository.save(contact);
         	        } catch (DataAccessException dae) {
         	            bindingResult.addError(new ObjectError("Error on save Contact",  dae.getMessage()));
-        	        }    	        	
+        	        }
            		}
         	}
-        	
+
         	if (!bindingResult.hasErrors()) {
 	        	Optional<OrgContact> optOrgContact = orgContactRepository.findByOrganisationAndContact(orgEditModel.getOrganisation(), contact);
 	        	OrgContact orgContact = null;
@@ -256,7 +249,7 @@ public class OrganisationAdminController {
 	        	        } catch (DataAccessException dae) {
 	        	            bindingResult.addError(new ObjectError("Error on save OrgContact",  dae.getMessage()));
 	        	        }
-	        		} 
+	        		}
 	        	} else {
 	        		orgContact = new OrgContact();
 	        		orgContact.setContact(contact);
@@ -268,69 +261,69 @@ public class OrganisationAdminController {
 	    	        }
 	        	}
         	}
-        }        
-        
+        }
+
 		if (bindingResult.hasErrors()) {
-			// Add the parentOrgs collection of the BindingResult version of the model, as it's lost it			
+			// Add the parentOrgs collection of the BindingResult version of the model, as it's lost it
 			OrganisationEditModel myModel = (OrganisationEditModel) bindingResult.getModel().get("organisationEditModel");
 			setupOrganisationModelCollections(org, myModel);
-			
+
 			return "admin/organisationEdit";
 		}
-		
+
 		return "redirect:/organisationAdmin/" + org.getId();
-    }	
-	
+    }
+
 	private Model getOrganisationModel(HttpServletRequest request, long id, Model model) {
 		Organisation org = organisationRepository.findById(id).get();
 		OrganisationEditModel orgEditModel = new OrganisationEditModel();
 		orgEditModel.setOrganisation(org);
 		orgEditModel.setNewContact(new Contact());
 		orgEditModel.setCanAdminister(securityService.canAdministerOrganisation(request, id));
-        
+
 		setupOrganisationModelCollections(org, orgEditModel);
-		
+
         model.addAttribute("organisationEditModel", orgEditModel);
-        
+
         return model;
-    }	
-	
+    }
+
 	private void setupOrganisationModelCollections(Organisation org, OrganisationEditModel orgEditModel) {
         RelationshipType parentRelationshipType = new RelationshipType();
-        
+
         if (org.getOrgType().getId() == OrgType.PRESCRIBING_PRACTICE) {
         	parentRelationshipType.setId(RelationshipType.CCG_TO_PRACTICE);
         } else if (org.getOrgType().getId() == OrgType.CCG) {
         	parentRelationshipType.setId(RelationshipType.CSU_TO_CCG);
         }
-        
+
         List<Organisation> potentialParentOrgs = getParentOrgCandidates(org.getOrgType().getId());
-        
+
         List<OrgContact> orgContacts = orgContactService.getAllByOrganisation(org);
-        
+
         List<OrgRelationship> parentOrgRelationships = new ArrayList<>();
 
         if (parentRelationshipType.getId() != 0) {
         	parentOrgRelationships = orgRelationshipService.getAllByChildOrgAndRelationshipType(org, parentRelationshipType);
         }
-        
+
         for (OrgRelationship orgRelationship : parentOrgRelationships) {
         	potentialParentOrgs.remove(orgRelationship.getParentOrg());
         }
-        
+
         orgEditModel.setParentOrgRelationships(parentOrgRelationships);
         orgEditModel.setPotentialParentOrgs(potentialParentOrgs);
         orgEditModel.setOrgContacts(orgContacts);
-    }	
-	
+    }
+
 	private List<Organisation> getParentOrgCandidates(long iOrgType) {
-		List<Organisation> parentOrgs = new ArrayList<Organisation>();
+		List<Organisation> parentOrgs = new ArrayList<>();
         if (iOrgType == OrgType.PRESCRIBING_PRACTICE) {
-            parentOrgs = organisationService.getAllByOrgType(OrgType.CCG);        	
+            parentOrgs = organisationService.getAllByOrgType(OrgType.CCG);
         } else if (iOrgType == OrgType.CCG) {
-        	parentOrgs = organisationService.getAllByOrgType(OrgType.CSU);        	
+        	parentOrgs = organisationService.getAllByOrgType(OrgType.CSU);
         }
 		return parentOrgs;
 	}
-	
+
 }

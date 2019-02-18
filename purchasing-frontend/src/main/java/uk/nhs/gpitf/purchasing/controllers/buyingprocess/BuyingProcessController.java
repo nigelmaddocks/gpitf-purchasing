@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
@@ -28,6 +29,8 @@ import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 @Controller
 @RequestMapping("/buyingprocess")
 public class BuyingProcessController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuyingProcessController.class);
 
 	protected static final String PATH = "buying-process/";
 	protected static final String PAGE_INDEX = "index";
@@ -45,8 +48,6 @@ public class BuyingProcessController {
     @Autowired
     private LocalValidatorFactoryBean validator;
 
-    private static final Logger logger = LoggerFactory.getLogger(BuyingProcessController.class);
-
 	@GetMapping()
 	public String home(HttpServletRequest request) {
 		Breadcrumbs.register("Buying Process", request);
@@ -60,43 +61,36 @@ public class BuyingProcessController {
 	}
 
 	@GetMapping("/{procurementId}/gotoProcurement")
-	public String gotoProcurement(@PathVariable Long procurementId, HttpServletRequest request, RedirectAttributes attr) {
+	public String gotoProcurement(@PathVariable Long procurementId, HttpServletRequest request, RedirectAttributes attr) throws ProcurementNotFoundException {
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
-		if (procurementId != 0) {
-			Optional<Procurement> optProcurement = procurementService.findById(procurementId);
-			if (optProcurement.isPresent()) {
-				Procurement procurement = optProcurement.get();
+        Procurement procurement = procurementService.findById(procurementId);
 
-				// Check that the user is authorised to this procurement
-				if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
-				 && !secInfo.isAdministrator()) {
-		        	String message = "view procurement " + procurementId;
-		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
-		    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
-		        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
-				}
-
-				long procurementStatusId = procurement.getStatus().getId();
-				
-				if (procurementStatusId == ProcStatus.DRAFT) {
-					if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
-						return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + procurement.getCsvCapabilities().trim();
-					}
-				} else 
-				if (procurementStatusId == ProcStatus.SHORTLIST) {
-					return "redirect:/buyingprocess/shortlist/" + procurementId;
-				}
-				
-	        	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
-	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
-	    		attr.addFlashAttribute("security_message", message);
-	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
-			}
+		// Check that the user is authorised to this procurement
+		if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
+		 && !secInfo.isAdministrator()) {
+        	String message = "view procurement " + procurementId;
+    		LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
 		}
 
+		long procurementStatusId = procurement.getStatus().getId();
 
-		return "redirect:/buyingprocess/" + procurementId + "/solutionByKeyword";
+		if (procurementStatusId == ProcStatus.DRAFT) {
+		  if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
+		    return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + procurement.getCsvCapabilities().trim();
+		  }
+		} else {
+		  if (procurementStatusId == ProcStatus.SHORTLIST) {
+			return "redirect:/buyingprocess/shortlist/" + procurementId;
+		  }
+		}
+
+	   	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
+		LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+		attr.addFlashAttribute("security_message", message);
+	   	return SecurityInfo.SECURITY_ERROR_REDIRECT;
 	}
 
 	@GetMapping(value = {"/listProcurements", "/listProcurements/{optionalOrgContactId}"})
@@ -118,7 +112,7 @@ public class BuyingProcessController {
 			if (paramOrgContact.isEmpty()
 			 || paramOrgContact.get().getOrganisation().getId() != secInfo.getOrganisationId()) {
 		    	String message = "You cannot see procurements outside of your organisation";
-				logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+				LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				attr.addFlashAttribute("security_message", message);
 		    	return SecurityInfo.SECURITY_ERROR_REDIRECT;
 			}
@@ -148,34 +142,20 @@ public class BuyingProcessController {
 	}
 
 	@GetMapping("/procurement/{procurementId}/edit-name")
-	public String editProcurementName(@PathVariable Long procurementId, Model model, HttpServletRequest request) {
+	public String editProcurementName(@PathVariable Long procurementId, Model model, HttpServletRequest request) throws ProcurementNotFoundException {
  	  Breadcrumbs.register("Rename Procurement", request);
 
- 	  Optional<Procurement> optProcurement = procurementService.findById(procurementId);
- 	  if (optProcurement.isEmpty()) {
- 	    // TODO Throw Exception instead and let handler handle?
-        return REDIRECT_URL_PREFIX + "/buyingprocess/listProcurements";
- 	  }
-
- 	  model.addAttribute("procurement", optProcurement.get());
-
+ 	  model.addAttribute("procurement", procurementService.findById(procurementId));
 	  return PATH + PAGE_RENAME_PROCUREMENT;
 	}
 
 	@PostMapping("/procurement/edit-name")
-	public String updateProcurementName(Procurement procurement, BindingResult bindingResult, Model model) {
+	public String updateProcurementName(Procurement procurement, BindingResult bindingResult, Model model) throws ProcurementNotFoundException {
 
-	  Optional<Procurement> optProcurement = procurementService.findById(procurement.getId());
-	  if (optProcurement.isEmpty()) {
-	    // TODO Throw Exception instead and let handler handle?
-        return REDIRECT_URL_PREFIX + "/buyingprocess/listProcurements";
-	  }
-
-	  Procurement validatedProcurement = optProcurement.get();
+	  Procurement validatedProcurement = procurementService.findById(procurement.getId());
 	  validatedProcurement.setName(procurement.getName());
 
 	  validator.validate(validatedProcurement, bindingResult);
-
 	  if (bindingResult.hasErrors()) {
 	    return PATH + PAGE_RENAME_PROCUREMENT;
 	  }
