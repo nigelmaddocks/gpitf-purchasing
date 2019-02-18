@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+<meta charset="UTF-8">
+<title>Identify needs - intro</title>
+
+</head>
+<body>
+<section>
+<div class="container">
+	<main id="content">
+	<div id="onboarding" class="dashboard page">
+	<header class="page-main-heading">
+		<h1>Identify needs and sites.</h1>
+	</header>
+	<ol>
+		<li style="height:4em;">
+			<h3 class="title">There are 2 ways to get started.</h3>
+			<p class="narrative">
+				For more about Capabilities, Solutions or how this works, see the <a onclick="alert('where to?')">Buyer's Guide</a>.
+			</p>
+			
+		</li>
+		<li style="height:6em;">
+			<h3 class="title">1. Use the Capability Selector to find Solutions that meet your needs</h3>
+			<p class="narrative">
+				<span class="Right-Arrow-White-On-Green">&rarr;</span>&nbsp;&nbsp;&nbsp;<a href="/buyingprocess/foundationChoiceMenu" th:href="@{'/buyingprocess/foundationChoiceMenu'}" style="font-size: 1.17em; font-weight:bold;">Start</a>
+			</p>
+		</li>
+		<li style="height:6em;">
+			<h3 class="title">2. Select Sites for whom you want to buy Solutions</h3>
+			<p class="narrative">
+				<span class="Right-Arrow-White-On-Green">&rarr;</span>&nbsp;&nbsp;&nbsp;<a href="/buyingprocess/capabilitiesOrSitesMenu?option=2" th:href="@{'/buyingprocess/capabilitiesOrSitesMenu?option=2'}" style="font-size: 1.17em; font-weight:bold;">Start</a>
+			</p>
+		</li>
+	</ol>
+	</div>
+	</main>
+</div>
+</section>
+</body>
+</html>

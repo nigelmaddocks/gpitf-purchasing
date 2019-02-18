@@ -71,7 +71,7 @@
 				                <span th:if="${#fields.hasErrors('plannedContractStart')}" class="help-block">[[${#fields.errors('plannedContractStart')[0]}]]</span>
 				            </div>
 			            </div>
-		                <label class="col-md-3 control-label">Duration</label>
+		                <label class="col-md-3 control-label">Contract length</label>
 						<div th:class="${#fields.hasErrors('contractMonthsYears')}? 'col-md-1 has-error' : 'col-md-1'">
 							<div class="input-group">
 							    <select class="form-control" th:field="*{contractMonthsYears}" id="ddlContractMonthsYears" style="width: 80px;">

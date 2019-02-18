@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+<meta charset="UTF-8">
+<title>Identify needs - intro</title>
+
+</head>
+<body>
+<section>
+<div class="container">
+	<main id="content">
+	<div id="onboarding" class="dashboard page">
+	<header class="page-main-heading">
+		<h1>Capability or a Keyword search.</h1>
+	</header>
+	<ol>
+		<li style="height:4em;">
+			<h3 class="title">Do you want to perform a Capability search or a Keyword search?</h3>
+			
+		</li>
+		<li style="height:6em;">
+			<h3 class="title">1. Capability Search</h3>
+			<p class="narrative">
+				This allows the user to perform a Capability search by manually selecting capabilities<br />
+				<span class="Right-Arrow-White-On-Green">&rarr;</span>&nbsp;&nbsp;&nbsp;<a href="/buyingprocess/capabilitiesOrKeywordsMenu?option=1" 
+					th:href="@{'/buyingprocess/capabilitiesOrKeywordsMenu' + (${procurementId}==null?'':'/' + ${procurementId}) + '?option=1'}" style="font-size: 1.17em; font-weight:bold;">Continue</a>
+			</p>
+		</li>
+		<li style="height:6em;">
+			<h3 class="title">2. Keyword search</h3>
+			<p class="narrative">
+				This enables capabilities to be selected from a solution's capabilities<br />
+				<span class="Right-Arrow-White-On-Green">&rarr;</span>&nbsp;&nbsp;&nbsp;<a href="/buyingprocess/capabilitiesOrKeywordsMenu?option=2" 
+					th:href="@{'/buyingprocess/capabilitiesOrKeywordsMenu' + (${procurementId}==null?'':'/' + ${procurementId}) + '?option=2'}" style="font-size: 1.17em; font-weight:bold;">Continue</a>
+			</p>
+		</li>
+	</ol>
+	</div>
+	</main>
+</div>
+</section>
+</body>
+</html>

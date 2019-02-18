@@ -50,13 +50,13 @@ public class BuyingProcessController {
 
 	@GetMapping()
 	public String home(HttpServletRequest request) {
-		Breadcrumbs.register("Buying Process", request);
+		//Breadcrumbs.register("Buying Process", request);
 		return PATH + PAGE_INDEX;
 	}
 
 	@GetMapping("/searchSolutionMenu")
 	public String searchSolutionsMenu(HttpServletRequest request) {
-		Breadcrumbs.register("Search menu", request);
+		//Breadcrumbs.register("Search menu", request);
 		return PATH + PAGE_SEARCH_SOLUTIONS_MENU;
 	}
 
@@ -131,7 +131,7 @@ public class BuyingProcessController {
 
 	@GetMapping("/procurement")
 	public String procurement(Model model, HttpServletRequest request) {
-	  Breadcrumbs.register("My Procurements", request);
+	  //Breadcrumbs.register("My Procurements", request);
 
 	  SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 	  List<Procurement> procurementList = procurementService.getUncompletedByOrgContactOrderByLastUpdated(secInfo.getOrgContactId());

@@ -14,6 +14,9 @@ import lombok.AccessLevel;
 @Data
 public class SearchSolutionByCapabilityModel {
 
+	public static final int MODE_ALL = 1;
+	public static final int MODE_SITES_ONLY = 2;
+	private int mode;
 	private Long procurementId;
 	private Procurement procurement;
 
@@ -25,7 +28,11 @@ public class SearchSolutionByCapabilityModel {
 	
 	public void setCsvCapabilities(String csvCapabilities) {
 		this.csvCapabilities = csvCapabilities;
-		arrInitialCapabilities = csvCapabilities.split(",");
+		if (csvCapabilities != null) {
+			arrInitialCapabilities = csvCapabilities.split(",");
+		} else {
+			arrInitialCapabilities = new String[] {};
+		}
 	}
 	
 	public boolean inInitialCapabilities(String capabilityId) {

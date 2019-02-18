@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -72,10 +73,20 @@ public class SolutionByCapabilityController {
         return "buying-process/searchSolutionByCapability";
     }	
 */	
-	@GetMapping(value = {"/buyingprocess/solutionByCapability/{optCsvCapabilities}", "/buyingprocess/{optProcurementId}/solutionByCapability/{optCsvCapabilities}", "/buyingprocess/solutionByCapability", "/buyingprocess/{optProcurementId}/solutionByCapability"})
-	public String solutionByCapability(@PathVariable Optional<Long> optProcurementId, @PathVariable Optional<String> optCsvCapabilities, Model model, RedirectAttributes attr, HttpServletRequest request) {
-		Breadcrumbs.register("By capability", request);
+	@GetMapping(value = {
+			"/buyingprocess/solutionByCapability/{optCsvCapabilities}", 
+			"/buyingprocess/{optProcurementId}/solutionByCapability/{optCsvCapabilities}", 
+			"/buyingprocess/solutionByCapability", 
+			"/buyingprocess/{optProcurementId}/solutionByCapability"})
+	public String solutionByCapability(
+			@PathVariable Optional<Long> optProcurementId, 
+			@PathVariable Optional<String> optCsvCapabilities, 
+			@RequestParam(value = "mode", defaultValue = "1") String sMode, 
+			Model model, RedirectAttributes attr, HttpServletRequest request) {
 		
+		int mode = Integer.valueOf(sMode);
+		
+		Breadcrumbs.register(mode==2 ? "Select sites" : "By capability", request);
 
 		String csvCapabilities =  null;
 		if (optCsvCapabilities.isPresent()) {
@@ -129,13 +140,14 @@ public class SolutionByCapabilityController {
 			}
 		}
 
-		model = setupSolutionByCapability(secInfo, procurement, csvCapabilities, model);	
+		model = setupSolutionByCapability(secInfo, procurement, csvCapabilities, mode, model);	
         return "buying-process/searchSolutionByCapability";
     }	
 
-	private Model setupSolutionByCapability(SecurityInfo secInfo, Procurement procurement, String csvCapabilities, Model model) {
+	private Model setupSolutionByCapability(SecurityInfo secInfo, Procurement procurement, String csvCapabilities, int mode, Model model) {
 		SearchSolutionByCapabilityModel myModel = new SearchSolutionByCapabilityModel();
 		myModel.setSHORTLIST_MAX(SHORTLIST_MAX);
+		myModel.setMode(mode);
 		myModel.setProcurement(procurement);
 		myModel.setProcurementId(0L);
 		if (procurement != null) {

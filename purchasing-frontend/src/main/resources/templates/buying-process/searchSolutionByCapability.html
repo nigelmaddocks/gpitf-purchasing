@@ -15,8 +15,11 @@
 					<h3>1A. Who you're buying for
 			        </h3>	
 		        </div>
-		        <div class="col-md-2"><br />
+		        <div class="col-md-2" th:if="${myModel.mode == myModel.MODE_ALL}"><br />
 			        <a onclick="showCapabilityPanel(false);" href="#">Add answer</a>
+		        </div>
+		        <div class="col-md-2" th:if="${myModel.mode == myModel.MODE_SITES_ONLY}"><br />
+			        <a th:onclick="'continueToFoundationChoiceMenu(' + ${myModel.procurementId} + ');'" href="#">Continue</a>
 		        </div>
 		    </div>
 			<div class="row">
@@ -25,7 +28,7 @@
 	        </div>
 		</div>
 	
-		<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
+		<div th:if="${myModel.procurement != null && myModel.mode == myModel.MODE_ALL}" class="panel-heading" style="background-color: white;">
 			<div class="row">
 				<div class="col-md-10">
 					<h3>1B. Capabilities selected
@@ -43,7 +46,7 @@
 		
 		<div id="practicePanel" class="panel-body" style="background-color: #f0f4f5;">
     
-	        <div class="row">
+	        <div class="row" style="margin-left: 1rem">
 	        	<h2>My Sites
 	        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
 	        	</h2>
@@ -89,6 +92,7 @@
         	
         </div>
         <form class="form-horizontal">
+            <input type="hidden" th:field="${myModel.mode}" />
             <div class="form-group">
             	<div class="row">
 	                <div class="col-md-1">
@@ -379,9 +383,22 @@
     
     function proceedToShortlist() {
 		/*<![CDATA[*/
-        var url = /*[[@{'/buyingprocess/directShortlistInitialise/' + ${myModel.procurement.id}}]]*/;
+        var url = /*[[@{'/buyingprocess/directShortlistInitialise/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
     	/*]]>*/
 
+    	location.href = url;
+    }
+    
+    function continueToFoundationChoiceMenu(procurementId) {
+    	var procurementAppend = "";
+		/*<![CDATA[*/
+       	var url = /*[[@{'/buyingprocess/foundationChoiceMenu'}]]*/;
+    	/*]]>*/
+    	if (procurementId != null && procurementId != 'null' && procurementId != 0) {
+    		procurementAppend = "/" + procurementId;
+    	} 
+		url += procurementAppend;
+    	
     	location.href = url;
     }
     
@@ -406,7 +423,7 @@
 		}
        	getPracticesForCCG(arrMyCsvCCGIDs[0]);       
 
-       	showCapabilityPanel(true);
+       	showCapabilityPanel([[${myModel.mode == myModel.MODE_ALL}]]);
        	refreshCapabilityNames();
        	searchCapabilitiesForSolutions(csvCapabilities);
        	refreshSelectedPractices();

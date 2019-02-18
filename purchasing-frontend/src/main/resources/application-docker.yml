@@ -1,0 +1,10 @@
+spring.datasource.url: jdbc:postgresql://purchasing-db:5432/postgres
+spring.redis.host: cache # Redis server host.
+onboarding.api.url: http://api:5100 
+security:
+  oauth2:
+    client:
+      accessTokenUri: http://oidc-provider:9000/token
+    resource:
+      userInfoUri: http://oidc-provider:9000/me
+
