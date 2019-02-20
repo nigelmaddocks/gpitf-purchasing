@@ -25,6 +25,7 @@ import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 public class ProcurementController {
 	
     public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES = "/buyingprocess/updateProcurementWithCapabilities";
+    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_FOUNDATION = "/buyingprocess/updateProcurementWithFoundation";
     public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_PRACTICES = "/buyingprocess/updateProcurementWithPractices";
 	
 	@Autowired
@@ -61,7 +62,45 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.of(csvCapabilities), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.of(csvCapabilities), Optional.empty(), Optional.empty());
+					return procurement;
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();					
+				}
+			}
+		}
+		
+    	return null;
+    }
+
+    @PostMapping(value = ENDPOINT_UPDATE_PROCUREMENT_WITH_FOUNDATION, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    @ResponseBody
+    public Procurement updateProcurementWithFoundationPost ( 
+    		@RequestBody Map<String,Object> body,
+    		HttpServletRequest request
+    		) {
+    	
+    	String sProcurementId = body.get("procurementId").toString();
+    	String sFoundation = body.get("foundation").toString();
+    	Long procurementId = Long.parseLong(sProcurementId);
+    	
+    	SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+    	
+		if (procurementId != 0) {
+			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
+			if (optProcurement.isPresent()) {
+				Procurement procurement = optProcurement.get();
+				
+				// Check that the user is authorised to this procurement
+				if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
+				 && !secInfo.isAdministrator()) {
+		        	String message = "view procurement " + procurementId;
+		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+				}
+				try {
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.of(Boolean.valueOf(sFoundation)), Optional.empty());
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -100,7 +139,7 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.of(csvPractices));
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(csvPractices));
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block

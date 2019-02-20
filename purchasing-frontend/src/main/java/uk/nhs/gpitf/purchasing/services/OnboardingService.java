@@ -168,15 +168,20 @@ public class OnboardingService {
 	/**
 	 * WARNING: Non-api method that works over cached solutions and capabilities
 	 */
-	public List<RankedSolution> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList) {
+	public List<RankedSolution> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList, boolean foundation) {
 		int RANK_LIMIT = 99;
-		String[] arrCapabilityIds = csvCapabilityList.split(",");
+		String[] arrCapabilityIds = new String[] {};
+		if (csvCapabilityList != null && csvCapabilityList.trim().length() > 0) {
+			arrCapabilityIds = csvCapabilityList.split(",");
+		}
 		
-		// Clean the array
+		// Clean the array - do not include Foundation capabilities if we are doing a foundation search. Solutions will be matched for Foundation more directly
 		List<String> lstCapabilityIds = new ArrayList<>();
 		for (String capabilityId : arrCapabilityIds) {
 			if (capabilityId != null && capabilityId.trim().length() > 0) {
-				lstCapabilityIds.add(capabilityId.trim());
+				if (!foundation || !capabilitiesImplementedCache.getCapabilities().get(capabilityId).getType().equals("C")) {
+					lstCapabilityIds.add(capabilityId.trim());
+				}
 			}
 		}
 		arrCapabilityIds = lstCapabilityIds.toArray(new String[] {});
@@ -187,11 +192,26 @@ public class OnboardingService {
 			if (capabilityId.length() > 0) {
 				String[] arrSolutionIds = capabilitiesImplementedCache.getCapabilityIdSolutionIds().get(capabilityId);
 				if (arrSolutionIds != null) {
-					hshSolutionIds.addAll(Arrays.asList(arrSolutionIds));
+					//hshSolutionIds.addAll(Arrays.asList(arrSolutionIds));
+					for (var solutionId : arrSolutionIds) {
+						if (!foundation || !capabilitiesImplementedCache.getSolutions().get(solutionId).isFoundation()) {
+							hshSolutionIds.add(solutionId);
+						}
+					}
 				}
 			}
 		}
 		
+		// If doing a foundation search, just add in foundation solutions
+		if (foundation) {
+			for (var solution : capabilitiesImplementedCache.getSolutions().values()) {
+				if (solution.isFoundation()) {
+					hshSolutionIds.add(solution.getId());
+				}
+			}
+		}
+		
+		// Perform the ranking
 		List<RankedSolution> arlRankedSolutions = new ArrayList<>();
 		for (String solutionId : hshSolutionIds) {
 			String[] arrSolnCapabilities = capabilitiesImplementedCache.getSolutionIdCapabilityIds().get(solutionId);
@@ -233,7 +253,7 @@ public class OnboardingService {
 			arlRankedSolutions.add(rankedSolution);
 		}
 		
-		// Shuffle solutions of equal rank
+		// Shuffle solutions of equal rank - also adds solutions in rank order
 		List<RankedSolution> arlReturnedSolutions = new ArrayList<>();
 
 		for (int iRank=0; iRank<=RANK_LIMIT; iRank++) {
@@ -248,8 +268,9 @@ public class OnboardingService {
 		}
 
 		// If all the "foundation" capabilities were selected, then move the solutions having all the "foundation" capabilities to the top of the list
-		boolean bRequestHasAllFoundationCapabilities = Arrays.asList(arrCapabilityIds).containsAll(capabilitiesImplementedCache.getFoundationCapabilityIds());
-		if (bRequestHasAllFoundationCapabilities) {
+//		boolean bRequestHasAllFoundationCapabilities = Arrays.asList(arrCapabilityIds).containsAll(capabilitiesImplementedCache.getFoundationCapabilityIds());
+//		if (bRequestHasAllFoundationCapabilities) {
+		if (foundation) {
 			List <RankedSolution> foundationSolutions = new ArrayList<>();
 			for (var rs : arlReturnedSolutions) {
 				if (rs.solution.isFoundation()) {

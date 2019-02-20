@@ -24,6 +24,7 @@ import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller
@@ -74,23 +75,32 @@ public class BuyingProcessController {
     		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;
 		}
-
-		long procurementStatusId = procurement.getStatus().getId();
-
-		if (procurementStatusId == ProcStatus.DRAFT) {
-		  if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
-		    return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + procurement.getCsvCapabilities().trim();
-		  }
-		} else {
-		  if (procurementStatusId == ProcStatus.SHORTLIST) {
-			return "redirect:/buyingprocess/shortlist/" + procurementId;
-		  }
+	
+		// Check that the user is authorised to this procurement
+		if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
+		 && !secInfo.isAdministrator()) {
+        	String message = "view procurement " + procurementId;
+        	LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
 		}
 
-	   	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
-		LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+		long procurementStatusId = procurement.getStatus().getId();
+		
+		if (procurementStatusId == ProcStatus.DRAFT) {
+			//if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
+				return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + GUtils.nullToString(procurement.getCsvCapabilities()).trim();
+			//}
+		} else 
+		if (procurementStatusId == ProcStatus.SHORTLIST) {
+			return "redirect:/buyingprocess/shortlist/" + procurementId;
+		}
+		
+    	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
+    	LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 		attr.addFlashAttribute("security_message", message);
-	   	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+    	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+
 	}
 
 	@GetMapping(value = {"/listProcurements", "/listProcurements/{optionalOrgContactId}"})

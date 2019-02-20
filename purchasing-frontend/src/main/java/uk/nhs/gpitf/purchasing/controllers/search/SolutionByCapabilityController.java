@@ -82,9 +82,11 @@ public class SolutionByCapabilityController {
 			@PathVariable Optional<Long> optProcurementId, 
 			@PathVariable Optional<String> optCsvCapabilities, 
 			@RequestParam(value = "mode", defaultValue = "1") String sMode, 
+			@RequestParam(value = "foundation", defaultValue = "") String sFoundationFromQuerystring, 
 			Model model, RedirectAttributes attr, HttpServletRequest request) {
 		
 		int mode = Integer.valueOf(sMode);
+		boolean foundation = Boolean.valueOf(sFoundationFromQuerystring);
 		
 		Breadcrumbs.register(mode==2 ? "Select sites" : "By capability", request);
 
@@ -103,6 +105,11 @@ public class SolutionByCapabilityController {
 				Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 				if (optProcurement.isPresent()) {
 					procurement = optProcurement.get();
+					
+					// Prioritise getting the "foundation" flag from querystring over that on the procurement record
+					if (sFoundationFromQuerystring == null || sFoundationFromQuerystring.trim().length() == 0) {
+						foundation = procurement.getFoundation()==null?false:procurement.getFoundation().booleanValue();
+					}
 					
 					if (procurement.getStatus().getId() != ProcStatus.DRAFT) {
 			        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
@@ -127,7 +134,7 @@ public class SolutionByCapabilityController {
 			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 					}
 					try {
-						procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities), Optional.empty());
+						procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities), Optional.of(foundation), Optional.empty());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -140,14 +147,15 @@ public class SolutionByCapabilityController {
 			}
 		}
 
-		model = setupSolutionByCapability(secInfo, procurement, csvCapabilities, mode, model);	
+		model = setupSolutionByCapability(secInfo, procurement, csvCapabilities, mode, foundation, model);	
         return "buying-process/searchSolutionByCapability";
     }	
 
-	private Model setupSolutionByCapability(SecurityInfo secInfo, Procurement procurement, String csvCapabilities, int mode, Model model) {
+	private Model setupSolutionByCapability(SecurityInfo secInfo, Procurement procurement, String csvCapabilities, int mode, boolean foundation, Model model) {
 		SearchSolutionByCapabilityModel myModel = new SearchSolutionByCapabilityModel();
 		myModel.setSHORTLIST_MAX(SHORTLIST_MAX);
 		myModel.setMode(mode);
+		myModel.setFoundation(foundation);
 		myModel.setProcurement(procurement);
 		myModel.setProcurementId(0L);
 		if (procurement != null) {

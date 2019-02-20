@@ -57,6 +57,8 @@ public class Procurement {
     
 	private String searchKeyword;
 	
+	private Boolean foundation;
+	
 	private String csvCapabilities;
 	
 	private String csvPractices;

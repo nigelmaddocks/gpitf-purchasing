@@ -1,10 +1,12 @@
 package uk.nhs.gpitf.purchasing.endpoints;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.client.model.Capabilities;
@@ -93,11 +95,19 @@ public class OnboardingController {
     }
 
     public static final String ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST = "/onboarding/solutionsByRankWithCapabilitiesInList/";
-    @GetMapping(value = ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST + "{csvCapabilityList}")
+    @GetMapping(value = {
+    		ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST, 
+    		ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST + "{optCsvCapabilities}"})
     public List<OnboardingService.RankedSolution> getSolutionsByRankHavingCapabilitiesInList(
-    		@PathVariable("csvCapabilityList") String csvCapabilityList
+    		@PathVariable("optCsvCapabilities") Optional<String> optCsvCapabilities,
+    		@RequestParam(value = "foundation", defaultValue = "") String sFoundationFromQuerystring
     		) {
-    	List<OnboardingService.RankedSolution> list = onboardingService.findRankedSolutionsHavingCapabilitiesInList(csvCapabilityList);
+    	boolean foundation = Boolean.valueOf(sFoundationFromQuerystring);
+    	String csvCapabilities = "";
+    	if (optCsvCapabilities.isPresent()) {
+    		csvCapabilities = optCsvCapabilities.get();
+    	}
+    	List<OnboardingService.RankedSolution> list = onboardingService.findRankedSolutionsHavingCapabilitiesInList(csvCapabilities, foundation);
     	return list;
     }
 

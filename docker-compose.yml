@@ -11,15 +11,15 @@ services:
       - beta-private_beta_network
     restart: on-failure:3
 
-  purchasing-java:
-    image: gpitf/purchasing
-    ports:
-      - "8220:8220"
-    depends_on:
-      - purchasing-db
-    networks:
-      - beta-private_beta_network
-    restart: on-failure:3
+#  purchasing-java:
+#    image: gpitf/purchasing
+#    ports:
+#      - "8220:8220"
+#    depends_on:
+#      - purchasing-db
+#    networks:
+#      - beta-private_beta_network
+#    restart: on-failure:3
 
 volumes:
   postgres-data:

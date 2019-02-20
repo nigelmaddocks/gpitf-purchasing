@@ -14,11 +14,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByCapabilityModel;
+import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller
 public class Phase1ProcurementMenusController {
+	
+	@Autowired
+	ProcurementRepository procurementRepository;
 	
 	@Autowired
 	ProcurementService procurementService;
@@ -37,7 +41,7 @@ public class Phase1ProcurementMenusController {
 			if (iOption == 2) {
 				long procurementId = 0;
 				try {
-					Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty());
+					Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 					procurementId = procurement.getId();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -64,16 +68,21 @@ public class Phase1ProcurementMenusController {
 		if (sOption != null && sOption.trim().length() > 0) {
 			int iOption = Integer.valueOf(sOption);
 			long procurementId = 0;
+			Procurement procurement = null;
 			if (optProcurementId.isEmpty()) {
 				try {
-					Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 					procurementId = procurement.getId();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else {
 				procurementId = optProcurementId.get();
+				procurement = procurementRepository.findById(procurementId).get();
 			}
+			
+			procurement.setFoundation(iOption==1);
+			procurementRepository.save(procurement);
 			
 			// Option 1: Foundation Systems
 			if (iOption == 1) {
@@ -110,7 +119,7 @@ public class Phase1ProcurementMenusController {
 				long procurementId = 0;
 				if (optProcurementId.isEmpty()) {
 					try {
-						Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty());
+						Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 						procurementId = procurement.getId();
 					} catch (Exception e) {
 						e.printStackTrace();

@@ -57,8 +57,8 @@ public class ProcurementService {
        return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
-    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword,
-    		Optional<String> csvCapabilities, Optional<String> csvPractices) throws Exception {
+    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, 
+    		Optional<String> csvCapabilities, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
     	Procurement procurement = null;
     	if (procurementId == 0) {
     		procurement = createNewProcurement(orgContactId);
@@ -67,12 +67,10 @@ public class ProcurementService {
     	  findById(procurementId);
     	}
 
-    	if (searchKeyword.isPresent()) {
-          procurement.setSearchKeyword(searchKeyword.get());
-        }
-    	if (csvCapabilities.isPresent()) {
-          procurement.setCsvCapabilities(csvCapabilities.get());
-        }
+    	
+    	if (searchKeyword.isPresent()) procurement.setSearchKeyword(searchKeyword.get());
+    	if (csvCapabilities.isPresent()) procurement.setCsvCapabilities(csvCapabilities.get());
+    	if (foundation.isPresent()) procurement.setFoundation(foundation.get());
     	if (csvPractices.isPresent()) {
     		String sCsvPractices = csvPractices.get();
     		if (sCsvPractices.startsWith(",")) {

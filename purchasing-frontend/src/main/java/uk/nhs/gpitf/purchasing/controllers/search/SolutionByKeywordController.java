@@ -91,7 +91,7 @@ public class SolutionByKeywordController {
 					searchModel.setSearchKeywords(procurement.getSearchKeyword());
 					searchModel.setSolutions(onboardingService.findSolutionsHavingKeywords(searchModel.getSearchKeywords()));
 					try {
-						procurement = procurementService.saveCurrentPosition(procurement.getId(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""), Optional.empty());
+						procurement = procurementService.saveCurrentPosition(procurement.getId(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""), Optional.empty(), Optional.empty());
 					} catch (Exception e) {
 			        	String message = "Could not save current position of procurement " + procurementId;
 			    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
@@ -132,11 +132,11 @@ public class SolutionByKeywordController {
 			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 					}
 
-					procurement = procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""), Optional.empty(), Optional.empty());
 						//procurementService.saveCurrentPosition(optProcurementId.get(), secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.empty());
 			
 				} else {
-					procurement = procurementService.saveCurrentPosition(0, secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(0, secInfo.getOrgContactId(), Optional.of(searchModel.getSearchKeywords()), Optional.of(""), Optional.empty(), Optional.empty());
 				}
 				searchModel.setProcurement(procurement);
 				searchModel.setProcurementId(procurement.getId());

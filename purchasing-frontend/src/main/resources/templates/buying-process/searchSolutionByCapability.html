@@ -104,6 +104,7 @@
                 </div>
             	<div class="row">
 	                <div class="col-md-4">
+	                	<input type="checkbox" id="togFoundation" name="togFoundation" th:checked="${myModel.foundation}" data-toggle="toggle" data-on="Foundation" data-off="Non-Foundation" data-onstyle="success" data-offstyle="info" data-width="150" /> <br />  <br /> 
 			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : ''}" >		                
 		               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
 		               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
@@ -121,23 +122,53 @@
 </section>    
 
 <script th:inline="javascript">
-    $("form").on("click", ":checkbox[name='filterCapabilities']", function(event){
-		//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
-		var selectedCapabilities = "";
-		var selectedCapabilityNames = "";
-		$("input[name=" + event.target.name + "]:checked").each( function () {
-			selectedCapabilities += "," + this.id.split(event.target.name+'_')[1].trim();
-		});
-		//alert("selectedCapabilities: " + selectedCapabilities);
-
-		refreshCapabilityNames();
-		$("#foundSolutions").empty();
-		if (selectedCapabilities.length > 0) {
-			selectedCapabilities = selectedCapabilities.substring(1);
-			updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities)
-			searchCapabilitiesForSolutions(selectedCapabilities);
-		}
+$("form").on("click", ":checkbox[name='filterCapabilities']", function(event){
+	//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
+	var selectedCapabilities = "";
+	var vFoundation = $('#togFoundation').prop('checked');
+	$("input[name=" + event.target.name + "]:checked").each( function () {
+		selectedCapabilities += "," + this.id.split(event.target.name+'_')[1].trim();
 	});
+	//alert("selectedCapabilities: " + selectedCapabilities);
+
+	refreshCapabilityNames();
+	$("#foundSolutions").empty();
+	if (selectedCapabilities.length > 0 || vFoundation) {
+		selectedCapabilities = selectedCapabilities.substring(1);
+		updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities)
+		searchCapabilitiesForSolutions(selectedCapabilities, vFoundation);
+	}
+});
+
+$('#togFoundation').change(function() {
+	var vFoundation = $(this).prop('checked')
+	capabilitiesVisibility();
+	//alert("vFoundation: " + vFoundation);
+
+	updateProcurementWithFoundationPOST([[${myModel.procurementId}]], vFoundation)
+	
+	$("input[name=" + event.target.name + "]:checked").each( function () {
+		selectedCapabilities += "," + this.id.split(event.target.name+'_')[1].trim();
+	});
+	//alert("selectedCapabilities: " + selectedCapabilities);
+
+	var selectedCapabilities = getSelectedCapabilitiesCsv();
+	refreshCapabilityNames();
+	$("#foundSolutions").empty();
+	
+	searchCapabilitiesForSolutions(selectedCapabilities, vFoundation);
+});
+
+	function capabilitiesVisibility() {
+		var vFoundation = $('#togFoundation').prop('checked');
+		$(".capabilitysearch-capability-foundation").each( function() {
+			if (vFoundation) {
+				$(this).hide();
+			} else {
+				$(this).show();
+			}
+		});
+	}
 
     function refreshCapabilityNames() {
 		var selectedCapabilityNames = "";
@@ -166,7 +197,8 @@
     
     function showCapabilityPanel(show) {
     	if (show) {
-    		searchCapabilitiesForSolutions(getSelectedCapabilitiesCsv());
+   			var vFoundation = $('#togFoundation').prop('checked');
+    		searchCapabilitiesForSolutions(getSelectedCapabilitiesCsv(), vFoundation);
     		$("#capabilityPanel").show();
     		$("#practicePanel").hide();
     	} else {
@@ -183,6 +215,32 @@
 		var sendInfo = {
 			"procurementId"	: procurementId,
 			"csvCapabilities" : csvCapabilities
+		};
+		$.ajax({
+		    type: 'POST',
+		    beforeSend: function(request) {
+		        request.setRequestHeader(header, token);
+		    },
+		    url: url,
+		    data: JSON.stringify (sendInfo),
+		    //success: function(data) { alert('data: ' + data); },
+		    contentType: "application/json",
+		    dataType: 'json'
+		})
+		.fail(function(error) {
+			console.error(error);
+        })
+		;
+	}
+    
+    function updateProcurementWithFoundationPOST(procurementId, foundation) {
+    	var token = $("meta[name='_csrf']").attr("content");
+    	var header = $("meta[name='_csrf_header']").attr("content");
+
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_UPDATE_PROCUREMENT_WITH_FOUNDATION}]];
+		var sendInfo = {
+			"procurementId"	: procurementId,
+			"foundation" : foundation
 		};
 		$.ajax({
 		    type: 'POST',
@@ -227,9 +285,9 @@
 		;
 	}
     
-    function searchCapabilitiesForSolutions(csvCapabilities) {
+    function searchCapabilitiesForSolutions(csvCapabilities, isFoundation) {
 		//console.log(csvCapabilities);
-		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities;
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities + "?foundation=" + isFoundation;
 		$.getJSON( url)
 		.done(function( data ) {
 			$("#foundSolutions").empty();
@@ -411,6 +469,8 @@
    	var selectedPracticePatients = [[${myModel.patientCount}]];
     $( document ).ready(function() {
        	var csvCapabilities = [[${myModel.csvCapabilities}]];
+       	var vFoundation = $('#togFoundation').prop('checked');
+    	capabilitiesVisibility();
        	var arrMyCsvCCGIDs = [[${myModel.myCsvCCGIDs}]].split(",");
        	for (var idx=0; idx<arrMyCsvCCGIDs.length; idx++) {
 			$('#ccg-' + arrMyCsvCCGIDs[idx]).on('hidden.bs.collapse', function () {
@@ -425,7 +485,7 @@
 
        	showCapabilityPanel([[${myModel.mode == myModel.MODE_ALL}]]);
        	refreshCapabilityNames();
-       	searchCapabilitiesForSolutions(csvCapabilities);
+       	searchCapabilitiesForSolutions(csvCapabilities, vFoundation);
        	refreshSelectedPractices();
        	
        	/*[# th:each="ccg : ${myModel.myCCGs}"]*/
