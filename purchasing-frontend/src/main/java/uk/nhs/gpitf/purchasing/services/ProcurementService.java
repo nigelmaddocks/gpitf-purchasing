@@ -62,9 +62,8 @@ public class ProcurementService {
     	Procurement procurement = null;
     	if (procurementId == 0) {
     		procurement = createNewProcurement(orgContactId);
-
     	} else {
-    	  findById(procurementId);
+    		procurement = findById(procurementId);
     	}
 
     	

@@ -1,0 +1,274 @@
+[ {
+  "id" : "C1",
+  "previousId" : null,
+  "name" : "Appointments Management - GP",
+  "description" : "Supports the administration, scheduling, resourcing and reporting of appointments.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647327/Appointments+Management+-+GP",
+  "type" : "C"
+}, {
+  "id" : "C10",
+  "previousId" : null,
+  "name" : "Communicate with Practice - Citizen",
+  "description" : "Supports secure and trusted electronic communications between Citizens and the Practice. Integrates with Patient Information Maintenance.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647110/Communicate+With+Practice+-+Citizen",
+  "type" : "N"
+}, {
+  "id" : "C11",
+  "previousId" : null,
+  "name" : "Clinical Decision Support",
+  "description" : "Supports clinical decision-making to improve Patient safety at the point of care.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814646818/Clinical+Decision+Support",
+  "type" : "N"
+}, {
+  "id" : "C12",
+  "previousId" : null,
+  "name" : "Communication Management",
+  "description" : "Supports the delivery and management of communications to Citizens and Practice staff.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647722/Communication+Management",
+  "type" : "N"
+}, {
+  "id" : "C13",
+  "previousId" : null,
+  "name" : "Digital Diagnostics",
+  "description" : "Supports electronic requesting with other healthcare organisations. Test results can be received, reviewed and stored against the Patient record.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647875/Digital+Diagnostics",
+  "type" : "N"
+}, {
+  "id" : "C14",
+  "previousId" : null,
+  "name" : "Document Management",
+  "description" : "Supports the secure management and classification of all forms of paper and unstructured electronic documents. Also enables processing of documents and matching documents with Patients.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647009/Document+Management",
+  "type" : "N"
+}, {
+  "id" : "C15",
+  "previousId" : null,
+  "name" : "GP Extracts Verification",
+  "description" : "Supports Practice staff in ensuring accuracy of the data that is used with the Calculating Quality Reporting Service (CQRS).",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647790/GP+Extracts+Verification",
+  "type" : "N"
+}, {
+  "id" : "C16",
+  "previousId" : null,
+  "name" : "Reporting",
+  "description" : "Enables reporting and analysis of data from other Capabilities in the Practice Solution to support clinical care and Practice management.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814648684/Reporting",
+  "type" : "N"
+}, {
+  "id" : "C17",
+  "previousId" : null,
+  "name" : "Scanning",
+  "description" : "Support the conversion of paper documentation into digital format preserving the document quality and structure.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814646333/Scanning",
+  "type" : "N"
+}, {
+  "id" : "C18",
+  "previousId" : null,
+  "name" : "Telehealth",
+  "description" : "Enables Citizens and Patients that use health monitoring solutions to share monitoring data with health and care professionals to support remote delivery of care and increase self-care outside of clinical settings.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814646367/Telehealth",
+  "type" : "N"
+}, {
+  "id" : "C19",
+  "previousId" : null,
+  "name" : "Unstructured Data Extraction",
+  "description" : "Enable automated and manual interpretation and extraction of structured data from paper documents and unstructured electronic documents to support their classification and matching with Patient Records.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814648479/Unstructured+Data+Extraction",
+  "type" : "N"
+}, {
+  "id" : "C2",
+  "previousId" : null,
+  "name" : "GP Referral Management",
+  "description" : "Supports recording, reviewing, sending, and reporting of Patient Referrals. Enables Referral information to be included in the Patient Record.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814648389/GP+Referral+Management",
+  "type" : "C"
+}, {
+  "id" : "C20",
+  "previousId" : null,
+  "name" : "Workflow",
+  "description" : "Supports manual and automated management of work in the Practice. Also supports effective planning, tracking, monitoring and reporting.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647362/Workflow",
+  "type" : "N"
+}, {
+  "id" : "C21",
+  "previousId" : null,
+  "name" : "Care Homes",
+  "description" : "Supports the sharing of information between Care Homes and a resident's GP and other parties involved in providing care to the resident to support decision making, care planning and delivery.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/831324306/Care+Homes",
+  "type" : "N"
+}, {
+  "id" : "C22",
+  "previousId" : null,
+  "name" : "Caseload Management",
+  "description" : "Supports the allocation of appropriate health and care workers operating across a community to patients/service users such that the workers have a manageable number of appropriate 'cases' within their workload. Supports maintaining an optimum balance between needs, skills, capacity, resources and outcomes.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/821329985/Caseload+Management",
+  "type" : "N"
+}, {
+  "id" : "C23",
+  "previousId" : null,
+  "name" : "Cross-organisation Appointment Booking",
+  "description" : "Supports service providers in efficiently providing a variety of appointments across organisational boundaries.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/293830735/Cross-organisation+Appointment+Booking",
+  "type" : "N"
+}, {
+  "id" : "C24",
+  "previousId" : null,
+  "name" : "Cross-organisation Workflow Tools",
+  "description" : "Supports service providers in managing work and tasks across organisational boundaries.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/837550125/Cross-organisation+Workflow+Tools",
+  "type" : "N"
+}, {
+  "id" : "C25",
+  "previousId" : null,
+  "name" : "Cross-organisation Workforce Management",
+  "description" : "Supports the planning and scheduling of the health and care workforce across integrated and federated care settings in order to efficiently and effectively provide the people with the right skills, in the right place, at the right time in order to provide the right services.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/839451974/Cross-organisation+Workforce+Management",
+  "type" : "N"
+}, {
+  "id" : "C26",
+  "previousId" : null,
+  "name" : "Data Analytics for Integrated and Federated Care",
+  "description" : "Supporting Federated GP Practices and Integrated Care Settings by aggregating and analysing data, to inform decisions around appointments, workforce utilisation, and spending. Also enables other capabilities, such as Population Health Management, Medicines Optimisation, and Risk Stratification.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/842104968/Data+Analytics+for+Integrated+and+Federated+Care",
+  "type" : "N"
+}, {
+  "id" : "C27",
+  "previousId" : null,
+  "name" : "Domiciliary Care",
+  "description" : "Supports Patients / Service Users, Local Authorities and Care Providers to provide help and domiciliary services to Service User in their own homes that would enable them to improve their quality of life and maintain their independence.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/687210555/Domiciliary+Care",
+  "type" : "N"
+}, {
+  "id" : "C28",
+  "previousId" : null,
+  "name" : "e-Consultations (Professional to Professional)",
+  "description" : "Supporting communication and sharing of specialist knowledge and advice between healthcare professionals across a local or wider community regarding a patient/service user's condition in order to make the correct decisions/course of action regarding their future treatment.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/841811539",
+  "type" : "N"
+}, {
+  "id" : "C29",
+  "previousId" : null,
+  "name" : "e-Consultations (Patient/Service User to Professional)",
+  "description" : "Supports Patients/Service Users to access health and care professional support, across a range of health and care settings, without the need for a face to face encounter.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/841417381",
+  "type" : "N"
+}, {
+  "id" : "C3",
+  "previousId" : null,
+  "name" : "GP Resource Management",
+  "description" : "Supports the management and reporting of Practice information, resources, Staff Members and related organisations. Also enables management of Staff Member availability and inactivity.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814648083/GP+Resource+Management",
+  "type" : "C"
+}, {
+  "id" : "C30",
+  "previousId" : null,
+  "name" : "Medicines Optimisation",
+  "description" : "Supports clinicians and pharmacists in reviewing a Patient's prescribed medication across different care settings to ensure they are taking the best combination of medication.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/832143536/Medicines+Optimisation",
+  "type" : "N"
+}, {
+  "id" : "C31",
+  "previousId" : null,
+  "name" : "Personal Health Budget",
+  "description" : "Supports the identified healthcare and well-being needs of an individual by managing the purchasing of care and support in line with their care plan.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/873103931/Personal+Health+Budget",
+  "type" : "N"
+}, {
+  "id" : "C32",
+  "previousId" : null,
+  "name" : "Personal Health Record",
+  "description" : "Supports a person managing their own electronic health record, allowing them to control the contents, adding or referencing data from various sources and adding their own information and it allows them to share the record with others.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/864092279/Personal+Health+Record",
+  "type" : "N"
+}, {
+  "id" : "C33",
+  "previousId" : null,
+  "name" : "Population Health Management",
+  "description" : "It includes collecting and analysing data on segments of the given patient population and managing specific diseases within that population. It's a comprehensive approach to uncovering gaps in care, filling those gaps - for the benefits of the local population and the practice - improving outcomes, aligning physicians, coordinating care, and optimizing efficiency.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/850067457/Population+Health+Management",
+  "type" : "N"
+}, {
+  "id" : "C34",
+  "previousId" : null,
+  "name" : "Risk Stratification",
+  "description" : "Supports healthcare professionals by providing trusted models to predict future patient events, which would inform when interventions would result in better patient outcomes, and reduced healthcare costs.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/885686619/Risk+Stratification",
+  "type" : "N"
+}, {
+  "id" : "C35",
+  "previousId" : null,
+  "name" : "Shared Care Plans",
+  "description" : "Supports multiple organisations in working together in managing activities relating to the Patient's health and care. Also supports Service Users in contributing to their care plan.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/787415509/Shared+Care+Plans",
+  "type" : "N"
+}, {
+  "id" : "C36",
+  "previousId" : null,
+  "name" : "Social Prescribing",
+  "description" : "Supports service providers to refer Patients/Service Users to local, community services.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/837648499/Social+Prescribing",
+  "type" : "N"
+}, {
+  "id" : "C37",
+  "previousId" : null,
+  "name" : "Unified Care Record",
+  "description" : "Supports healthcare professionals by giving them a consolidated view of a patient's complete and up to date medical records, sourced from various health and social care settings, allowing them to make informed decisions.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/955515045/Unified+Care+Record",
+  "type" : "N"
+}, {
+  "id" : "C4",
+  "previousId" : null,
+  "name" : "Patient Information Maintenance",
+  "description" : "Supports the registration of Patients and the maintenance of all Patient personal information. Supports the organisation and presentation of a comprehensive Patient Record. Also supports the management of related persons and configuring access to Citizen Services.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814646899/Patient+Information+Maintenance",
+  "type" : "C"
+}, {
+  "id" : "C5",
+  "previousId" : null,
+  "name" : "Prescribing",
+  "description" : "Supports the effective and safe prescribing of medical products and appliances to Patients. Information to support prescribing will be available.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814646778/Prescribing",
+  "type" : "C"
+}, {
+  "id" : "C6",
+  "previousId" : null,
+  "name" : "Recording Consultations",
+  "description" : "Supports the standardised recording of Consultations and other General Practice activities. Also supports the extraction of Female Genital Mutilation (FGM) data for the FGM data set.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814646717/Recording+Consultations",
+  "type" : "C"
+}, {
+  "id" : "C7",
+  "previousId" : null,
+  "name" : "Prescription Ordering - Citizen",
+  "description" : "Enables Citizens to request medication online and manage nominated and preferred Pharmacies for Patients.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647067",
+  "type" : "N"
+}, {
+  "id" : "C8",
+  "previousId" : null,
+  "name" : "Appointments Management - Citizen",
+  "description" : "Enables Citizens to manage their Appointments online. Supports the use of Appointment slots that have been configured in Appointments Management - GP",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647126/Appointments+Management+-+Citizen",
+  "type" : "N"
+}, {
+  "id" : "C9",
+  "previousId" : null,
+  "name" : "View Record - Citizen",
+  "description" : "Enables Citizens to view their Patient Record online.",
+  "url" : "https://gpitbjss.atlassian.net/wiki/spaces/ISDNU/pages/814647117/View+Record+-+Citizen",
+  "type" : "N"
+}, {
+  "id" : "C901",
+  "previousId" : null,
+  "name" : "Meds Verification",
+  "description" : null,
+  "url" : null,
+  "type" : "N"
+}, {
+  "id" : "C902",
+  "previousId" : null,
+  "name" : "Telecare",
+  "description" : null,
+  "url" : null,
+  "type" : "N"
+} ]

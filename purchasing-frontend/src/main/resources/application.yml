@@ -60,3 +60,6 @@ logging.level.org.springframework: info
 
 sysparam.shortlist.max: 4
 sysparam.directaward.maxvalue: 20000
+sysparam.writeOnboardingCache: false
+sysparam.readOnboardingCache: true
+
