@@ -12,4 +12,4 @@ ENV JAVA_OPTS=""
 RUN ["apk", "update"]
 RUN ["apk", "add", "tzdata"]
 RUN ["ln", "-f", "-s", "/usr/share/zoneinfo/Europe/London", "/etc/localtime"]
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Dspring.profiles.active=docker -Djava.security.egd=file:/dev/./urandom -jar purchasing.jar" ]
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Dspring.profiles.active=docker.texas -Djava.security.egd=file:/dev/./urandom -jar purchasing.jar" ]

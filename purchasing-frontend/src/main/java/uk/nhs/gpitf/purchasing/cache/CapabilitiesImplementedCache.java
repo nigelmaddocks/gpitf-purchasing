@@ -18,6 +18,7 @@ import org.codehaus.jackson.map.util.BeanUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
@@ -48,7 +49,6 @@ public class CapabilitiesImplementedCache {
 	@Value("${sysparam.readOnboardingCache}")
     private String READ_ONBOARDINGCACHE_STRING;
 	private static boolean READ_ONBOARDINGCACHE;
-
 	
 	protected Integer TTL = 60; // In minutes. defaults to 60 mins
 	
@@ -161,18 +161,16 @@ public class CapabilitiesImplementedCache {
 		
 		if (READ_ONBOARDINGCACHE == true) {
 			try {
-				URL urlOnboardingCacheDummy = this.getClass().getResource("/onboardingCache/dummy.json");
-				File folderOnboardingCache = new File(urlOnboardingCacheDummy.getPath()).getParentFile();
-				Hashtable<String, ArrayList<String>>loadedCapabilityIdSolutionIds = objectMapper.readValue(new File(folderOnboardingCache, "capabilityIdSolutionIds.json"), newCapabilityIdSolutionIds.getClass());
+				Hashtable<String, ArrayList<String>>loadedCapabilityIdSolutionIds = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/capabilityIdSolutionIds.json"), newCapabilityIdSolutionIds.getClass());
 				for (var key : loadedCapabilityIdSolutionIds.keySet()) {
 					newCapabilityIdSolutionIds.put(key, loadedCapabilityIdSolutionIds.get(key).toArray(new String[] {}));
 				}
-				Hashtable<String, ArrayList<String>>loadedSolutionIdCapabilityIds = objectMapper.readValue(new File(folderOnboardingCache, "solutionIdCapabilityIds.json"), newSolutionIdCapabilityIds.getClass());
+				Hashtable<String, ArrayList<String>>loadedSolutionIdCapabilityIds = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/solutionIdCapabilityIds.json"), newSolutionIdCapabilityIds.getClass());
 				for (var key : loadedSolutionIdCapabilityIds.keySet()) {
 					newSolutionIdCapabilityIds.put(key, loadedSolutionIdCapabilityIds.get(key).toArray(new String[] {}));
 				}
 				//newCapabilities = objectMapper.readValue(new File(folderOnboardingCache, "capabilities.json"), newCapabilities.getClass());
-				ArrayList<LinkedHashMap> arlLHM = objectMapper.readValue(new File(folderOnboardingCache, "capabilities.json"), new ArrayList<LinkedHashMap>().getClass());
+				ArrayList<LinkedHashMap> arlLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/capabilities.json"), new ArrayList<LinkedHashMap>().getClass());
 				for (var lhm : arlLHM) {
 					Capabilities capability = new Capabilities();
 					for (var key : lhm.keySet()) {
@@ -183,7 +181,7 @@ public class CapabilitiesImplementedCache {
 					newCapabilities.put(capability.getId(), capability);
 				}
 				//newSolutions = objectMapper.readValue(new File(folderOnboardingCache, "solutions.json"), newSolutions.getClass());
-				arlLHM = objectMapper.readValue(new File(folderOnboardingCache, "solutions.json"), new ArrayList<LinkedHashMap>().getClass());
+				arlLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/solutions.json"), new ArrayList<LinkedHashMap>().getClass());
 				for (var lhm : arlLHM) {
 					SolutionEx2 solutionEx2 = new SolutionEx2();
 					Solutions solution = new Solutions();
@@ -222,8 +220,8 @@ public class CapabilitiesImplementedCache {
 					BeanUtils.copyProperties(solution, solutionEx2);
 					newSolutions.put(solutionEx2.getId(), solutionEx2);
 				}
-				newOrganisations = objectMapper.readValue(new File(folderOnboardingCache, "organisations.json"), newOrganisations.getClass());
-				newFoundationCapabilityIds = objectMapper.readValue(new File(folderOnboardingCache, "foundationCapabilityIds.json"), newFoundationCapabilityIds.getClass());
+				newOrganisations = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/organisations.json"), newOrganisations.getClass());
+				newFoundationCapabilityIds = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/foundationCapabilityIds.json"), newFoundationCapabilityIds.getClass());
 			} catch (Exception owex) {
 				owex.printStackTrace();
 			}

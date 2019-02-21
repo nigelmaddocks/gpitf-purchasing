@@ -1,0 +1,11 @@
+spring.datasource.url: jdbc:postgresql://purchasing-db:5432/postgres
+spring.session.store-type: none
+security:
+  oauth2:
+    client:
+      accessTokenUri: http://oidc-provider:9000/token
+    resource:
+      userInfoUri: http://oidc-provider:9000/me
+
+sysparam.readOnboardingCache: true
+
