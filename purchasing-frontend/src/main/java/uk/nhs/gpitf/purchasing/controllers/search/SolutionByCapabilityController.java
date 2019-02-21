@@ -167,7 +167,7 @@ public class SolutionByCapabilityController {
 			myModel.setCsvPractices(",");
 		}
 		myModel.setCsvCapabilities(csvCapabilities);
-		myModel.setAllCapabilities(onboardingService.orderByCoreThenName(onboardingService.findCapabilities()));
+		myModel.setAllCapabilities(onboardingService.orderByCoreThenName(onboardingService.findCapabilitiesFromCache()));
 		
 		// Set up the user's CCGs
 		if (secInfo.getOrganisationTypeId() == OrgType.CCG || secInfo.getOrganisationTypeId() == OrgType.CSU) {

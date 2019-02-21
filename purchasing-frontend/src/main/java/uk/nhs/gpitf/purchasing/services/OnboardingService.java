@@ -100,6 +100,17 @@ public class OnboardingService {
 	/**
 	 * WARNING: Non-api method that works over cached solutions and capabilities
 	 */
+	public List<Capabilities> findCapabilitiesFromCache() {
+		List<Capabilities> capabilities = new ArrayList<>();
+		for (var capability : capabilitiesImplementedCache.getCapabilities().values()) {
+			capabilities.add(capability);
+		}
+		return capabilities;
+	}
+	
+	/**
+	 * WARNING: Non-api method that works over cached solutions and capabilities
+	 */
 	public List<Capabilities> findCapabilitiesBySolutionId(String solutionId) {
 		List<Capabilities> capabilities = new ArrayList<>();
 		String[] capabilityIds = capabilitiesImplementedCache.getSolutionIdCapabilityIds().get(solutionId);
