@@ -1,4 +1,5 @@
-FROM adoptopenjdk/openjdk11:alpine
+FROM maven:3.6.0-jdk-11
+#FROM adoptopenjdk/openjdk11:alpine
 #FROM openjdk:12-ea-29-jdk-alpine3.9
 #FROM adoptopenjdk/openjdk11
 VOLUME /tmp
@@ -9,7 +10,8 @@ ADD ./target/purchasing-0.0.1-SNAPSHOT.jar purchasing.jar
 # Expose 8220, the default port used for Capacity Service
 EXPOSE 8220
 ENV JAVA_OPTS=""
-RUN ["apk", "update"]
-RUN ["apk", "add", "tzdata"]
+#RUN ["apk", "update"]
+#RUN ["apk", "add", "tzdata"]
+RUN apt-get update && apt-get install -y tzdata
 RUN ["ln", "-f", "-s", "/usr/share/zoneinfo/Europe/London", "/etc/localtime"]
 ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Dspring.profiles.active=docker.texas -Djava.security.egd=file:/dev/./urandom -jar purchasing.jar" ]
