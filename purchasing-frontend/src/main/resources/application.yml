@@ -60,6 +60,6 @@ logging.level.org.springframework: info
 
 sysparam.shortlist.max: 4
 sysparam.directaward.maxvalue: 20000
-sysparam.writeOnboardingCache: false
-sysparam.readOnboardingCache: true
+sysparam.writeOnboardingCache: false    ## Default false. Set to true to write to  resources/onboardingCache json files
+sysparam.readOnboardingCache: false     ## Default false. Set to true to read from resources/onboardingCache json files
 
