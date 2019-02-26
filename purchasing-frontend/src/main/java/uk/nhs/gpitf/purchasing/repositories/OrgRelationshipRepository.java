@@ -19,7 +19,8 @@ public interface OrgRelationshipRepository extends CrudRepository<OrgRelationshi
 			"WHERE orgr.parentOrg = :parentOrg AND orgr.relationshipType = :relationshipType ")
 	Iterable<Ids> findAllChildIdsByParentOrgAndRelationshipType(Organisation parentOrg, RelationshipType relationshipType);
 	
-	@Query("SELECT NEW uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolution(child.id, child.name, child.orgCode, pc.patientCount, os.solution, ls) FROM OrgRelationship orgr " + 
+	@Query("SELECT NEW uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolution(child.id, child.name, child.orgCode, pc.patientCount, os.solution, ls) " +
+			"FROM OrgRelationship orgr " + 
 			"INNER JOIN Organisation child ON child.id = orgr.childOrg " +
 			"LEFT OUTER JOIN PatientCount pc ON pc.org = orgr.childOrg AND pc.run = (SELECT MAX(id) FROM PatientCountRun)" +
 			"LEFT OUTER JOIN OrgSolution os ON os.organisation = orgr.childOrg " +
@@ -27,5 +28,14 @@ public interface OrgRelationshipRepository extends CrudRepository<OrgRelationshi
 			"WHERE orgr.parentOrg = :parentOrg AND orgr.relationshipType = :relationshipType " +
 			"ORDER BY orgr.childOrg")
 	Iterable<OrgAndCountAndSolution> findAllWithCoreSystemByParentOrgAndRelationshipType(@Param("parentOrg") Organisation parentOrg, @Param("relationshipType") RelationshipType relationshipType);
+
+	@Query("SELECT NEW uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolution(o.id, o.name, o.orgCode, pc.patientCount, os.solution, ls) " +
+			"FROM Organisation o " +
+			"LEFT OUTER JOIN PatientCount pc ON pc.org = o AND pc.run = (SELECT MAX(id) FROM PatientCountRun)" +
+			"LEFT OUTER JOIN OrgSolution os ON os.organisation = o " +
+			"LEFT OUTER JOIN LegacySolution ls ON ls.id = os.legacySolution " +
+			"WHERE o = :org " +
+			"ORDER BY o")
+	Iterable<OrgAndCountAndSolution> findAllWithCoreSystemByOrg(@Param("org") Organisation org);
 
 }

@@ -68,6 +68,7 @@ public class OrgRelationshipService {
     public List<OrgAndCountAndSolution> getOrganisationsCoreSystemByParentOrgAndRelationshipType(Organisation parentOrg, RelationshipType relationshipType,
     		Optional<String> optFilterByName, Optional<String> optFilterByCode, Optional<String> optFilterBySystem ) {
         List<OrgAndCountAndSolution> coll = new ArrayList<>();
+        List<OrgAndCountAndSolution> collCCG = new ArrayList<>();
         thisRepository.findAllWithCoreSystemByParentOrgAndRelationshipType(parentOrg, relationshipType).forEach(coll::add);
         if (optFilterByName.isPresent()) {
         	coll.removeIf(e -> !GUtils.nullToString(e.organisationName).toUpperCase().contains(optFilterByName.get().toUpperCase()));
@@ -79,7 +80,20 @@ public class OrgRelationshipService {
         	coll.removeIf(e -> !GUtils.nullToString(e.formatSolution()).toUpperCase().contains(optFilterBySystem.get().toUpperCase()));
         }
         coll.sort((object1, object2) -> (object1.organisationName+object1.organisationCode).compareToIgnoreCase(object2.organisationName+object2.organisationCode));
-        return coll;
+        
+        thisRepository.findAllWithCoreSystemByOrg(parentOrg).forEach(collCCG::add);
+        if (optFilterByName.isPresent()) {
+        	collCCG.removeIf(e -> !GUtils.nullToString(e.organisationName).toUpperCase().contains(optFilterByName.get().toUpperCase()));
+        }
+        if (optFilterByCode.isPresent()) {
+        	collCCG.removeIf(e -> !GUtils.nullToString(e.organisationCode).toUpperCase().contains(optFilterByCode.get().toUpperCase()));
+        }
+        if (optFilterBySystem.isPresent()) {
+        	collCCG.removeIf(e -> !GUtils.nullToString(e.formatSolution()).toUpperCase().contains(optFilterBySystem.get().toUpperCase()));
+        }
+        
+        collCCG.addAll(coll);
+        return collCCG;
     }    
 
 }
