@@ -23,10 +23,17 @@ import io.swagger.annotations.ApiModelProperty;
 import org.threeten.bp.OffsetDateTime;
 
 /**
- * BlobInfo
+ * Information about a folder or file in blob datastore,  typically SharePoint
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@ApiModel(description = "Information about a folder or file in blob datastore,  typically SharePoint")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 public class BlobInfo {
+  @JsonProperty("id")
+  private String id = null;
+
+  @JsonProperty("parentId")
+  private String parentId = null;
+
   @JsonProperty("name")
   private String name = null;
 
@@ -44,6 +51,42 @@ public class BlobInfo {
 
   @JsonProperty("blobId")
   private String blobId = null;
+
+  public BlobInfo id(String id) {
+    this.id = id;
+    return this;
+  }
+
+   /**
+   * Unique identifier of entity
+   * @return id
+  **/
+  @ApiModelProperty(value = "Unique identifier of entity")
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public BlobInfo parentId(String parentId) {
+    this.parentId = parentId;
+    return this;
+  }
+
+   /**
+   * Unique identifier of parent/owner of this entity  Will be null if this is the root entity
+   * @return parentId
+  **/
+  @ApiModelProperty(value = "Unique identifier of parent/owner of this entity  Will be null if this is the root entity")
+  public String getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(String parentId) {
+    this.parentId = parentId;
+  }
 
   public BlobInfo name(String name) {
     this.name = name;
@@ -163,7 +206,9 @@ public class BlobInfo {
       return false;
     }
     BlobInfo blobInfo = (BlobInfo) o;
-    return Objects.equals(this.name, blobInfo.name) &&
+    return Objects.equals(this.id, blobInfo.id) &&
+        Objects.equals(this.parentId, blobInfo.parentId) &&
+        Objects.equals(this.name, blobInfo.name) &&
         Objects.equals(this.isFolder, blobInfo.isFolder) &&
         Objects.equals(this.length, blobInfo.length) &&
         Objects.equals(this.url, blobInfo.url) &&
@@ -173,7 +218,7 @@ public class BlobInfo {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, isFolder, length, url, timeLastModified, blobId);
+    return Objects.hash(id, parentId, name, isFolder, length, url, timeLastModified, blobId);
   }
 
 
@@ -182,6 +227,8 @@ public class BlobInfo {
     StringBuilder sb = new StringBuilder();
     sb.append("class BlobInfo {\n");
     
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("    parentId: ").append(toIndentedString(parentId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    isFolder: ").append(toIndentedString(isFolder)).append("\n");
     sb.append("    length: ").append(toIndentedString(length)).append("\n");

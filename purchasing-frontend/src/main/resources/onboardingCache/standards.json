@@ -1,0 +1,326 @@
+{
+  "S36" : {
+    "isOverarching" : false,
+    "id" : "S36",
+    "previousId" : null,
+    "name" : "Workflow - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S35" : {
+    "isOverarching" : false,
+    "id" : "S35",
+    "previousId" : null,
+    "name" : "Unstructured Data Extraction - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S34" : {
+    "isOverarching" : false,
+    "id" : "S34",
+    "previousId" : null,
+    "name" : "Reporting - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S33" : {
+    "isOverarching" : false,
+    "id" : "S33",
+    "previousId" : null,
+    "name" : "GP Extracts Verification - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S32" : {
+    "isOverarching" : false,
+    "id" : "S32",
+    "previousId" : null,
+    "name" : "Document Management - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S31" : {
+    "isOverarching" : false,
+    "id" : "S31",
+    "previousId" : null,
+    "name" : "Digital Diagnostics - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S30" : {
+    "isOverarching" : false,
+    "id" : "S30",
+    "previousId" : null,
+    "name" : "Communication Management - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S9" : {
+    "isOverarching" : true,
+    "id" : "S9",
+    "previousId" : null,
+    "name" : "Non-Functional Questions",
+    "description" : "Enable assurance to understand how the supplier solution has implemented its non-functional requirements and how these requirements will fulfil the contractual SLAs. ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S8" : {
+    "isOverarching" : true,
+    "id" : "S8",
+    "previousId" : null,
+    "name" : "Information Governance",
+    "description" : "Supports confidentiality, availability (to authorised users when required), and accuracy of data processed by systems. ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S7" : {
+    "isOverarching" : true,
+    "id" : "S7",
+    "previousId" : null,
+    "name" : "Hosting & Infrastructure",
+    "description" : "Supports best practices for infrastructure and hosting of systems. For example, ensuring that systems are cost effective, secure and energy efficient. ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S6" : {
+    "isOverarching" : true,
+    "id" : "S6",
+    "previousId" : null,
+    "name" : "GP Systems Training",
+    "description" : "Defines what training collateral and activities are expected of suppliers delivering capabilities into health and social care. ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S5" : {
+    "isOverarching" : true,
+    "id" : "S5",
+    "previousId" : null,
+    "name" : "Data Standards",
+    "description" : "Details data standards e.g. ISNs with which a supplier must be compliant when developing and implementing their systems, examples are fields lengths and formats. Supports consistency of reference data within systems by defining data such as clinical terminology, organisational codes and drug database sets.",
+    "url" : null,
+    "type" : "O"
+  },
+  "S4" : {
+    "isOverarching" : true,
+    "id" : "S4",
+    "previousId" : null,
+    "name" : "Data Migration",
+    "description" : "Supports the safe and effective migration of data moving between GP IT Systems when a Practice moves from one Clinical System Supplier to another for part or all of their system. ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S3" : {
+    "isOverarching" : true,
+    "id" : "S3",
+    "previousId" : null,
+    "name" : "Commercial",
+    "description" : "This standard underpins all commercial activity relating to the Catalogue and impacts the proposed framework as well. It defines the commercial relationship of relevant parties and sets out standards of behaviour and principles of access to data and services charges ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S2" : {
+    "isOverarching" : true,
+    "id" : "S2",
+    "previousId" : null,
+    "name" : "Clinical Safety",
+    "description" : "This standard ensures that Suppliers and buyers of GP IT Systems are carrying out effective clinical risk management relating to Patient safety. ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S1" : {
+    "isOverarching" : true,
+    "id" : "S1",
+    "previousId" : null,
+    "name" : "Business Continuity and Disaster Recovery",
+    "description" : "Suppliers that provide systems will need to ensure that there are robust business continuity plans in place in the event of disaster recovery. ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S29" : {
+    "isOverarching" : false,
+    "id" : "S29",
+    "previousId" : null,
+    "name" : "Clinical Decision Support - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S28" : {
+    "isOverarching" : false,
+    "id" : "S28",
+    "previousId" : null,
+    "name" : "Communicate with Practice - Citizen - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S27" : {
+    "isOverarching" : false,
+    "id" : "S27",
+    "previousId" : null,
+    "name" : "View Record - Citizen - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S26" : {
+    "isOverarching" : false,
+    "id" : "S26",
+    "previousId" : null,
+    "name" : "Appointments Management - Citizen - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S25" : {
+    "isOverarching" : false,
+    "id" : "S25",
+    "previousId" : null,
+    "name" : "Prescription Ordering - Citizen - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S24" : {
+    "isOverarching" : false,
+    "id" : "S24",
+    "previousId" : null,
+    "name" : "eMED3 (Fit Notes)",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S23" : {
+    "isOverarching" : false,
+    "id" : "S23",
+    "previousId" : null,
+    "name" : "Recording Consultations - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S22" : {
+    "isOverarching" : false,
+    "id" : "S22",
+    "previousId" : null,
+    "name" : "Prescribing - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S21" : {
+    "isOverarching" : false,
+    "id" : "S21",
+    "previousId" : null,
+    "name" : "Primary Care Clinical Terminology Usage Report",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S20" : {
+    "isOverarching" : false,
+    "id" : "S20",
+    "previousId" : null,
+    "name" : "Patient Information Maintenance - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S19" : {
+    "isOverarching" : false,
+    "id" : "S19",
+    "previousId" : null,
+    "name" : "GP Resource Management - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S18" : {
+    "isOverarching" : false,
+    "id" : "S18",
+    "previousId" : null,
+    "name" : "GP Referral Management - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S17" : {
+    "isOverarching" : false,
+    "id" : "S17",
+    "previousId" : null,
+    "name" : "General Practice Appointments Data Reporting",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S16" : {
+    "isOverarching" : false,
+    "id" : "S16",
+    "previousId" : null,
+    "name" : "Appointments Management - GP - Standard",
+    "description" : null,
+    "url" : null,
+    "type" : "C"
+  },
+  "S15" : {
+    "isOverarching" : false,
+    "id" : "S15",
+    "previousId" : null,
+    "name" : "Management Information (MI) Reporting",
+    "description" : "Enables the monthly collection of aggregated counts of data which cover a number of Capabilities. ",
+    "url" : null,
+    "type" : "X"
+  },
+  "S14" : {
+    "isOverarching" : false,
+    "id" : "S14",
+    "previousId" : null,
+    "name" : "Citizen Access",
+    "description" : "Supports Citizens to access their services safely and securely. Also supports Citizens in viewing and updating Patient information online. ",
+    "url" : null,
+    "type" : "X"
+  },
+  "S13" : {
+    "isOverarching" : false,
+    "id" : "S13",
+    "previousId" : null,
+    "name" : "Common Reporting",
+    "description" : "Supports the local, regional and national reporting requirements of a General Practice. Report templates can be defined with search criteria and data can be interrogated at different levels. ",
+    "url" : null,
+    "type" : "X"
+  },
+  "S12" : {
+    "isOverarching" : false,
+    "id" : "S12",
+    "previousId" : null,
+    "name" : "Interoperability Standard",
+    "description" : "This standard defines a wide ranging set of APIs and messaging standards to enable distinct systems and services to work together in an efficient, effective and consistent manner. ",
+    "url" : null,
+    "type" : "X"
+  },
+  "S11" : {
+    "isOverarching" : true,
+    "id" : "S11",
+    "previousId" : null,
+    "name" : "Service Management",
+    "description" : "Support the service delivery of GPIT systems aligned to practice needs based on industry best practices, delivering end to end service management against services levels, ensuring quality, value and performance is delivered. ",
+    "url" : null,
+    "type" : "O"
+  },
+  "S10" : {
+    "isOverarching" : true,
+    "id" : "S10",
+    "previousId" : null,
+    "name" : "Testing",
+    "description" : "Enable assurance to understand how the supplier solution testing is executed in conjunction with processes and procedures consistently followed. ",
+    "url" : null,
+    "type" : "O"
+  }
+}

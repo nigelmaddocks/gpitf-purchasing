@@ -14,11 +14,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.codehaus.jackson.map.util.BeanUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneOffset;
@@ -29,6 +27,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import io.swagger.client.model.Capabilities;
 import io.swagger.client.model.CapabilitiesImplemented;
 import io.swagger.client.model.Solutions;
+import io.swagger.client.model.Standards;
+import io.swagger.client.model.StandardsApplicable;
 import io.swagger.client.model.Organisations;
 
 import lombok.AccessLevel;
@@ -66,7 +66,8 @@ public class CapabilitiesImplementedCache {
 	private Hashtable<String, SolutionEx2> solutions = new Hashtable<>();
 	private Hashtable<String, Organisations> organisations = new Hashtable<>();
 	private ArrayList<String> foundationCapabilityIds = new ArrayList<>();
-
+	private Hashtable<String, Standards> standards = new Hashtable<>();
+	private Hashtable<String, List<StandardsApplicable>> solutionStandardsApplicable = new Hashtable<>();
 
 	
 	@Getter(AccessLevel.NONE)
@@ -96,6 +97,8 @@ public class CapabilitiesImplementedCache {
 		Hashtable<String, SolutionEx2> newSolutions = new Hashtable<>();
 		Hashtable<String, Organisations> newOrganisations = new Hashtable<>();
 		ArrayList<String> newFoundationCapabilityIds = new ArrayList<>();
+		Hashtable<String, Standards> newStandards = new Hashtable<>();
+		Hashtable<String, List<StandardsApplicable>> newSolutionStandardsApplicable = new Hashtable<>();
 		
 		if (READ_ONBOARDINGCACHE == false) {
 			List<Capabilities> capabilities = onboardingService.findCapabilitiesByFramework(onboardingService.getDefaultFramework());
@@ -140,6 +143,13 @@ public class CapabilitiesImplementedCache {
 				
 				// Add to newSolutionIdCapabilityIds
 				newSolutionIdCapabilityIds.put(solution.getId(), arrCapabilities);
+				
+				List<StandardsApplicable> standardsApplicable = onboardingService.findStandardsApplicableBySolution(solution.getId());
+				newSolutionStandardsApplicable.put(solution.getId(), standardsApplicable); 
+			}
+			
+			for (Standards standard : onboardingService.findStandardsByFramework(onboardingService.getDefaultFramework())) {
+				newStandards.put(standard.getId(), standard);
 			}
 			
 			// Add to newCapabilities
@@ -222,6 +232,36 @@ public class CapabilitiesImplementedCache {
 				}
 				newOrganisations = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/organisations.json"), newOrganisations.getClass());
 				newFoundationCapabilityIds = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/foundationCapabilityIds.json"), newFoundationCapabilityIds.getClass());
+				Hashtable<String, LinkedHashMap> hshLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/standards.json"), new Hashtable<String, LinkedHashMap>().getClass());
+				for (var key2 : hshLHM.keySet()) {
+					Standards standard = new Standards();
+					LinkedHashMap lhm = hshLHM.get(key2);
+					for (var key : lhm.keySet()) {
+						Field field = Standards.class.getDeclaredField(key.toString());
+						field.setAccessible(true); 
+						field.set(standard, lhm.get(key));
+					}
+					newStandards.put(standard.getId(), standard);
+				}
+				
+				Hashtable<String, ArrayList<LinkedHashMap>> hshArlLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/solutionIdStandards.json"), new Hashtable<String, ArrayList<LinkedHashMap>>().getClass());
+				for (var key2 : hshArlLHM.keySet()) {
+					arlLHM = hshArlLHM.get(key2);
+					ArrayList<StandardsApplicable> arlStdApp = new ArrayList<>();
+					
+					for (var lhm : arlLHM) {
+						StandardsApplicable stdapp = new StandardsApplicable();
+						for (var key : lhm.keySet()) {
+							Field field = StandardsApplicable.class.getDeclaredField(key.toString());
+							field.setAccessible(true); 
+							field.set(stdapp, lhm.get(key));
+						}
+						arlStdApp.add(stdapp);
+					}
+					newSolutionStandardsApplicable.put(key2, arlStdApp);
+				}
+
+
 			} catch (Exception owex) {
 				owex.printStackTrace();
 			}
@@ -233,6 +273,8 @@ public class CapabilitiesImplementedCache {
 		this.solutions = newSolutions;
 		this.organisations = newOrganisations;
 		this.foundationCapabilityIds = newFoundationCapabilityIds;
+		this.standards = newStandards;
+		this.solutionStandardsApplicable = newSolutionStandardsApplicable;
 		System.out.println("*** CapabilitiesImplemented loaded into Cache ***");
 
 		if (WRITE_ONBOARDINGCACHE) {
@@ -246,6 +288,8 @@ public class CapabilitiesImplementedCache {
 				ow.writeValue(new File(folderOnboardingCache, "solutions.json"), solutions);
 				ow.writeValue(new File(folderOnboardingCache, "organisations.json"), organisations);
 				ow.writeValue(new File(folderOnboardingCache, "foundationCapabilityIds.json"), foundationCapabilityIds);
+				ow.writeValue(new File(folderOnboardingCache, "standards.json"), standards);
+				ow.writeValue(new File(folderOnboardingCache, "solutionIdStandards.json"), solutionStandardsApplicable);
 			} catch (Exception owex) {
 				owex.printStackTrace();
 			}

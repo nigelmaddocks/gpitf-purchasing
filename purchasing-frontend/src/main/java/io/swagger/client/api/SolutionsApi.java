@@ -24,7 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 @Component("io.swagger.client.api.SolutionsApi")
 public class SolutionsApi {
     private ApiClient apiClient;
@@ -131,7 +131,6 @@ public class SolutionsApi {
      * Retrieve all current solutions in a paged list for an organisation,  given the organisation’s CRM identifier
      * 
      * <p><b>200</b> - Success
-     * <p><b>404</b> - Organisation not found in CRM
      * @param organisationId CRM identifier of organisation
      * @param pageIndex 1-based index of page to return.  Defaults to 1
      * @param pageSize number of items per page.  Defaults to 20

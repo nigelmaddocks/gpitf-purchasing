@@ -1,0 +1,189 @@
+{
+  "D6D3A168-1E1D-431D-ACA8-82A9280D19F3" : [ ],
+  "CFFBDFD8-A1A7-4AAB-935F-DB6C442A2F88" : [ ],
+  "EA69A0D3-8123-4591-96C6-975DEFBBD729" : [ ],
+  "12968eb4-4160-4ec5-8bb7-3deca7c3f53b" : [ {
+    "standardId" : "S12",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "0F2614F9-2521-414A-A448-0096C0DF3AB1",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : "371b20b7-3bed-487d-aa5f-995f5924e579"
+  }, {
+    "standardId" : "S6",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "1015a2f0-6d31-498b-9661-8d5bfa8d10f4",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S3",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "1d113935-890e-43a9-ac0e-f1af5c719597",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S10",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "312d39be-0887-4a4e-a6c1-b665510b15f3",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S1",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "70625c96-ec34-477a-9607-a8253638492a",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S5",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "7161c014-a09c-4663-9cb4-8716abebd304",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S7",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "88cb94f1-c46e-447d-8adc-96e2c6448841",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S8",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "8ec73b5c-b257-4bd9-86c0-dcd86fb467c5",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S4",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "90439095-4b59-4342-9b97-30c541e82df1",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S2",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "b0ff11ce-4f7b-486f-a06c-e23507782cfd",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S9",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "b517ef4c-a80a-400b-a8de-f23cae849a6c",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  }, {
+    "standardId" : "S11",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "b786cbd2-9f7a-41d4-b052-de19e14da8ca",
+    "solutionId" : "12968eb4-4160-4ec5-8bb7-3deca7c3f53b",
+    "ownerId" : null
+  } ],
+  "D8922903-D02E-48F0-8340-3D94D3DE9147" : [ ],
+  "9ddea405-a05d-4c34-959a-468d34caa2f1" : [ {
+    "standardId" : "S12",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "0e55d9ec-43e6-41b3-bcac-d8681384ea68",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S9",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "2c8c9cc8-141b-4d06-872a-8d5e5efb3641",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S3",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "3a7735f2-759d-4f49-bca0-0828f32cf86c",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S7",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "3d10430f-1748-44ad-8df3-5d5d11544f75",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S5",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "6cf61bc3-9714-4902-953f-76a238d5ffd5",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S1",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "719722d0-2354-437e-acdc-4625989bbca8",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S2",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "7b62b29a-62a7-4b4a-bcc8-dfa65fb7e35c",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S10",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "99619bdd-6452-4850-9244-a4ce9bec70ca",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S11",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "9e7780e9-7263-4ee4-a722-b3e1aaff4476",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S8",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "ca874860-4593-4541-8586-038201945d17",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S6",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "cdfdebda-edde-4af4-aaf4-9d59fca7cdaa",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  }, {
+    "standardId" : "S4",
+    "status" : null,
+    "qualityId" : null,
+    "id" : "f49f91de-64fc-4cca-88bf-3238fb1de69b",
+    "solutionId" : "9ddea405-a05d-4c34-959a-468d34caa2f1",
+    "ownerId" : null
+  } ],
+  "8CFFD174-0831-411B-9FF0-7E1AF172BC8A" : [ ],
+  "E1998EC9-6D32-42BD-91C0-0B0F743E53F3" : [ ],
+  "00290A2E-5A09-42E7-96FC-D90E40112BA9" : [ ],
+  "469231E2-AC03-4B06-B693-033FB94D6A32" : [ ],
+  "C8D558DA-8EC9-4E36-881A-344F0F852284" : [ ],
+  "B472E5AA-A3E8-4421-8CC4-12D6025B3A9A" : [ ],
+  "4813F419-9A9A-4AFA-BB61-ECF9FB0E5F0A" : [ ],
+  "FB4C048C-9023-4FC5-9B33-F69B0695CD48" : [ ],
+  "A3C6830F-2E7C-4545-A4B9-02D20C4C92E1" : [ ],
+  "908C9350-7392-4CB9-9633-19E00C9469A3" : [ ],
+  "9A2844E1-C6A5-4F24-A65B-FA3809248EB9" : [ ],
+  "DFEF8014-F05B-47FC-928C-8FE589D04417" : [ ],
+  "7e46b2a5-75c8-47e4-88bb-f185a43d25a9" : [ ]
+}

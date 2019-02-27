@@ -26,7 +26,7 @@ import io.swagger.client.model.SolutionEx;
  * A SolutionEx and an indication of its relevance (Distance)
  */
 @ApiModel(description = "A SolutionEx and an indication of its relevance (Distance)")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 public class SearchResult {
   @JsonProperty("solutionEx")
   private SolutionEx solutionEx = null;

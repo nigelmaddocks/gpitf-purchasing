@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A ‘capability’ which a ‘solution’ asserts that it provides.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘capability’ it has claimed.
  */
 @ApiModel(description = "A ‘capability’ which a ‘solution’ asserts that it provides.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘capability’ it has claimed.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 public class CapabilitiesImplemented {
   @JsonProperty("capabilityId")
   private String capabilityId = null;
@@ -74,6 +74,9 @@ public class CapabilitiesImplemented {
   @JsonProperty("status")
   private StatusEnum status = null;
 
+  @JsonProperty("qualityId")
+  private String qualityId = null;
+
   @JsonProperty("id")
   private String id = null;
 
@@ -117,6 +120,15 @@ public class CapabilitiesImplemented {
 
   public void setStatus(StatusEnum status) {
     this.status = status;
+  }
+
+   /**
+   * Unique identifier of Capability
+   * @return qualityId
+  **/
+  @ApiModelProperty(value = "Unique identifier of Capability")
+  public String getQualityId() {
+    return qualityId;
   }
 
   public CapabilitiesImplemented id(String id) {
@@ -185,6 +197,7 @@ public class CapabilitiesImplemented {
     CapabilitiesImplemented capabilitiesImplemented = (CapabilitiesImplemented) o;
     return Objects.equals(this.capabilityId, capabilitiesImplemented.capabilityId) &&
         Objects.equals(this.status, capabilitiesImplemented.status) &&
+        Objects.equals(this.qualityId, capabilitiesImplemented.qualityId) &&
         Objects.equals(this.id, capabilitiesImplemented.id) &&
         Objects.equals(this.solutionId, capabilitiesImplemented.solutionId) &&
         Objects.equals(this.ownerId, capabilitiesImplemented.ownerId);
@@ -192,7 +205,7 @@ public class CapabilitiesImplemented {
 
   @Override
   public int hashCode() {
-    return Objects.hash(capabilityId, status, id, solutionId, ownerId);
+    return Objects.hash(capabilityId, status, qualityId, id, solutionId, ownerId);
   }
 
 
@@ -203,6 +216,7 @@ public class CapabilitiesImplemented {
     
     sb.append("    capabilityId: ").append(toIndentedString(capabilityId)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
+    sb.append("    qualityId: ").append(toIndentedString(qualityId)).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    solutionId: ").append(toIndentedString(solutionId)).append("\n");
     sb.append("    ownerId: ").append(toIndentedString(ownerId)).append("\n");

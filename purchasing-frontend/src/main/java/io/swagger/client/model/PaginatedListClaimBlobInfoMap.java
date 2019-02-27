@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.client.model.Contacts;
+import io.swagger.client.model.ClaimBlobInfoMap;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +29,7 @@ import java.util.List;
  */
 @ApiModel(description = "A paged list of objects")
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
-public class PaginatedListContacts {
+public class PaginatedListClaimBlobInfoMap {
   @JsonProperty("pageIndex")
   private Integer pageIndex = null;
 
@@ -40,7 +40,7 @@ public class PaginatedListContacts {
   private Integer pageSize = null;
 
   @JsonProperty("items")
-  private List<Contacts> items = null;
+  private List<ClaimBlobInfoMap> items = null;
 
   @JsonProperty("hasPreviousPage")
   private Boolean hasPreviousPage = null;
@@ -48,7 +48,7 @@ public class PaginatedListContacts {
   @JsonProperty("hasNextPage")
   private Boolean hasNextPage = null;
 
-  public PaginatedListContacts pageIndex(Integer pageIndex) {
+  public PaginatedListClaimBlobInfoMap pageIndex(Integer pageIndex) {
     this.pageIndex = pageIndex;
     return this;
   }
@@ -66,7 +66,7 @@ public class PaginatedListContacts {
     this.pageIndex = pageIndex;
   }
 
-  public PaginatedListContacts totalPages(Integer totalPages) {
+  public PaginatedListClaimBlobInfoMap totalPages(Integer totalPages) {
     this.totalPages = totalPages;
     return this;
   }
@@ -84,7 +84,7 @@ public class PaginatedListContacts {
     this.totalPages = totalPages;
   }
 
-  public PaginatedListContacts pageSize(Integer pageSize) {
+  public PaginatedListClaimBlobInfoMap pageSize(Integer pageSize) {
     this.pageSize = pageSize;
     return this;
   }
@@ -102,14 +102,14 @@ public class PaginatedListContacts {
     this.pageSize = pageSize;
   }
 
-  public PaginatedListContacts items(List<Contacts> items) {
+  public PaginatedListClaimBlobInfoMap items(List<ClaimBlobInfoMap> items) {
     this.items = items;
     return this;
   }
 
-  public PaginatedListContacts addItemsItem(Contacts itemsItem) {
+  public PaginatedListClaimBlobInfoMap addItemsItem(ClaimBlobInfoMap itemsItem) {
     if (this.items == null) {
-      this.items = new ArrayList<Contacts>();
+      this.items = new ArrayList<ClaimBlobInfoMap>();
     }
     this.items.add(itemsItem);
     return this;
@@ -120,11 +120,11 @@ public class PaginatedListContacts {
    * @return items
   **/
   @ApiModelProperty(value = "List of items")
-  public List<Contacts> getItems() {
+  public List<ClaimBlobInfoMap> getItems() {
     return items;
   }
 
-  public void setItems(List<Contacts> items) {
+  public void setItems(List<ClaimBlobInfoMap> items) {
     this.items = items;
   }
 
@@ -155,13 +155,13 @@ public class PaginatedListContacts {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PaginatedListContacts paginatedListContacts = (PaginatedListContacts) o;
-    return Objects.equals(this.pageIndex, paginatedListContacts.pageIndex) &&
-        Objects.equals(this.totalPages, paginatedListContacts.totalPages) &&
-        Objects.equals(this.pageSize, paginatedListContacts.pageSize) &&
-        Objects.equals(this.items, paginatedListContacts.items) &&
-        Objects.equals(this.hasPreviousPage, paginatedListContacts.hasPreviousPage) &&
-        Objects.equals(this.hasNextPage, paginatedListContacts.hasNextPage);
+    PaginatedListClaimBlobInfoMap paginatedListClaimBlobInfoMap = (PaginatedListClaimBlobInfoMap) o;
+    return Objects.equals(this.pageIndex, paginatedListClaimBlobInfoMap.pageIndex) &&
+        Objects.equals(this.totalPages, paginatedListClaimBlobInfoMap.totalPages) &&
+        Objects.equals(this.pageSize, paginatedListClaimBlobInfoMap.pageSize) &&
+        Objects.equals(this.items, paginatedListClaimBlobInfoMap.items) &&
+        Objects.equals(this.hasPreviousPage, paginatedListClaimBlobInfoMap.hasPreviousPage) &&
+        Objects.equals(this.hasNextPage, paginatedListClaimBlobInfoMap.hasNextPage);
   }
 
   @Override
@@ -173,7 +173,7 @@ public class PaginatedListContacts {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class PaginatedListContacts {\n");
+    sb.append("class PaginatedListClaimBlobInfoMap {\n");
     
     sb.append("    pageIndex: ").append(toIndentedString(pageIndex)).append("\n");
     sb.append("    totalPages: ").append(toIndentedString(totalPages)).append("\n");

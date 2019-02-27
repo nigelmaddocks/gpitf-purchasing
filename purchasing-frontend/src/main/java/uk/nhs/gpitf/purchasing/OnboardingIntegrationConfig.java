@@ -22,6 +22,7 @@ import io.swagger.client.api.OrganisationsApi;
 import io.swagger.client.api.SearchApi;
 import io.swagger.client.api.SolutionsApi;
 import io.swagger.client.api.StandardsApi;
+import io.swagger.client.api.StandardsApplicableApi;
 import io.swagger.client.auth.OAuth;
 
 @Configuration
@@ -68,6 +69,11 @@ public class OnboardingIntegrationConfig {
     @Bean
     public StandardsApi standardsApi() {    	 
         return new StandardsApi(apiClient());
+    }
+	 
+    @Bean
+    public StandardsApplicableApi standardsApplicableApi() {    	 
+        return new StandardsApplicableApi(apiClient());
     }
 
     @Bean

@@ -23,7 +23,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 @Component("io.swagger.client.api.SolutionsExApi")
 public class SolutionsExApi {
     private ApiClient apiClient;
@@ -45,6 +45,43 @@ public class SolutionsExApi {
         this.apiClient = apiClient;
     }
 
+    /**
+     * Get a list of Solutions, each with a list of corresponding TechnicalContact, ClaimedCapability, ClaimedStandard et al
+     * 
+     * <p><b>200</b> - Success
+     * @param organisationId CRM identifier of Organisation
+     * @return List&lt;SolutionEx&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public List<SolutionEx> apiPorcelainSolutionsExByOrganisationByOrganisationIdGet(String organisationId) throws RestClientException {
+        Object postBody = null;
+        
+        // verify the required parameter 'organisationId' is set
+        if (organisationId == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'organisationId' when calling apiPorcelainSolutionsExByOrganisationByOrganisationIdGet");
+        }
+        
+        // create path and map variables
+        final Map<String, Object> uriVariables = new HashMap<String, Object>();
+        uriVariables.put("organisationId", organisationId);
+        String path = UriComponentsBuilder.fromPath("/api/porcelain/SolutionsEx/ByOrganisation/{organisationId}").buildAndExpand(uriVariables).toUriString();
+        
+        final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
+        final HttpHeaders headerParams = new HttpHeaders();
+        final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
+
+        final String[] accepts = { 
+            "application/json"
+        };
+        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
+        final String[] contentTypes = { };
+        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        String[] authNames = new String[] { "basic", "oauth2" };
+
+        ParameterizedTypeReference<List<SolutionEx>> returnType = new ParameterizedTypeReference<List<SolutionEx>>() {};
+        return apiClient.invokeAPI(path, HttpMethod.GET, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
+    }
     /**
      * Get a Solution with a list of corresponding TechnicalContact, ClaimedCapability, ClaimedStandard et al
      * 

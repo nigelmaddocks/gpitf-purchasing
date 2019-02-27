@@ -5,6 +5,7 @@ import io.swagger.client.ApiClient;
 import java.io.File;
 import io.swagger.client.model.FileResult;
 import io.swagger.client.model.PaginatedListBlobInfo;
+import io.swagger.client.model.PaginatedListClaimBlobInfoMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 @Component("io.swagger.client.api.CapabilitiesImplementedEvidenceBlobStoreApi")
 public class CapabilitiesImplementedEvidenceBlobStoreApi {
     private ApiClient apiClient;
@@ -146,6 +147,49 @@ public class CapabilitiesImplementedEvidenceBlobStoreApi {
 
         ParameterizedTypeReference<FileResult> returnType = new ParameterizedTypeReference<FileResult>() {};
         return apiClient.invokeAPI(path, HttpMethod.POST, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
+    }
+    /**
+     * List all claim files and sub-folders for a solution
+     * 
+     * <p><b>200</b> - Success
+     * <p><b>404</b> - Solution not found in CRM
+     * @param solutionId unique identifier of solution
+     * @param pageIndex 1-based index of page to return.  Defaults to 1
+     * @param pageSize number of items per page.  Defaults to 20
+     * @return PaginatedListClaimBlobInfoMap
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public PaginatedListClaimBlobInfoMap apiCapabilitiesImplementedEvidenceBlobStoreEnumerateClaimFolderTreeBySolutionIdGet(String solutionId, Integer pageIndex, Integer pageSize) throws RestClientException {
+        Object postBody = null;
+        
+        // verify the required parameter 'solutionId' is set
+        if (solutionId == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'solutionId' when calling apiCapabilitiesImplementedEvidenceBlobStoreEnumerateClaimFolderTreeBySolutionIdGet");
+        }
+        
+        // create path and map variables
+        final Map<String, Object> uriVariables = new HashMap<String, Object>();
+        uriVariables.put("solutionId", solutionId);
+        String path = UriComponentsBuilder.fromPath("/api/CapabilitiesImplementedEvidenceBlobStore/EnumerateClaimFolderTree/{solutionId}").buildAndExpand(uriVariables).toUriString();
+        
+        final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
+        final HttpHeaders headerParams = new HttpHeaders();
+        final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
+        
+        queryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageIndex", pageIndex));
+        queryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageSize", pageSize));
+
+        final String[] accepts = { 
+            "application/json"
+        };
+        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
+        final String[] contentTypes = { };
+        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        String[] authNames = new String[] { "basic", "oauth2" };
+
+        ParameterizedTypeReference<PaginatedListClaimBlobInfoMap> returnType = new ParameterizedTypeReference<PaginatedListClaimBlobInfoMap>() {};
+        return apiClient.invokeAPI(path, HttpMethod.GET, queryParams, postBody, headerParams, formParams, accept, contentType, authNames, returnType);
     }
     /**
      * List all files and sub-folders for a claim including folder for claim

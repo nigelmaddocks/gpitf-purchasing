@@ -14,6 +14,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import io.swagger.client.api.SolutionsApi;
 import io.swagger.client.api.StandardsApi;
+import io.swagger.client.api.StandardsApplicableApi;
 import io.swagger.client.api.CapabilitiesApi;
 import io.swagger.client.api.CapabilitiesImplementedApi;
 import io.swagger.client.api.OrganisationsApi;
@@ -24,6 +25,7 @@ import io.swagger.client.model.Organisations;
 import io.swagger.client.model.SearchResult;
 import io.swagger.client.model.Solutions;
 import io.swagger.client.model.Standards;
+import io.swagger.client.model.StandardsApplicable;
 import uk.nhs.gpitf.purchasing.cache.CapabilitiesImplementedCache;
 import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 
@@ -43,6 +45,9 @@ public class OnboardingService {
 	
 	@Autowired
 	private StandardsApi standardsApi;
+	
+	@Autowired
+	private StandardsApplicableApi standardsApplicableApi;
 	
 	@Autowired
 	private SearchApi searchApi;
@@ -482,6 +487,18 @@ public class OnboardingService {
 		List<CapabilitiesImplemented> arl = new ArrayList<>();
 		try {
 			arl = (List<CapabilitiesImplemented>)loadPaginatedList(capabilitiesImplementedApi, "apiCapabilitiesImplementedBySolutionBySolutionIdGet", new Object[] {solution, 1, PAGE_SIZE});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	    return arl;
+	}
+	
+	// -------------------------------------------------------------------------------------------------------
+	
+	public List<StandardsApplicable> findStandardsApplicableBySolution(String solution) {
+		List<StandardsApplicable> arl = new ArrayList<>();
+		try {
+			arl = (List<StandardsApplicable>)loadPaginatedList(standardsApplicableApi, "apiStandardsApplicableBySolutionBySolutionIdGet", new Object[] {solution, 1, PAGE_SIZE});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

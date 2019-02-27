@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
 /**
  * FileResult
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 public class FileResult {
   @JsonProperty("contentType")
   private String contentType = null;

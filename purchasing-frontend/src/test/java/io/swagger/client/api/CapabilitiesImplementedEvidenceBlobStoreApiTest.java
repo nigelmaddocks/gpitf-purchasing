@@ -16,6 +16,7 @@ package io.swagger.client.api;
 import java.io.File;
 import io.swagger.client.model.FileResult;
 import io.swagger.client.model.PaginatedListBlobInfo;
+import io.swagger.client.model.PaginatedListClaimBlobInfoMap;
 import org.junit.Test;
 import org.junit.Ignore;
 
@@ -65,6 +66,24 @@ public class CapabilitiesImplementedEvidenceBlobStoreApiTest {
         String claimId = null;
         String uniqueId = null;
         FileResult response = api.apiCapabilitiesImplementedEvidenceBlobStoreDownloadByClaimIdPost(claimId, uniqueId);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * List all claim files and sub-folders for a solution
+     *
+     * 
+     *
+     * @throws ApiException
+     *          if the Api call fails
+     */
+    @Test
+    public void apiCapabilitiesImplementedEvidenceBlobStoreEnumerateClaimFolderTreeBySolutionIdGetTest() {
+        String solutionId = null;
+        Integer pageIndex = null;
+        Integer pageSize = null;
+        PaginatedListClaimBlobInfoMap response = api.apiCapabilitiesImplementedEvidenceBlobStoreEnumerateClaimFolderTreeBySolutionIdGet(solutionId, pageIndex, pageSize);
 
         // TODO: test validations
     }

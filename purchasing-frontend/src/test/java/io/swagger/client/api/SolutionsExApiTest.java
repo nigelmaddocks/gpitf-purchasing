@@ -32,6 +32,22 @@ public class SolutionsExApiTest {
 
     
     /**
+     * Get a list of Solutions, each with a list of corresponding TechnicalContact, ClaimedCapability, ClaimedStandard et al
+     *
+     * 
+     *
+     * @throws ApiException
+     *          if the Api call fails
+     */
+    @Test
+    public void apiPorcelainSolutionsExByOrganisationByOrganisationIdGetTest() {
+        String organisationId = null;
+        List<SolutionEx> response = api.apiPorcelainSolutionsExByOrganisationByOrganisationIdGet(organisationId);
+
+        // TODO: test validations
+    }
+    
+    /**
      * Get a Solution with a list of corresponding TechnicalContact, ClaimedCapability, ClaimedStandard et al
      *
      * 

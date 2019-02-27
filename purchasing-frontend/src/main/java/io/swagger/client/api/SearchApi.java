@@ -23,7 +23,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 @Component("io.swagger.client.api.SearchApi")
 public class SearchApi {
     private ApiClient apiClient;
@@ -49,7 +49,6 @@ public class SearchApi {
      * Get existing solution/s which are related to the given keyword &lt;br /&gt;  Keyword is not case sensitive &lt;br /&gt;  Capabilities are searched for capabilities which contain  the keyword in the capability name or descriptions.  This  forms a set of desired capabilities. &lt;br /&gt;  These desired capabilities are then matched to solution/s which  implement at least one of the desired capabilities. &lt;br /&gt;  An &#39;ideal&#39; solution would be one which only implements all  of the desired capabilities. &lt;br /&gt;  Each solution is given a &#39;distance&#39; which represents how many  different capabilites the solution implements, compared to the  set of desired capabilities: &lt;br /&gt;    zero     &#x3D;&#x3D; solution has exactly capabilities desired &lt;br /&gt;    positive &#x3D;&#x3D; solution has more capabilities than desired &lt;br /&gt;    negative &#x3D;&#x3D; solution has less capabilities than desired &lt;br /&gt;
      * 
      * <p><b>200</b> - Success
-     * <p><b>404</b> - No Solutions found with keyword
      * @param keyword keyword describing a solution or capability
      * @param pageIndex 1-based index of page to return.  Defaults to 1
      * @param pageSize number of items per page.  Defaults to 20

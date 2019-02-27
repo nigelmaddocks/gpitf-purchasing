@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A ‘Standard’ which a ‘Solution’ asserts that it provides.  This is then assessed by NHS to verify the ‘Solution’ complies with the ‘Standard’ it has claimed.
  */
 @ApiModel(description = "A ‘Standard’ which a ‘Solution’ asserts that it provides.  This is then assessed by NHS to verify the ‘Solution’ complies with the ‘Standard’ it has claimed.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-01-29T15:45:36.951Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
 public class StandardsApplicable {
   @JsonProperty("standardId")
   private String standardId = null;
@@ -80,6 +80,9 @@ public class StandardsApplicable {
   @JsonProperty("status")
   private StatusEnum status = null;
 
+  @JsonProperty("qualityId")
+  private String qualityId = null;
+
   @JsonProperty("id")
   private String id = null;
 
@@ -123,6 +126,15 @@ public class StandardsApplicable {
 
   public void setStatus(StatusEnum status) {
     this.status = status;
+  }
+
+   /**
+   * Unique identifier of Standard
+   * @return qualityId
+  **/
+  @ApiModelProperty(value = "Unique identifier of Standard")
+  public String getQualityId() {
+    return qualityId;
   }
 
   public StandardsApplicable id(String id) {
@@ -191,6 +203,7 @@ public class StandardsApplicable {
     StandardsApplicable standardsApplicable = (StandardsApplicable) o;
     return Objects.equals(this.standardId, standardsApplicable.standardId) &&
         Objects.equals(this.status, standardsApplicable.status) &&
+        Objects.equals(this.qualityId, standardsApplicable.qualityId) &&
         Objects.equals(this.id, standardsApplicable.id) &&
         Objects.equals(this.solutionId, standardsApplicable.solutionId) &&
         Objects.equals(this.ownerId, standardsApplicable.ownerId);
@@ -198,7 +211,7 @@ public class StandardsApplicable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(standardId, status, id, solutionId, ownerId);
+    return Objects.hash(standardId, status, qualityId, id, solutionId, ownerId);
   }
 
 
@@ -209,6 +222,7 @@ public class StandardsApplicable {
     
     sb.append("    standardId: ").append(toIndentedString(standardId)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
+    sb.append("    qualityId: ").append(toIndentedString(qualityId)).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    solutionId: ").append(toIndentedString(solutionId)).append("\n");
     sb.append("    ownerId: ").append(toIndentedString(ownerId)).append("\n");
