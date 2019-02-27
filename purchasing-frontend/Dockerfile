@@ -5,7 +5,7 @@ FROM maven:3.6.0-jdk-11
 VOLUME /tmp
 
 ADD ./target/purchasing-0.0.1-SNAPSHOT.jar purchasing.jar
-# ADD ./keystore.jks keystore.jks
+ADD ./keystore.jks keystore.jks
 
 # Expose 8220, the default port used for Capacity Service
 EXPOSE 8220

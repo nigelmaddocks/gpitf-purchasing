@@ -7,5 +7,14 @@ security:
     resource:
       userInfoUri: http://oidc-provider:9000/me
 
+server:
+  port: 8220
+  ssl:
+    key-store: /keystore.jks
+    key-store-password: changeit
+    keyStoreType: PKCS12
+    keyAlias: purchasing
+
+
 sysparam.readOnboardingCache: true
 

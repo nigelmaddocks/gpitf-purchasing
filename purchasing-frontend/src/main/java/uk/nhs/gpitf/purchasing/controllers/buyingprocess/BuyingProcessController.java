@@ -4,6 +4,8 @@ import static org.springframework.web.servlet.view.UrlBasedViewResolver.REDIRECT
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +48,8 @@ public class BuyingProcessController {
     @Autowired
     private ProcurementService procurementService;
 
-    @Autowired
-    private LocalValidatorFactoryBean validator;
+    //@Autowired
+    //private LocalValidatorFactoryBean validator;
 
 	@GetMapping()
 	public String home(HttpServletRequest request) {
@@ -160,12 +162,12 @@ public class BuyingProcessController {
 	}
 
 	@PostMapping("/procurement/edit-name")
-	public String updateProcurementName(Procurement procurement, BindingResult bindingResult, Model model) throws ProcurementNotFoundException {
+	public String updateProcurementName(@Valid Procurement procurement, BindingResult bindingResult, Model model) throws ProcurementNotFoundException {
 
 	  Procurement validatedProcurement = procurementService.findById(procurement.getId());
 	  validatedProcurement.setName(procurement.getName());
 
-	  validator.validate(validatedProcurement, bindingResult);
+	  //validator.validate(validatedProcurement, bindingResult);
 	  if (bindingResult.hasErrors()) {
 	    return PATH + PAGE_RENAME_PROCUREMENT;
 	  }
