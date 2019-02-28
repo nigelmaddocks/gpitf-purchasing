@@ -3,9 +3,15 @@ spring.session.store-type: none
 security:
   oauth2:
     client:
-      accessTokenUri: http://oidc-provider:9000/token
+      clientId: DaiZSffyCYac6MOrL9WKUprxsqk6hjCX
+      clientSecret: wMhH8OiSkfW51v8dFSuf_RzDWCztaJGhoVl-0xfZvHT1Vz-Nd8lFU-r_36pMi2vh
+      accessTokenUri: https://nigel-m.eu.auth0.com/oauth/token
+      userAuthorizationUri: https://nigel-m.eu.auth0.com/authorize
+      scope: openid email
     resource:
-      userInfoUri: http://oidc-provider:9000/me
+      userInfoUri: https://nigel-m.eu.auth0.com/userinfo
+    sso:
+      login-path: /login
 
 server:
   port: 8220
