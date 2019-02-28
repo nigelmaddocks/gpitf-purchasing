@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing.controllers;
 
+import java.lang.invoke.MethodHandles;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -37,7 +40,8 @@ import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 
 @Controller
 public class BaseController {
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	
 	@Autowired
 	ContactRepository contactRepository;
 	
@@ -76,6 +80,10 @@ public class BaseController {
 	
 	@GetMapping("/")
 	public String root(Model model, HttpServletRequest request, Principal principal) {
+		LOGGER.trace("This is a trace message");
+		LOGGER.debug("This is a debug message");
+		LOGGER.info("This is an info message");
+		
 		Breadcrumbs.reset("Home", request);
         return "mainMenu";
     }	

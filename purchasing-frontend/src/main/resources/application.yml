@@ -57,6 +57,21 @@ logging.level.org.springframework: info
 
 #show sql values
 #logging.level.org.hibernate.type.descriptor.sql: trace
+logging.level.uk.nhs.gpitf.purchasing: INFO
+
+#management.endpoints.web.exposure.include: loggers
+#endpoints.loggers.sensitive: false
+
+
+management:
+ endpoints:
+   web:
+     exposure:
+       include: loggers
+     base-path: /
+     path-mapping:
+       loggers: /loggers       
+
 
 sysparam.shortlist.max: 4
 sysparam.directaward.maxvalue: 20000

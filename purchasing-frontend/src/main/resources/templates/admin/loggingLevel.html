@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+    <meta charset="UTF-8" />
+    <title>Change Logging Level</title>
+</head>
+<body>
+<section>
+    <div class="container">
+        <div class="row"><h2>Configure logging levels</h2></div>
+        
+        <form class="form-horizontal" th:action="@{/loggers/}" method="post" enctype="application/json">
+        	<input type="hidden" id="configuredLevel" name="configuredLevel" />
+        </form>
+        
+        <div class="row">
+            <label class="col-sm-2 control-label">Logging package helper</label>
+            <div class="col-sm-10">
+		        <select id="selPackage" onchange="document.getElementById('txtPackage').value = this.value;">
+		        	<option value=""></option>
+			      	<option value="uk.nhs.gpitf.purchasing">uk.nhs.gpitf.purchasing</option>
+			      	<option value="org.hibernate.type.descriptor.sql">org.hibernate.type.descriptor.sql</option>
+		        	<option value="ROOT">ROOT</option>
+		        </select>
+		    </div>
+		</div>
+        
+        <div class="row">
+            <label class="col-sm-2 control-label">Logging package</label>
+        	<div class="col-sm-10">
+        		<input id="txtPackage" size="50" />
+        	</div>
+        </div>
+        
+        <div class="row">
+            <label class="col-sm-2 control-label">Logging level</label>
+            <div class="col-sm-10">
+		        <select id="selLoggingLevel" onchange="document.getElementById('configuredLevel').value = this.value;">
+		        	<option value=""></option>
+		        	<option value="ERROR">ERROR</option>
+		        	<option value="WARN">WARN</option>
+		        	<option value="INFO">INFO</option>
+		        	<option value="DEBUG">DEBUG</option>
+		        	<option value="TRACE">TRACE</option>
+		        </select>
+		    </div>
+		</div>
+		
+        <div class="row">
+            <div class="col-sm-offset-2 col-sm-10">
+        		<button type="button" class="btn btn-default" onclick="submitLogLevelChange();">Submit</button> <a href="#" class="btn btn-default" th:href="@{/admin}">Cancel</a>
+            </div>
+        </div>
+        
+    </div>
+</section> 
+
+<script>
+
+function submitLogLevelChange() {
+    var className = document.getElementById('txtPackage').value;
+    var logLevel = document.getElementById("configuredLevel").value;
+    $.ajax({
+        // Set up security, see below.
+        beforeSend: setHeader,
+        type: 'POST',
+        // specify the logger to be modified
+        url: "/loggers/" + className,
+        // specify the new log level
+        data: '{"configuredLevel":"' + logLevel + '"}',
+        contentType: 'application/json',
+        processData: false,
+        }).done(function(data, textStatus, jqXHR) {
+            if (jqXHR.status === 200) {
+                // Happy
+            } else if (jqXHR.status === 401) {
+                // Logged out or not enough user rights
+            } else {
+                //Some other problem
+            }
+        })
+        .fail(function(jqXHR, textStatus ) {
+            if (jqXHR.status === 200) {
+                // Actually was successful, FireFox has some issues...
+            } else {
+                // Failure
+            }
+        });
+}
+
+function setHeader(xhr) {
+  	var token = $("meta[name='_csrf']").attr("content");
+  	var header = $("meta[name='_csrf_header']").attr("content");
+  	xhr.setRequestHeader(header, token);
+}
+</script>
+   
+</body>
+</html>

@@ -77,6 +77,13 @@
                 </div>
             </div>
             
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
+                <label class="col-sm-6 control-label">Amend logging level</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/admin/loggingLevel" th:href="@{'/admin/loggingLevel'}">Amend logging level</a>
+                </div>
+            </div>
+            
         </form>
     </div>
 </section>

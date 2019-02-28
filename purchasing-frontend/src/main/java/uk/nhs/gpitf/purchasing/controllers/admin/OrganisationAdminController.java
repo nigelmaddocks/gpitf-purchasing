@@ -274,6 +274,20 @@ public class OrganisationAdminController {
 		return "redirect:/organisationAdmin/" + org.getId();
     }
 
+	@GetMapping("/admin/loggingLevel")
+	public String getAdminLoggingLevel(Model model, RedirectAttributes attr, HttpServletRequest request) {
+        // Check the user is authorised to do this
+		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+		
+        if (!secInfo.isAdministrator()) {
+        	String message = "You are not authorised to this page";
+    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", message);
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+        }
+		return "admin/loggingLevel";
+	}
+
 	private Model getOrganisationModel(HttpServletRequest request, long id, Model model) {
 		Organisation org = organisationRepository.findById(id).get();
 		OrganisationEditModel orgEditModel = new OrganisationEditModel();
