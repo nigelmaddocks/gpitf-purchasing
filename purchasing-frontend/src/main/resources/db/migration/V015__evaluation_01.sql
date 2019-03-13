@@ -59,7 +59,7 @@ VALUES(2, 1, 2, 1, 10, 70);
 INSERT INTO purchasing.evaluation_tolerance (id, framework, criterium_type, competition_type, lower_inclusive_percent, upper_inclusive_percent) 
 VALUES(3, 1, 1, 2, 1, 100);
 INSERT INTO purchasing.evaluation_tolerance (id, framework, criterium_type, competition_type, lower_inclusive_percent, upper_inclusive_percent) 
-VALUES(4, 1, 2, 1, 1, 100);
+VALUES(4, 1, 2, 2, 1, 100);
 
 CREATE TABLE purchasing.evaluation_off_cat_criterion (
   id BIGSERIAL PRIMARY KEY,
