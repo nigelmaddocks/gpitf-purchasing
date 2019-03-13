@@ -62,6 +62,29 @@ public class Organisation {
     @JoinColumn(name = "org_sub_type")
 	private OrgType orgSubType;
     
+    @Column(name = "addr_line_1")
+    @Size(max = 255)
+	private String addrLine1;
+    
+    @Column(name = "addr_line_2")
+	@Size(max = 255)
+	private String addrLine2;
+    
+    @Column(name = "addr_line_3")
+	@Size(max = 255)
+	private String addrLine3;
+    
+	@Size(max = 255)
+	private String addrTown;
+    
+	@Size(max = 255)
+	private String addrCounty;
+    
+	@Size(max = 20)
+	private String addrPostcode;
+    
+	@Size(max = 255)
+	private String addrCountry;
     
     @Transient
     public int getPatientCount() {
