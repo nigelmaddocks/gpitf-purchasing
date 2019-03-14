@@ -73,14 +73,20 @@ INSERT INTO purchasing.evaluation_off_cat_criterion (id, tolerance, name) VALUES
 INSERT INTO purchasing.evaluation_off_cat_criterion (id, tolerance, name) VALUES(5, 4, 'Target Performance Indicators offered');
 INSERT INTO purchasing.evaluation_off_cat_criterion (id, tolerance, name) VALUES(6, 4, 'Transition / Migration');
 
-CREATE TABLE purchasing.evaluation_bundle_criterion (
+CREATE TABLE purchasing.evaluation_proc_criterion (
   id BIGSERIAL PRIMARY KEY,
-  bundle BIGINT REFERENCES purchasing.proc_solution_bundle_item(id),
+  procurement BIGINT REFERENCES purchasing.procurement(id),
   off_cat_criterion BIGINT NULL REFERENCES purchasing.evaluation_off_cat_criterion(id), /* Either set this or evaluation_tolerance and name */
   tolerance BIGINT NULL REFERENCES purchasing.evaluation_tolerance(id),
   name VARCHAR(255) NULL,
   weighting_percent NUMERIC (5, 2),
-  seq INT,
+  seq INT
+);
+
+CREATE TABLE purchasing.evaluation_bundle_score (
+  id BIGSERIAL PRIMARY KEY,
+  bundle BIGINT REFERENCES purchasing.proc_solution_bundle(id),
+  proc_criterion BIGINT REFERENCES purchasing.evaluation_proc_criterion(id),
   score BIGINT NULL REFERENCES purchasing.evaluation_score_value(score),
   scored_by BIGINT NULL REFERENCES purchasing.org_contact(id),
   scored_date TIMESTAMP NULL
@@ -102,7 +108,8 @@ ALTER TABLE purchasing.organisation ADD COLUMN IF NOT EXISTS addr_country VARCHA
 
 /*
 Reversal:
-drop TABLE purchasing.evaluation_bundle_criterion cascade;
+drop TABLE purchasing.evaluation_bundle_score cascade;
+drop TABLE purchasing.evaluation_proc_criterion cascade;
 drop TABLE purchasing.evaluation_off_cat_criterion cascade;
 drop TABLE purchasing.evaluation_tolerance cascade;
 drop TABLE purchasing.evaluation_score_value cascade;
