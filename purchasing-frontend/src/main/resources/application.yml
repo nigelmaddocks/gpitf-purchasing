@@ -52,7 +52,7 @@ security:
       login-path: /login
 
 #show sql statement
-logging.level.org.hibernate.SQL: debug
+#logging.level.org.hibernate.SQL: debug
 logging.level.org.springframework: info
 
 #show sql values

@@ -783,7 +783,7 @@ public class DataLoadController {
 			) {
 		
 		RelationshipType relTypeCCGtoPractice = null;
-		RestTemplate restTemplate = null;
+		RestTemplate restTemplate = new RestTemplate();
 
 		long iOrgType = 0;
 		Long iOrgSubType = null;
@@ -795,7 +795,6 @@ public class DataLoadController {
 			iOrgType = OrgType.CSU;
 		} else if (sORDRole.equals(ROLE_GP_PRACTICE) || sORDRole.equals(ROLE_OOH_PRACTICE) || sORDRole.equals(ROLE_WIC_PRACTICE)) {
 			iOrgType = OrgType.PRESCRIBING_PRACTICE;
-			restTemplate = new RestTemplate();
 			try {
 				relTypeCCGtoPractice = (RelationshipType)GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CCG_TO_PRACTICE);
 			} catch (Exception e) {
@@ -854,6 +853,7 @@ public class DataLoadController {
 					Optional<Organisation> optOrg = organisationRepository.findByOrgCode(orgCode);
 					boolean bNewOrg = false;
 					boolean bChangedOrg = false;
+					boolean bChangedAddress = false;
 					String sChange = "";
 					if (optOrg.isEmpty()) {
 						org = new Organisation();
@@ -872,9 +872,12 @@ public class DataLoadController {
 							bChangedOrg = true;
 						}
 					}
+					
+					
 					if (bNewOrg || bChangedOrg) {
-						organisationRepository.save(org);
+						org = organisationRepository.save(org);
 					}
+
 					if (bNewOrg) {
 						orgsAdded.add(org);
 					}
@@ -884,20 +887,94 @@ public class DataLoadController {
 						chgOrg.change = sChange;
 						orgsChanged.add(chgOrg);
 					}
+				
+					// Add addresses
+				
+					String url = ODS_ORD_URL + "/" + org.getOrgCode();
 					
+					String responseOrg = restTemplate.getForObject(url, String.class);
+					JsonNode rootOrg = objectMapper.readTree(responseOrg);
+
+					//Iterator<JsonNode> jsonRels = rootOrg.get("Organisation.Rels.Rel").elements();
+					JsonNode jsonOrg2 = rootOrg.get("Organisation");
+					if (jsonOrg2 == null) {
+						exceptions.add(new Exception("\"Organisation\" not found in json: " + rootOrg.toString()));
+						continue;
+					}
+					
+					JsonNode jsonGeoloc = jsonOrg2.get("GeoLoc");
+					if (jsonGeoloc == null) {
+						exceptions.add(new Exception("\"jsonGeoloc\" not found in json: " + jsonOrg2.toString()));
+					} else {
+						JsonNode jsonLocation = jsonGeoloc.get("Location");
+						if (jsonLocation == null) {
+							exceptions.add(new Exception("\"Location\" not found in json: " + jsonOrg2.toString()));								
+						} else {
+							JsonNode jsonAddrLine1 = jsonLocation.get("AddrLn1");
+							JsonNode jsonAddrLine2 = jsonLocation.get("AddrLn2");
+							JsonNode jsonAddrLine3 = jsonLocation.get("AddrLn3");
+							JsonNode jsonAddrTown = jsonLocation.get("Town");
+							JsonNode jsonAddrCounty = jsonLocation.get("County");
+							JsonNode jsonAddrPostcode = jsonLocation.get("PostCode");
+							JsonNode jsonAddrCountry = jsonLocation.get("Country");
+							String addrLine1 = jsonAddrLine1 != null ? jsonAddrLine1.asText() : null;
+							String addrLine2 = jsonAddrLine2 != null ? jsonAddrLine2.asText() : null;
+							String addrLine3 = jsonAddrLine3 != null ? jsonAddrLine3.asText() : null;
+							String addrTown = jsonAddrTown != null ? jsonAddrTown.asText() : null;
+							String addrCounty = jsonAddrCounty != null ? jsonAddrCounty.asText() : null;
+							String addrPostcode = jsonAddrPostcode != null ? jsonAddrPostcode.asText() : null;
+							String addrCountry = jsonAddrCountry != null ? jsonAddrCountry.asText() : null;
+							if (		bNewOrg
+									 ||	!GUtils.nullToString(org.getAddrLine1()).equals(GUtils.nullToString(addrLine1))
+									 || !GUtils.nullToString(org.getAddrLine2()).equals(GUtils.nullToString(addrLine2))
+									 || !GUtils.nullToString(org.getAddrLine3()).equals(GUtils.nullToString(addrLine3))
+									 || !GUtils.nullToString(org.getAddrTown()).equals(GUtils.nullToString(addrTown))
+									 || !GUtils.nullToString(org.getAddrCounty()).equals(GUtils.nullToString(addrCounty))
+									 || !GUtils.nullToString(org.getAddrPostcode()).equals(GUtils.nullToString(addrPostcode))
+									 || !GUtils.nullToString(org.getAddrCountry()).equals(GUtils.nullToString(addrCountry))
+							) {
+								bChangedAddress = true;
+								if (!bNewOrg) {
+									sChange = orgCode + " - Address changed from '" + 
+											GUtils.nullToString(org.getAddrLine1()) + "," + 
+											GUtils.nullToString(org.getAddrLine2()) + "," + 
+											GUtils.nullToString(org.getAddrLine3()) + "," + 
+											GUtils.nullToString(org.getAddrTown()) + "," + 
+											GUtils.nullToString(org.getAddrCounty()) + "," + 
+											GUtils.nullToString(org.getAddrPostcode()) + "," + 
+											GUtils.nullToString(org.getAddrCountry()) +
+											" to " +
+											GUtils.nullToString(addrLine1) + "," + 
+											GUtils.nullToString(addrLine2) + "," + 
+											GUtils.nullToString(addrLine3) + "," + 
+											GUtils.nullToString(addrTown) + "," + 
+											GUtils.nullToString(addrCounty) + "," + 
+											GUtils.nullToString(addrPostcode) + "," + 
+											GUtils.nullToString(addrCountry);
+								}
+								
+								org.setAddrLine1(addrLine1);
+								org.setAddrLine2(addrLine2);
+								org.setAddrLine3(addrLine3);
+								org.setAddrTown(addrTown);
+								org.setAddrCounty(addrCounty);
+								org.setAddrPostcode(addrPostcode);
+								org.setAddrCountry(addrCountry);
+								org = organisationRepository.save(org);
+								
+								if (!bNewOrg) {
+									ChangedOrganisation chgOrg = new ChangedOrganisation();
+									chgOrg.organisation = org;
+									chgOrg.change = sChange;
+									orgsChanged.add(chgOrg);
+								}
+								
+							}
+						}
+					}
 					// For GP Practices, add the CCG relationship
 					if (iOrgType == OrgType.PRESCRIBING_PRACTICE) {
-						String url = ODS_ORD_URL + "/" + org.getOrgCode();
 						
-						String responseOrg = restTemplate.getForObject(url, String.class);
-						JsonNode rootOrg = objectMapper.readTree(responseOrg);
-
-						//Iterator<JsonNode> jsonRels = rootOrg.get("Organisation.Rels.Rel").elements();
-						JsonNode jsonOrg2 = rootOrg.get("Organisation");
-						if (jsonOrg2 == null) {
-							exceptions.add(new Exception("\"Organisation\" not found in json: " + rootOrg.toString()));
-							continue;
-						}
 						JsonNode jsonRels = jsonOrg2.get("Rels");
 						if (jsonRels == null) {
 							exceptions.add(new Exception("\"Rels\" not found in json: " + jsonOrg2.toString()));
@@ -980,6 +1057,7 @@ public class DataLoadController {
 							exceptions.add(new Exception("No CCG found for OrgCode: " + orgCode + " - " + orgName));
 						}
 					}
+					
 					
 				} catch (Exception e) {
 					exceptions.add(e);
