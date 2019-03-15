@@ -1,19 +1,32 @@
 package uk.nhs.gpitf.purchasing.utils;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	public static Object makeObjectForId(Class<?> clazz, long id) throws Exception {
-		Constructor<?> oCon = clazz.getConstructor();
-		Method setId = clazz.getMethod("setId", long.class);
-		Object obj = oCon.newInstance();
-		setId.invoke(obj, new Object[] {id});
+	  Object obj = null;
+	  try {
+	      Constructor<?> oCon = clazz.getConstructor();
+	      Method setId = clazz.getMethod("setId", long.class);
+	      obj = oCon.newInstance();
+	      setId.invoke(obj, new Object[] {id});
+	    } catch(Exception e) {
+	      // TODO create MakeObjectForIdException to replace thrown Exception
+	      LOGGER.error("Error creating object, class: {}, id: {}", clazz.getName(), id);
+	      throw e;
+	    }
 		return obj;
 	}
-	
+
     /****************************************************************************
      * Returns the same string with each word starting with a capital letter.
      * There are special sequences of letters that are kept capitalised. These
@@ -25,13 +38,13 @@ public class GUtils {
      * @return the same phrase with capitals applied.
      */
     public static String getCapitalized(String phrase) {
- 
+
         phrase = phrase.toUpperCase();
- 
+
         if (phrase.equals("AT CODE") || phrase.equals("UTLA CODE")) {
             return phrase.replace("CODE", "Code");
         }
- 
+
         String specials  = ":CCG:GMC/GDC/GOC:GP:GMC:GDP:OO:OMP:OPL:DO:PPA:PCT:PCG:PCO:NHS:MPC:GOC:GOC/OQC:ID:HQ:GOC/GMC:PM:RPSGB:KC53:KC63:GDC:VT:WTE:PTS:GSE:MPIG:CHS:ENT:PMS:HHAT:PDP:NMC:PIN:QOF:XML:DOB:FHSA:DHA:EEA:VI:MMR:DTP:SOL:CRB:LSD:PBE:LRMP:FTP:FP69:TM:DBS:CAMHS:CGL:ER:HC:GPSI:GPWSI:DMC:PCT:OOH:UK:HMP:YOI:NE:NW:SE:SW:CSU:WIC:TPP:EMIS:";
         String specials2 = ":GPS:GDPS:OOS:OMPS:OPLS:PCTS:PCGS:PCOS:IDS:";
 //    String lowerSpecials = ":DU:DE:LA:VAN:";
@@ -41,7 +54,7 @@ public class GUtils {
         StringTokenizer st = new StringTokenizer(phrase.trim(), allDelimiters, true);
         String retval = "";
         String token = null;
- 
+
         try {
             while (st.hasMoreElements()) {
                 token = st.nextToken();
@@ -79,10 +92,10 @@ public class GUtils {
         } catch (NoSuchElementException e) {
             retval = "";
         }
-       
+
         return retval;
-    }	
-    
+    }
+
     /** Returns string or empty string if null */
     public static String nullToString(String value) {
     	return value == null ? "" : value;

@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing.services;
 
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import uk.nhs.gpitf.purchasing.utils.GUtils;
 @Service
 public class ProcurementService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProcurementService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     private ProcurementRepository thisRepository;
@@ -57,7 +58,7 @@ public class ProcurementService {
        return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
-    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, 
+    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword,
     		Optional<String> csvCapabilities, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
     	Procurement procurement = null;
     	if (procurementId == 0) {
@@ -66,10 +67,16 @@ public class ProcurementService {
     		procurement = findById(procurementId);
     	}
 
-    	
-    	if (searchKeyword.isPresent()) procurement.setSearchKeyword(searchKeyword.get());
-    	if (csvCapabilities.isPresent()) procurement.setCsvCapabilities(csvCapabilities.get());
-    	if (foundation.isPresent()) procurement.setFoundation(foundation.get());
+
+    	if (searchKeyword.isPresent()) {
+        procurement.setSearchKeyword(searchKeyword.get());
+      }
+    	if (csvCapabilities.isPresent()) {
+        procurement.setCsvCapabilities(csvCapabilities.get());
+      }
+    	if (foundation.isPresent()) {
+        procurement.setFoundation(foundation.get());
+      }
     	if (csvPractices.isPresent()) {
     		String sCsvPractices = csvPractices.get();
     		if (sCsvPractices.startsWith(",")) {
@@ -87,21 +94,33 @@ public class ProcurementService {
     }
 
     public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
-      Optional<Procurement> optProcurement = thisRepository.findById(procurementId);
-      if (optProcurement.isEmpty()) {
-        LOGGER.warn("An attempt to retrieve Procurement \"{}\" occurred. But could not be found.", procurementId);
-        throw new ProcurementNotFoundException("Procurement " + procurementId + " not found");
-      }
-
-      // Validation required to check User has access to requested procurement.
+      // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
-      return optProcurement.get();
+      return thisRepository.findById(procurementId)
+                           .orElseThrow(() -> {
+                             LOGGER.warn("An attempt to retrieve Procurement \"{}\" occurred. But could not be found.", procurementId);
+                             return new ProcurementNotFoundException("Procurement " + procurementId + " not found");
+                           });
     }
 
     public Procurement save(Procurement procurement) {
-      // Validation required to check User has access to requested procurement.
+      // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
       return thisRepository.save(procurement);
+    }
+
+    public void delete(Long procurementId) throws ProcurementNotFoundException, Exception {
+      delete(findById(procurementId));
+    }
+
+    public void delete(Procurement procurement) throws Exception {
+      // TODO Validation required to check User has access to requested procurement.
+      // Throw UnauthorizedDataAccessException if the case.
+      // TODO refactor ProcStatus.DELETED etc to enum?
+      procurement.setStatus((ProcStatus)GUtils.makeObjectForId(ProcStatus.class, ProcStatus.DELETED));
+      LOGGER.info("Deleted procurement: {}", procurement.getId());
+      save(procurement);
+
     }
 
     private Procurement createNewProcurement(long orgContactId) throws Exception {

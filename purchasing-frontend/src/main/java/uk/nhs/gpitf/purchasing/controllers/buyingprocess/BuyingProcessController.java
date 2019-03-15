@@ -4,15 +4,13 @@ import static org.springframework.web.servlet.view.UrlBasedViewResolver.REDIRECT
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +39,7 @@ public class BuyingProcessController {
 	protected static final String PAGE_LIST_PROCUREMENTS = "listProcurements";
 	protected static final String PAGE_PROCUREMENT = "procurement";
 	protected static final String PAGE_RENAME_PROCUREMENT = "procurementRename";
+	protected static final String PAGE_DELETE_PROCUREMENT = "procurementDelete";
 
     @Autowired
     private OrgContactRepository orgContactRepository;
@@ -48,8 +47,8 @@ public class BuyingProcessController {
     @Autowired
     private ProcurementService procurementService;
 
-    //@Autowired
-    //private LocalValidatorFactoryBean validator;
+    @Autowired
+    private Validator validator;
 
 	@GetMapping()
 	public String home(HttpServletRequest request) {
@@ -77,7 +76,7 @@ public class BuyingProcessController {
     		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;
 		}
-	
+
 		// Check that the user is authorised to this procurement
 		if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
 		 && !secInfo.isAdministrator()) {
@@ -88,16 +87,16 @@ public class BuyingProcessController {
 		}
 
 		long procurementStatusId = procurement.getStatus().getId();
-		
+
 		if (procurementStatusId == ProcStatus.DRAFT) {
 			//if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
 				return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + GUtils.nullToString(procurement.getCsvCapabilities()).trim();
 			//}
-		} else 
+		} else
 		if (procurementStatusId == ProcStatus.SHORTLIST) {
 			return "redirect:/buyingprocess/shortlist/" + procurementId;
 		}
-		
+
     	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
     	LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 		attr.addFlashAttribute("security_message", message);
@@ -162,12 +161,12 @@ public class BuyingProcessController {
 	}
 
 	@PostMapping("/procurement/edit-name")
-	public String updateProcurementName(@Valid Procurement procurement, BindingResult bindingResult, Model model) throws ProcurementNotFoundException {
+	public String updateProcurementName(Procurement procurement, BindingResult bindingResult) throws ProcurementNotFoundException {
 
 	  Procurement validatedProcurement = procurementService.findById(procurement.getId());
 	  validatedProcurement.setName(procurement.getName());
 
-	  //validator.validate(validatedProcurement, bindingResult);
+	  validator.validate(validatedProcurement, bindingResult);
 	  if (bindingResult.hasErrors()) {
 	    return PATH + PAGE_RENAME_PROCUREMENT;
 	  }
@@ -176,4 +175,20 @@ public class BuyingProcessController {
 
       return REDIRECT_URL_PREFIX + "/buyingprocess/listProcurements";
     }
+
+	@GetMapping("/procurement/{procurementId}/delete")
+    public String deleteProcurement(@PathVariable Long procurementId, Model model, HttpServletRequest request) throws ProcurementNotFoundException {
+      Breadcrumbs.register("Delete Procurement", request);
+
+      model.addAttribute("procurement", procurementService.findById(procurementId));
+      return PATH + PAGE_DELETE_PROCUREMENT;
+    }
+
+	@PostMapping("/procurement/delete")
+	public String deleteProcurement(Procurement procurement) throws Exception {
+
+	  procurementService.delete(procurement.getId());
+
+	  return REDIRECT_URL_PREFIX + "/buyingprocess/listProcurements";
+	}
 }

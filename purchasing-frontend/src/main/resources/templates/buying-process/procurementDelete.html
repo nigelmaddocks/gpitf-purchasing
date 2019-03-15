@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+<meta charset="UTF-8">
+<title>My Procurements</title>
+</head>
+<body>
+	<main>
+		<h1>Delete Procurement</h1>
+		<p>Are you sure you wish to delete the following procurement?</p>
+		<form action="" th:action="@{/buyingprocess/procurement/delete}" th:object="${procurement}" method="POST">
+			<input type="hidden" th:field="*{id}">
+			<div class="form-group">
+				<label>Name</label>
+				<p class="form-control-static" th:text="*{name}"></p>
+			</div>
+			<div class="form-group">
+				<label>Date created</label>
+					<p class="form-control-static" th:text="*{#temporals.format(startedDate, 'dd MMM yyyy')}"></p>		
+			</div>
+			<div class="form-group">
+				<label>Date last amended</label>
+				<p class="form-control-static" th:text="*{#temporals.format(lastUpdated, 'dd MMM yyyy')}"></p>
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn button">Delete</button>
+			</div>
+			<div class="form-group">
+				<a class="btn button" href="/buyingprocess/listProcurements" th:href="@{/buyingprocess/listProcurements}">Cancel</a>	
+			</div>
+		</form>
+	</main>
+</body>
+</html>

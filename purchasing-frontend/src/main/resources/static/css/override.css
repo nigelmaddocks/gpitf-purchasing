@@ -86,10 +86,7 @@ input[type='text'], input[type='email'], input[type='tel'], textarea {
 */
 
 a.minor-link, a.minor-link:link, a.minor-link:hover, a.minor-link:visited {
-	color: #005eb8;
 	font-size: 0.8em;
-	font-weight: normal;
-	margin-left: 0.5em;
 }
 a.minor-link::before {
 	color: #425563;

@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -69,7 +68,6 @@ public class OrganisationAdminController {
     private SecurityService securityService;
 
     @Autowired
-    @Qualifier("mvcValidator")
  	private Validator validator;
 
     private static final Logger logger = LoggerFactory.getLogger(OrganisationAdminController.class);
@@ -278,7 +276,7 @@ public class OrganisationAdminController {
 	public String getAdminLoggingLevel(Model model, RedirectAttributes attr, HttpServletRequest request) {
         // Check the user is authorised to do this
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
-		
+
         if (!secInfo.isAdministrator()) {
         	String message = "You are not authorised to this page";
     		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));

@@ -35,17 +35,19 @@
 		      		<th scope="col">Status</th>
 		      		<th scope="col">Stage last saved</th>
 		      		<th scope="col">Date last saved</th>
+		      		<th scope="col"></th>
 		    	</tr>
 		  	</thead>
 			<tbody>
 				<tr th:each="proc : ${listProcurementsModel.openProcurements}">
 					<th scope="row">
 						<a th:text="${proc.name}" th:href="@{'/buyingprocess/' + ${proc.id} + '/gotoProcurement'}"></a>
-						<a class="minor-link" th:href="@{/buyingprocess/procurement/{procurementId}/edit-name(procurementId=${proc.id})}">Rename</a>
+						<a class="btn btn-link minor-link" th:href="@{/buyingprocess/procurement/{procurementId}/edit-name(procurementId=${proc.id})}">Rename</a>
 					</th>
 			    	<td th:text="${proc.status.name}">Draft</td>
 			    	<td>Not yet implemented</td>
 			    	<td th:text="${#temporals.format(proc.lastUpdated, 'dd MMM yyyy')}">32 Jan 2019</td>
+			    	<td><a class="btn btn-link" th:href="@{/buyingprocess/procurement/{procurementId}/delete(procurementId=${proc.id})}">Delete</a></td>
 			  	</tr>
 			</tbody>
 		</table>
