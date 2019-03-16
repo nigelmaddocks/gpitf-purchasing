@@ -17,20 +17,22 @@ import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
 
-@Service
-public class ProcurementService {
+@Service("procurementService")
+public class ProcurementService implements IProcurementService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     private ProcurementRepository thisRepository;
 
+    @Override
     public List<Procurement> getAll() {
         List<Procurement> coll = new ArrayList<>();
         thisRepository.findAll().forEach(coll::add);
         return coll;
     }
 
+    @Override
     public List<Procurement> getAllByOrgContactAndStatusOrderByLastUpdatedDesc(long iOrgContact, long iStatus) {
         OrgContact orgContact = new OrgContact();
         orgContact.setId(iOrgContact);
@@ -42,23 +44,27 @@ public class ProcurementService {
         return coll;
     }
 
+    @Override
     public List<Procurement> getAllByOrgContactAndStatusOrderByLastUpdatedDesc(OrgContact orgContact, ProcStatus status) {
         List<Procurement> coll = new ArrayList<>();
         thisRepository.findAllByOrgContactAndStatusOrderByLastUpdatedDesc(orgContact, status).forEach(coll::add);
         return coll;
     }
 
+    @Override
     public List<Procurement> getUncompletedByOrgContactOrderByLastUpdated(long iOrgContact) {
         OrgContact orgContact = new OrgContact();
         orgContact.setId(iOrgContact);
         return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
+    @Override
     public List<Procurement> getUncompletedByOrgContactOrderByLastUpdated(OrgContact orgContact) {
        return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
-    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword,
+    @Override
+    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, 
     		Optional<String> csvCapabilities, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
     	Procurement procurement = null;
     	if (procurementId == 0) {
@@ -93,6 +99,7 @@ public class ProcurementService {
     	return procurement;
     }
 
+    @Override
     public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
@@ -103,6 +110,7 @@ public class ProcurementService {
                            });
     }
 
+    @Override
     public Procurement save(Procurement procurement) {
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.

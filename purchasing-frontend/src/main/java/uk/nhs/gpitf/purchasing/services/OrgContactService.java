@@ -13,11 +13,11 @@ import java.util.List;
 public class OrgContactService {
 
     @Autowired
-    private OrgContactRepository thisRepository;
+    private OrgContactRepository orgContactRepository;
 
     public List<OrgContact> getAllByOrganisation(Organisation organisation) {
         List<OrgContact> coll = new ArrayList<>();
-        Iterable<OrgContact> itb = thisRepository.findAllByOrganisationAndDeletedOrderByContactSurnameAscContactForenameAsc(organisation, false);
+        Iterable<OrgContact> itb = orgContactRepository.findAllByOrganisationAndDeletedOrderByContactSurnameAscContactForenameAsc(organisation, false);
         for (OrgContact orgContact : itb) {
         	if (!orgContact.getContact().isDeleted() ) {
         		coll.add(orgContact);

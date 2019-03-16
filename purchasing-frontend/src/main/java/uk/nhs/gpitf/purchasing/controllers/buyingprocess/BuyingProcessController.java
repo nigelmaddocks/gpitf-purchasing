@@ -1,6 +1,9 @@
 package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 
 import static org.springframework.web.servlet.view.UrlBasedViewResolver.REDIRECT_URL_PREFIX;
+import static uk.nhs.gpitf.purchasing.services.SecurityService.*;
+import static uk.nhs.gpitf.purchasing.utils.SecurityInfo.*;
+
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +25,10 @@ import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
+import uk.nhs.gpitf.purchasing.models.SearchListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
+import uk.nhs.gpitf.purchasing.services.buying.process.ProcurementsFilteringServiceParameterObject;
+import uk.nhs.gpitf.purchasing.services.buying.process.IProcurementsFilteringService;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
@@ -47,24 +54,25 @@ public class BuyingProcessController {
     @Autowired
     private ProcurementService procurementService;
 
+	@Autowired
+	IProcurementsFilteringService procurementsFilteringService;
+
     @Autowired
     private Validator validator;
 
 	@GetMapping()
 	public String home(HttpServletRequest request) {
-		//Breadcrumbs.register("Buying Process", request);
 		return PATH + PAGE_INDEX;
 	}
 
 	@GetMapping("/searchSolutionMenu")
 	public String searchSolutionsMenu(HttpServletRequest request) {
-		//Breadcrumbs.register("Search menu", request);
 		return PATH + PAGE_SEARCH_SOLUTIONS_MENU;
 	}
 
 	@GetMapping("/{procurementId}/gotoProcurement")
 	public String gotoProcurement(@PathVariable Long procurementId, HttpServletRequest request, RedirectAttributes attr) throws ProcurementNotFoundException {
-		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+		SecurityInfo secInfo = getSecurityInfo(request);
 
         Procurement procurement = procurementService.findById(procurementId);
 
@@ -72,18 +80,18 @@ public class BuyingProcessController {
 		if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
 		 && !secInfo.isAdministrator()) {
         	String message = "view procurement " + procurementId;
-    		LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		LOGGER.warn(getSecurityInfo(request).loggerSecurityMessage(message));
     		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
-        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+        	return SECURITY_ERROR_REDIRECT;
 		}
 
 		// Check that the user is authorised to this procurement
 		if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
 		 && !secInfo.isAdministrator()) {
         	String message = "view procurement " + procurementId;
-        	LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+        	LOGGER.warn(getSecurityInfo(request).loggerSecurityMessage(message));
     		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
-        	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+        	return SECURITY_ERROR_REDIRECT;
 		}
 
 		long procurementStatusId = procurement.getStatus().getId();
@@ -98,9 +106,9 @@ public class BuyingProcessController {
 		}
 
     	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
-    	LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    	LOGGER.warn(getSecurityInfo(request).loggerSecurityMessage(message));
 		attr.addFlashAttribute("security_message", message);
-    	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+    	return SECURITY_ERROR_REDIRECT;
 
 	}
 
@@ -110,7 +118,7 @@ public class BuyingProcessController {
 		Breadcrumbs.register("Procurements", request);
 
 		long orgContactId;
-		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+		SecurityInfo secInfo = getSecurityInfo(request);
 		if (optionalOrgContactId.isEmpty()) {
 			orgContactId = secInfo.getOrgContactId();
 		} else {
@@ -123,9 +131,9 @@ public class BuyingProcessController {
 			if (paramOrgContact.isEmpty()
 			 || paramOrgContact.get().getOrganisation().getId() != secInfo.getOrganisationId()) {
 		    	String message = "You cannot see procurements outside of your organisation";
-				LOGGER.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+				LOGGER.warn(getSecurityInfo(request).loggerSecurityMessage(message));
 				attr.addFlashAttribute("security_message", message);
-		    	return SecurityInfo.SECURITY_ERROR_REDIRECT;
+		    	return SECURITY_ERROR_REDIRECT;
 			}
 		}
 
@@ -137,14 +145,34 @@ public class BuyingProcessController {
 
 		model.addAttribute("listProcurementsModel", listProcurementsModel);
 
+		SearchListProcurementsModel searchListProcurementsModel = new SearchListProcurementsModel();
+		model.addAttribute("searchListProcurementsModel", searchListProcurementsModel);
+
 		return PATH + PAGE_LIST_PROCUREMENTS;
+	}
+
+	@PostMapping(value = {"/filtered"})
+	public String filterProcurements(@PathVariable Optional<Long> optionalOrgContactId, HttpServletRequest request,
+									@ModelAttribute("searchListProcurementsModel") SearchListProcurementsModel searchModel,
+									 Model model,
+									 RedirectAttributes attr) {
+		if(accessIsDeniedToProcurements(request, optionalOrgContactId, orgContactRepository)) {
+			return sendSecurityWarning(request, attr, LOGGER);
+		} else {
+			model.addAttribute("listProcurementsModel", procurementsFilteringService.filterProcurements(ProcurementsFilteringServiceParameterObject.builder()
+					.optionalOrgContactId(optionalOrgContactId).orgContactRepository(orgContactRepository)
+					.searchListProcurementsModel(searchModel).procurementService(procurementService)
+					.orgContactId(getOrgContactId(optionalOrgContactId, getSecurityInfo(request)))
+					.build()));
+			return PATH + PAGE_LIST_PROCUREMENTS;
+		}
 	}
 
 	@GetMapping("/procurement")
 	public String procurement(Model model, HttpServletRequest request) {
 	  //Breadcrumbs.register("My Procurements", request);
 
-	  SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+	  SecurityInfo secInfo = getSecurityInfo(request);
 	  List<Procurement> procurementList = procurementService.getUncompletedByOrgContactOrderByLastUpdated(secInfo.getOrgContactId());
 
 	  model.addAttribute("procurements", procurementList);

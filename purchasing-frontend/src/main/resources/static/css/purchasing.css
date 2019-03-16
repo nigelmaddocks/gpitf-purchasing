@@ -106,3 +106,26 @@
 	background-color: #DA291C !important;
 	filter: brightness(80%);
 }
+
+.search-box {
+  margin-bottom: 10px;
+  margin-right: 10px;
+  width: 150px;
+}
+
+.dropdown {
+  margin-bottom: 10px;
+  margin-right: 10px;
+  height: auto;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.name-search-submit {
+  margin-bottom: 10px;
+  margin-right: 10px;
+  width: 100px;
+  border-radius: 5px;
+}

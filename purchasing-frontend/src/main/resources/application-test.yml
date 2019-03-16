@@ -12,7 +12,9 @@ spring:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
-#    show-sql: true
+#    generate-dll: false
+#    hibernate.ddl-auto: none
+  #    show-sql: true
   thymeleaf:
     cache: false
   servlet:
@@ -26,12 +28,7 @@ spring.jackson.serialization.write-dates-as-timestamps: false
 server.servlet.session.timeout: 3600s # Session timeout. If a duration suffix is not specified, seconds will be used.
 server.port: 8220
 
-spring.session.store-type: redis
-spring.session.redis.flush-mode: on-save # Sessions flush mode.
-spring.session.redis.namespace: spring:session # Namespace for keys used to store sessions.
-spring.redis.host: localhost # Redis server host.
-#spring.redis.password= # Login password of the redis server.
-spring.redis.port: 6379 # Redis server port.
+spring.session.store-type: none
 
 security:
   basic:
@@ -42,9 +39,9 @@ security:
       clientSecret: ptjqjbxbdxryshjbsqelfwoonibgnnee
       accessTokenUri: http://localhost:9000/token
       userAuthorizationUri: http://localhost:9000/auth
-#      tokenName: oauth_token
-#      authenticationScheme: query
-#      clientAuthenticationScheme: form
+      #      tokenName: oauth_token
+      #      authenticationScheme: query
+      #      clientAuthenticationScheme: form
       scope: openid email
     resource:
       userInfoUri: http://localhost:9000/me
@@ -52,7 +49,7 @@ security:
       login-path: /login
 
 #show sql statement
-#logging.level.org.hibernate.SQL: debug
+logging.level.org.hibernate.SQL: debug
 logging.level.org.springframework: info
 
 #show sql values
@@ -64,13 +61,13 @@ logging.level.uk.nhs.gpitf.purchasing: INFO
 
 
 management:
- endpoints:
-   web:
-     exposure:
-       include: loggers
-     base-path: /
-     path-mapping:
-       loggers: /loggers
+  endpoints:
+    web:
+      exposure:
+        include: loggers
+      base-path: /
+      path-mapping:
+        loggers: /loggers
 
 
 sysparam.shortlist.max: 4

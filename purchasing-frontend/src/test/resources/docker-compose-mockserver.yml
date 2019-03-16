@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  mockserver:
+    image: jamesdbloom/mockserver:mockserver-snapshot
+    environment:
+     LOG_LEVEL: "WARN"
+     GENERIC_JVM_OPTIONS: "-Dmockserver.nioEventLoopThreadCount=100"
+    ports:
+    - 5100:5100
+
+  mockserver:
+    image: jamesdbloom/mockserver:mockserver-snapshot
+    environment:
+     LOG_LEVEL: "WARN"
+     GENERIC_JVM_OPTIONS: "-Dmockserver.nioEventLoopThreadCount=100"
+    ports:
+    - 5001:5001
+
+  mockserver:
+    image: jamesdbloom/mockserver:mockserver-snapshot
+    environment:
+     LOG_LEVEL: "WARN"
+     GENERIC_JVM_OPTIONS: "-Dmockserver.nioEventLoopThreadCount=100"
+    ports:
+    - 3000:80
+

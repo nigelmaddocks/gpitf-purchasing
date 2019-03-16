@@ -11,4 +11,5 @@ public class PurchasingApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PurchasingApplication.class, args);
 	}
+
 }

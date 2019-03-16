@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 
 import io.swagger.client.model.Capabilities;
 import io.swagger.client.model.Solutions;
+import lombok.Builder;
 import lombok.Data;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
