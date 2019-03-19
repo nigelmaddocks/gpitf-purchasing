@@ -11,6 +11,7 @@ import io.swagger.client.model.Solutions;
 import lombok.Builder;
 import lombok.Data;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
+import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 
 @Data
@@ -19,6 +20,7 @@ public class ListProcurementsModel {
 	long orgContactId;
 	OrgContact orgContact;
 	
+	List <ProcStatus> statusFilter = new ArrayList<>();
 	List <Procurement> openProcurements = new ArrayList<>();
 	List <Procurement> completedProcurements = new ArrayList<>();
 

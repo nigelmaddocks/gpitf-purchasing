@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.view.UrlBasedViewResolver.REDIRECT
 import static uk.nhs.gpitf.purchasing.services.SecurityService.*;
 import static uk.nhs.gpitf.purchasing.utils.SecurityInfo.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -27,8 +28,10 @@ import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.models.SearchListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
+import uk.nhs.gpitf.purchasing.repositories.ProcStatusRepository;
 import uk.nhs.gpitf.purchasing.services.buying.process.ProcurementsFilteringServiceParameterObject;
 import uk.nhs.gpitf.purchasing.services.buying.process.IProcurementsFilteringService;
+import uk.nhs.gpitf.purchasing.services.ProcStatusService;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
@@ -50,6 +53,9 @@ public class BuyingProcessController {
 
     @Autowired
     private OrgContactRepository orgContactRepository;
+    
+    @Autowired
+    private ProcStatusService procStatusService;
 
     @Autowired
     private ProcurementService procurementService;
@@ -137,9 +143,23 @@ public class BuyingProcessController {
 			}
 		}
 
-		ListProcurementsModel listProcurementsModel = new ListProcurementsModel();
+		List <ProcStatus> statusFilter = new ArrayList<>();
+		List <ProcStatus> statusFilterRemove = new ArrayList<>();
+		statusFilter = procStatusService.getAll();
+		statusFilter.sort((object1, object2) -> Long.valueOf(object1.getId()).compareTo(object2.getId()));
+		
+		for (ProcStatus procStatus : statusFilter) {
+			if (procStatus.getId() == ProcStatus.COMPLETED
+			 || procStatus.getId() == ProcStatus.DELETED) {
+				statusFilterRemove.add(procStatus);
+			}
+		}
+		statusFilter.removeAll(statusFilterRemove);
+		
+		ListProcurementsModel listProcurementsModel = new ListProcurementsModel();		
 		listProcurementsModel.setOrgContactId(orgContactId);
 		listProcurementsModel.setOrgContact(orgContactRepository.findById(orgContactId).get());
+		listProcurementsModel.setStatusFilter(statusFilter);
 		listProcurementsModel.setOpenProcurements(procurementService.getUncompletedByOrgContactOrderByLastUpdated(orgContactId));
 		listProcurementsModel.setCompletedProcurements(procurementService.getAllByOrgContactAndStatusOrderByLastUpdatedDesc(orgContactId, ProcStatus.COMPLETED));
 
