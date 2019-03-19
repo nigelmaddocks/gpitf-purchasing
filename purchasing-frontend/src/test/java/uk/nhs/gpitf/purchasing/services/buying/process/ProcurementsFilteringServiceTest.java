@@ -12,7 +12,10 @@ import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.models.SearchListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
 import uk.nhs.gpitf.purchasing.services.IProcurementService;
+import uk.nhs.gpitf.purchasing.services.ProcStatusService;
+
 import static org.junit.Assert.assertEquals;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -20,15 +23,25 @@ import static org.junit.Assert.assertEquals;
 public class ProcurementsFilteringServiceTest {
 
     @Autowired
-    IProcurementService stubProcurementService;
+    private IProcurementService stubProcurementService;
 
     @Autowired
-    OrgContactRepository orgContactRepositoryStub;
+    private OrgContactRepository orgContactRepositoryStub;
 
     @Autowired
-    ProcurementsFilteringService procurementsFilteringService;
+    private ProcurementsFilteringService procurementsFilteringService;
+
+    @Autowired
+    private ProcStatusService stubProcStatusService;
 
     private static SearchListProcurementsModel searchListProcurementsModel;
+
+    @Before
+    public void injectStubs() {
+        setField(procurementsFilteringService, "procurementService", stubProcurementService);
+        setField(procurementsFilteringService, "orgContactRepository", orgContactRepositoryStub);
+        setField(procurementsFilteringService, "procStatusService", stubProcStatusService);
+    }
 
     @Before
     public void setUpInitialConditionsOfFilter() {
@@ -58,16 +71,8 @@ public class ProcurementsFilteringServiceTest {
         // and
         searchListProcurementsModel.setCompletedProcNameSearchField("stu");
 
-        // and
-        ProcurementsFilteringServiceParameterObject bpsro = ProcurementsFilteringServiceParameterObject.builder()
-                .orgContactId(1L)
-                .orgContactRepository(orgContactRepositoryStub)
-                .procurementService(stubProcurementService)
-                .searchListProcurementsModel(searchListProcurementsModel)
-                .build();
-
         // when
-        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(bpsro);
+        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(1L, searchListProcurementsModel);
 
         // then
         String actual = filteredStuff.getCompletedProcurements().get(0).getName();
@@ -82,16 +87,8 @@ public class ProcurementsFilteringServiceTest {
         // and
         searchListProcurementsModel.setOpenProcNameSearchField("stu");
 
-        // and
-        ProcurementsFilteringServiceParameterObject bpsro = ProcurementsFilteringServiceParameterObject.builder()
-                .orgContactId(1L)
-                .orgContactRepository(orgContactRepositoryStub)
-                .procurementService(stubProcurementService)
-                .searchListProcurementsModel(searchListProcurementsModel)
-                .build();
-
         // when
-        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(bpsro);
+        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(1L, searchListProcurementsModel);
 
         // then
         String actual = filteredStuff.getOpenProcurements().get(0).getName();
@@ -106,16 +103,8 @@ public class ProcurementsFilteringServiceTest {
         // and
         searchListProcurementsModel.setOpenProcNameSearchField("there is no way a procurement has this name!");
 
-        // and
-        ProcurementsFilteringServiceParameterObject bpsro = ProcurementsFilteringServiceParameterObject.builder()
-                .orgContactId(1L)
-                .orgContactRepository(orgContactRepositoryStub)
-                .procurementService(stubProcurementService)
-                .searchListProcurementsModel(searchListProcurementsModel)
-                .build();
-
         // when
-        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(bpsro);
+        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(1L, searchListProcurementsModel);
 
         // then
         int actual = filteredStuff.getOpenProcurements().size();
@@ -131,16 +120,8 @@ public class ProcurementsFilteringServiceTest {
         searchListProcurementsModel.setOpenProcNameSearchField("stub");
         searchListProcurementsModel.setOpenProcStatusSearchField("pretty sure there is nothing for this status!!");
 
-        // and
-        ProcurementsFilteringServiceParameterObject bpsro = ProcurementsFilteringServiceParameterObject.builder()
-                .orgContactId(1L)
-                .orgContactRepository(orgContactRepositoryStub)
-                .procurementService(stubProcurementService)
-                .searchListProcurementsModel(searchListProcurementsModel)
-                .build();
-
         // when
-        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(bpsro);
+        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(1L, searchListProcurementsModel);
 
         // then
         int actual = filteredStuff.getOpenProcurements().size();
@@ -155,19 +136,28 @@ public class ProcurementsFilteringServiceTest {
         // and
         searchListProcurementsModel.setCompletedProcNameSearchField("there is no way a procurement has this name!");
 
-        // and
-        ProcurementsFilteringServiceParameterObject bpsro = ProcurementsFilteringServiceParameterObject.builder()
-                .orgContactId(1L)
-                .orgContactRepository(orgContactRepositoryStub)
-                .procurementService(stubProcurementService)
-                .searchListProcurementsModel(searchListProcurementsModel)
-                .build();
-
         // when
-        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(bpsro);
+        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(1L, searchListProcurementsModel);
 
         // then
         int actual = filteredStuff.getCompletedProcurements().size();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testFilterProcurementsIsCaseInsensitive() {
+        // given
+        String expected = "stubbyMcUncompletedStubFace";
+
+        // and
+        String uppercasedSearchStringUsedToLookForLowerCasedRecord = "STU";
+        searchListProcurementsModel.setOpenProcNameSearchField(uppercasedSearchStringUsedToLookForLowerCasedRecord);
+
+        // when
+        ListProcurementsModel filteredStuff =  procurementsFilteringService.filterProcurements(1L, searchListProcurementsModel);
+
+        // then
+        String actual = filteredStuff.getOpenProcurements().get(0).getName();
         assertEquals(expected, actual);
     }
 

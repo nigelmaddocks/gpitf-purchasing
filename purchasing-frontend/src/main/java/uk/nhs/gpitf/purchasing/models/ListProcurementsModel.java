@@ -17,11 +17,11 @@ import uk.nhs.gpitf.purchasing.entities.Procurement;
 @Data
 public class ListProcurementsModel {
 
-	long orgContactId;
-	OrgContact orgContact;
+	private long orgContactId;
+	private OrgContact orgContact;
 	
-	List <ProcStatus> statusFilter = new ArrayList<>();
-	List <Procurement> openProcurements = new ArrayList<>();
-	List <Procurement> completedProcurements = new ArrayList<>();
+	private List <ProcStatus> statusFilter = new ArrayList<>();
+	private List <Procurement> openProcurements = new ArrayList<>();
+	private List <Procurement> completedProcurements = new ArrayList<>();
 
 }

@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
+import uk.nhs.gpitf.purchasing.models.SearchListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
@@ -69,7 +70,7 @@ public class BuyingProcessControllerTest {
     List<Procurement> procurementList = new ArrayList<>();
     procurementList.add(new Procurement());
     given(orgContactRepository.findById(ArgumentMatchers.anyLong())).willReturn(Optional.of(new OrgContact()));
-    given(procurementsFilteringService.filterProcurements(ArgumentMatchers.any(ProcurementsFilteringServiceParameterObject.class))).willReturn(expected);
+    given(procurementsFilteringService.filterProcurements(ArgumentMatchers.anyLong(), ArgumentMatchers.any(SearchListProcurementsModel.class))).willReturn(expected);
 
     MockMvc mockMvc = standaloneSetup(bpc).build();
     mockMvc.perform(post("/buyingprocess/filtered"))

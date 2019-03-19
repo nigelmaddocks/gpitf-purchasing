@@ -179,11 +179,9 @@ public class BuyingProcessController {
 		if(accessIsDeniedToProcurements(request, optionalOrgContactId, orgContactRepository)) {
 			return sendSecurityWarning(request, attr, LOGGER);
 		} else {
-			model.addAttribute("listProcurementsModel", procurementsFilteringService.filterProcurements(ProcurementsFilteringServiceParameterObject.builder()
-					.optionalOrgContactId(optionalOrgContactId).orgContactRepository(orgContactRepository)
-					.searchListProcurementsModel(searchModel).procurementService(procurementService)
-					.orgContactId(getOrgContactId(optionalOrgContactId, getSecurityInfo(request)))
-					.build()));
+			long orgContactd = getOrgContactId(optionalOrgContactId, getSecurityInfo(request));
+			ListProcurementsModel filteredProcurements = procurementsFilteringService.filterProcurements(orgContactd, searchModel);
+			model.addAttribute("listProcurementsModel", filteredProcurements);
 			return PATH + PAGE_LIST_PROCUREMENTS;
 		}
 	}

@@ -10,11 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ProcStatusService {
+public class ProcStatusService implements IProcStatusService {
 
     @Autowired
     private ProcStatusRepository thisRepository;
 
+    @Override
     public List<ProcStatus> getAll() {
         List<ProcStatus> coll = new ArrayList<>();
         thisRepository.findAll().forEach(coll::add);
