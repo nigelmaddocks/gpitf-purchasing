@@ -550,6 +550,20 @@ public class OnboardingService {
 		return capabilitiesImplementedCache.getSolutions().get(id);
 	}
 	
+	/**
+	 * WARNING: Non-api method that returns foundation solutions
+	 */
+	public List<SolutionEx2> getFoundationSolutions() {
+		List <SolutionEx2> foundationSolutions = new ArrayList<>() ;
+		for (var solution : capabilitiesImplementedCache.getSolutions().values()) {
+			if (solution.isFoundation()) {
+				foundationSolutions.add(solution);
+			}
+		}
+		foundationSolutions.sort((object1, object2) -> (object1.getName()).compareToIgnoreCase(object2.getName()));
+
+		return foundationSolutions;
+	}
 	// -------------------------------------------------------------------------------------------------------
 	
 	public List<Standards> findStandardsByCapability(String capability, Boolean isOptional) {		

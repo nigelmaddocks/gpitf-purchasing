@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import io.swagger.client.model.Solutions;
+import uk.nhs.gpitf.purchasing.cache.CapabilitiesImplementedCache;
 import uk.nhs.gpitf.purchasing.entities.OrgType;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
@@ -219,7 +220,9 @@ public class SolutionByCapabilityController {
 				}
 			}
 		}
-
+		
+		// Setup the foundation systems (for use on additional interoperability filters)
+		myModel.setFoundationSolutions(onboardingService.getFoundationSolutions());
 		
 		model.addAttribute("myModel", myModel);
 		

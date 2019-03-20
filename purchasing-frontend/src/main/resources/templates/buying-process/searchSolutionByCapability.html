@@ -23,7 +23,7 @@
 		        </div>
 		    </div>
 			<div class="row">
-		        <div id="selectedPractices" class="col-md-12 capability-section-header-sub-text">Add sites to reveal baseline pricing and Interoperability percentage in search results
+		        <div id="selectedPractices" class="col-md-12 capability-section-header-sub-text">Add Service Recipients to reveal baseline pricing and Interoperability percentage in search results
 	        	</div>
 	        </div>
 		</div>
@@ -50,7 +50,7 @@
 	        	<h2>My Sites
 	        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
 	        	</h2>
-	        	<h4>Select sites to add them to your Procurement basket.</h4>
+	        	<h4>Select Service Recipients to add them to your Procurement basket.</h4>
 	        </div>
 		
 			<div class="panel-group" id="accordion">
@@ -81,7 +81,7 @@
     
         <div class="row">
         	<div class="col-md-10">
-        		<h2>Capability Search
+        		<h2><span id="capabilitySearchTitle">Capability Search</span>
         		<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
         		</h2>
         	</div>
@@ -104,13 +104,21 @@
                 </div>
             	<div class="row">
 	                <div class="col-md-4">
-	                	<input type="checkbox" id="togFoundation" name="togFoundation" th:checked="${myModel.foundation}" data-toggle="toggle" data-on="Foundation" data-off="Non-Foundation" data-onstyle="success" data-offstyle="info" data-width="150" /> <br />  <br /> 
+	                	<input type="checkbox" id="togFoundation" disabled="true" name="togFoundation" th:checked="${myModel.foundation}" data-toggle="toggle" data-on="Foundation" data-off="Non-Foundation" data-onstyle="success" data-offstyle="info" data-width="150" /> <br />  <br /> 
 			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : ''}" >		                
 		               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
 		               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
 		               		/>
 							<label class="col-md-11" th:text="${cap.name}" th:for="${'filterCapabilities_' + cap.id}" >Capability 1</label>		                
 			            </div>
+			            <div class="capabilitysearch-interoperable">&nbsp;</div>
+			            <div class="capabilitysearch-interoperable"><h4>Interoperable with</h4></div>
+			            <div th:each="fs : ${myModel.foundationSolutions}" class="capabilitysearch-interoperable">		                
+		               		<input class="col-md-1" type="checkbox" name="filterInteroperable" th:value="${fs.id}" th:id="${'filterInteroperable_' + fs.id}" 
+		               		/>
+							<label class="col-md-11" th:text="${fs.name}" th:for="${'filterInteroperable_' + fs.id}" >a foundation solution</label>		                
+			            </div>
+			            
 	                </div>
 	                <div class="col-md-8" style="border:solid 0px" id="foundSolutions">
 	                </div>
@@ -168,6 +176,20 @@ $('#togFoundation').change(function() {
 				$(this).show();
 			}
 		});
+
+		$(".capabilitysearch-interoperable").each( function() {
+			if (vFoundation) {
+				$(this).hide();
+			} else {
+				$(this).show();
+			}
+		});
+
+		if (vFoundation) {
+	    	document.getElementById("capabilitySearchTitle").innerHTML = "Foundation Solutions Search";
+		} else {
+	    	document.getElementById("capabilitySearchTitle").innerHTML = "Non-Foundation Solutions Capability Search";
+		}
 	}
 
     function refreshCapabilityNames() {

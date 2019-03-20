@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.Setter;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 import lombok.AccessLevel;
 
 @Data
@@ -42,6 +43,7 @@ public class SearchSolutionByCapabilityModel {
 	
 	private List<Organisation> myCCGs;
 	private String myCsvCCGIDs;
+	private List<SolutionEx2> foundationSolutions;
 	
 	private String csvPractices;
 	private long patientCount;
