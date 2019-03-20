@@ -278,8 +278,8 @@ public class ShortlistController {
 				bindingResult.addError(new ObjectError("directAward", "Please select the contract length"));
 			}
 			
-			if (!bindingResult.hasErrors() && shortlistModel.directAwardSolutionId != null && shortlistModel.directAwardSolutionId.trim().length() > 0) {
-				if (shortlistModel.getPrice(shortlistModel.directAwardSolutionId).compareTo(new BigDecimal(Integer.valueOf(DIRECTAWARD_MAXVALUE))) > 0) {
+			if (!bindingResult.hasErrors() && shortlistModel.directAwardBundleId != null && shortlistModel.directAwardBundleId.trim().length() > 0) {
+				if (shortlistModel.getPriceForBundle(Long.valueOf(shortlistModel.directAwardBundleId)).compareTo(new BigDecimal(Integer.valueOf(DIRECTAWARD_MAXVALUE))) > 0) {
 					bindingResult.addError(new ObjectError("directAward", "Cannot directly award if the value is £" + DIRECTAWARD_MAXVALUE + " or greater"));
 				}
 			}
@@ -326,7 +326,7 @@ public class ShortlistController {
 			shortlistModel.setRemoveSolutionId("");
 			shortlistModel.setRemovalReasonId(null);
 			shortlistModel.setRemovalReasonText("");
-			shortlistModel.setDirectAwardSolutionId("");
+			shortlistModel.setDirectAwardBundleId(null);
 		}		
 
 		setupModelCollections(shortlistModel, procurement); // again
@@ -358,6 +358,8 @@ public class ShortlistController {
 	
 	private void setupModelCollections(ShortlistModel shortlistModel, Procurement procurement) {		
 //		String[] arrSolutionIds = procurement.getCsvShortlistSolutions().split(",");
+		
+/*		
 		shortlistModel.getSolutions().clear();
 		for (ProcShortlist shortlistItem : procurement.getShortlistItems()) {
 			String solutionId = shortlistItem.getSolutionId();
@@ -365,6 +367,10 @@ public class ShortlistController {
 				shortlistModel.getSolutions().add(onboardingService.getSolutionEx2ById(solutionId));
 			}
 		}
+*/		
+		shortlistModel.getBundles().clear();
+		List<ProcSolutionBundle> bundles = procurement.getBundles();
+		shortlistModel.getBundles().addAll(bundles);
 		
 		shortlistModel.setRemovalReasons(procShortlistRemovalReasonService.getAll());
 	}

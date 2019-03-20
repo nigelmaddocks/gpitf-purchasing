@@ -2,6 +2,7 @@ package uk.nhs.gpitf.purchasing.entities;
 
 import lombok.Data;
 import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -50,4 +51,41 @@ public class ProcSolutionBundle {
     	this.bundleItems.add(item);
     }    
     
+	public String getName() {
+		String name = "";
+		for (var item : bundleItems) {
+			if (item.getSolution() != null) {
+				name += " + " + item.getSolution().getName();
+			} else
+			if (GUtils.nullToString(item.getAdditionalService()).length() > 0) {
+				name += " + " + item.getAdditionalService();
+			}
+		}
+		if (name.length() > 3) {
+			name = name.substring(3);
+		}
+		
+		return name;
+	}
+	
+	public BigDecimal getPrice() {
+		BigDecimal price = new BigDecimal(0.0d);
+		for (var item : bundleItems) {
+			if (item.getSolution() != null) {
+				price = price.add(item.getSolution().getPrice());
+			}
+		}			
+		
+		return price;
+	}
+	
+	public boolean isFoundation() {
+		for (var item : bundleItems) {
+			if (item.getSolution() != null && item.getSolution().isFoundation()) {
+				return true;
+			}
+		}			
+		
+		return false;
+	}
 }
