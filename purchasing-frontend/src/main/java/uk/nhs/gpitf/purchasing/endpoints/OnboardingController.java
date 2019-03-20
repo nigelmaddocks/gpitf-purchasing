@@ -98,7 +98,7 @@ public class OnboardingController {
     @GetMapping(value = {
     		ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST, 
     		ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST + "{optCsvCapabilities}"})
-    public List<OnboardingService.RankedSolution> getSolutionsByRankHavingCapabilitiesInList(
+    public List<OnboardingService.RankedBundle> getSolutionsByRankHavingCapabilitiesInList(
     		@PathVariable("optCsvCapabilities") Optional<String> optCsvCapabilities,
     		@RequestParam(value = "foundation", defaultValue = "") String sFoundationFromQuerystring
     		) {
@@ -107,7 +107,7 @@ public class OnboardingController {
     	if (optCsvCapabilities.isPresent()) {
     		csvCapabilities = optCsvCapabilities.get();
     	}
-    	List<OnboardingService.RankedSolution> list = onboardingService.findRankedSolutionsHavingCapabilitiesInList(csvCapabilities, foundation);
+    	List<OnboardingService.RankedBundle> list = onboardingService.findRankedSolutionsHavingCapabilitiesInList(csvCapabilities, foundation);
     	return list;
     }
 

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -26,19 +27,22 @@ import uk.nhs.gpitf.purchasing.entities.OrgType;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlist;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
+import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
+import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundleItem;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.entities.RelationshipType;
-import uk.nhs.gpitf.purchasing.models.OrgContactModel;
 import uk.nhs.gpitf.purchasing.models.ShortlistModel;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcShortlistRepository;
+import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleItemRepository;
+import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
 import uk.nhs.gpitf.purchasing.services.ProcShortlistRemovalReasonService;
-import uk.nhs.gpitf.purchasing.services.OnboardingService.RankedSolution;
+import uk.nhs.gpitf.purchasing.services.OnboardingService.RankedBundle;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
@@ -65,6 +69,12 @@ public class ShortlistController {
 	ProcShortlistRepository procShortlistRepository;
     
 	@Autowired
+	ProcSolutionBundleRepository procSolutionBundleRepository;
+    
+	@Autowired
+	ProcSolutionBundleItemRepository procSolutionBundleItemRepository;
+    
+	@Autowired
 	ProcShortlistRemovalReasonService procShortlistRemovalReasonService;
 	
 	@Value("${sysparam.shortlist.max}")
@@ -76,6 +86,7 @@ public class ShortlistController {
     private static final Logger logger = LoggerFactory.getLogger(ShortlistController.class);
 
 	@GetMapping(value = {"/buyingprocess/directShortlistInitialise/{procurementId}"})
+	@Transactional
 	public String directShortlistInitialise(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.removeTitle("By capability", request);
 		Breadcrumbs.removeTitle("By keyword", request);
@@ -118,9 +129,9 @@ public class ShortlistController {
 		}
 
 		// Perform a capability search and verify that the number of results is still below the threshold
-		List<RankedSolution> rankedSolutions = onboardingService.findRankedSolutionsHavingCapabilitiesInList(procurement.getCsvCapabilities(), procurement.getFoundation().booleanValue());
-		if (rankedSolutions.size() > Integer.valueOf(SHORTLIST_MAX)) {
-        	String message = "Shortlist size for procurement " + procurementId + " is " + rankedSolutions.size() +
+		List<RankedBundle> rankedBundles = onboardingService.findRankedSolutionsHavingCapabilitiesInList(procurement.getCsvCapabilities(), procurement.getFoundation().booleanValue());
+		if (rankedBundles.size() > Integer.valueOf(SHORTLIST_MAX)) {
+        	String message = "Shortlist size for procurement " + procurementId + " is " + rankedBundles.size() +
         			" but the maximum allowed size is " + SHORTLIST_MAX + " in order to proceed to shortlisting. " +
         			"Please re-visit your procurement to reduce the solution results or go through the long-listing process.";
     		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
@@ -131,8 +142,15 @@ public class ShortlistController {
 		// Save the shortlisted solution ids and calculated patient count to the the procurement
 		// and set its status to Shortlist
 		String csvSolutionIds = "";
-		for (var rankedSolution : rankedSolutions) {
-			csvSolutionIds += "," + rankedSolution.solution.getId();
+		for (var rankedBundle : rankedBundles) {
+			//csvSolutionIds += "," + rankedSolution.solution.getId();
+			
+			// .. Short-term fix on the Drop 1 assumption that there is one solution in each bundle. Need to re-write this section to take account of bundle items correctly.
+			for (var item : rankedBundle.bundle.getBundleItems()) {
+				if (GUtils.nullToString(item.getSolutionId()).length() > 0) {
+					csvSolutionIds += "," + item.getSolutionId();
+				}
+			}
 		}
 		if (csvSolutionIds.length() > 0) {
 			csvSolutionIds = csvSolutionIds.substring(1);
@@ -178,6 +196,21 @@ public class ShortlistController {
 					shortlistItem.setProcurement(procurement);
 					shortlistItem.setSolutionId(solutionId);
 					procShortlistRepository.save(shortlistItem);
+				}
+			}
+			
+			// Create the bundle and bundle items
+			for (var rankedBundle : rankedBundles) {
+				rankedBundle.bundle.setProcurement(procurement);
+				
+				ProcSolutionBundleItem[] arrBundleItems = rankedBundle.bundle.getBundleItems().toArray(new ProcSolutionBundleItem[] {});
+				rankedBundle.bundle.getBundleItems().clear();
+				
+				ProcSolutionBundle savedBundle = procSolutionBundleRepository.save(rankedBundle.bundle);
+				
+				for (var bundleItem : arrBundleItems) {
+					bundleItem.setBundle(savedBundle);
+					procSolutionBundleItemRepository.save(bundleItem);
 				}
 			}
 		} catch (Exception e) {

@@ -308,36 +308,41 @@ $('#togFoundation').change(function() {
 			htmlTable.appendTo("#foundSolutions");
 */
 			var solutionsCount = 0
-			$.each( data, function( i, item ) {
+			$.each ( data, function( i, element ) {
 				solutionsCount++;
 				
 				var htmlSolnListEntry = $("<div class=\"panel panel-default solution-list-entry\" style=\"width:95%;\">");
+				
 				var htmlDivCheck = $("<div>");
 				htmlDivCheck.appendTo(htmlSolnListEntry);
-				var htmlCheck = $("<input type=\"checkbox\" name=\"selectedSolution\" value=\"" + item.solution.id + "\" >");
+				var htmlCheck = $("<input type=\"checkbox\" name=\"selectedSolution\" value=\"" + element.id + "\" >");
 				htmlCheck.appendTo(htmlDivCheck);
 				
 				var htmlDivSoln = $("<div class=\"solution-content\">");
 				htmlDivSoln.appendTo(htmlSolnListEntry);
-				var htmlSolnName = $("<h3>" + item.solution.name + "</h3>");
+				var htmlSolnName = $("<h3>" + element.name + "</h3>");
 				htmlSolnName.appendTo(htmlDivSoln);
 				
-				var solutionPrice = "" + item.solution.price + "/patient";
+				var solutionPrice = "" + element.price + "/patient";
 				if (selectedPracticePatients > 0) {
-					solutionPrice = "" + (item.solution.price * selectedPracticePatients).toFixed(2);
+					solutionPrice = "" + (element.price * selectedPracticePatients).toFixed(2);
 				}
-				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (item.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£" + solutionPrice + "</div>");
+				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (element.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£" + solutionPrice + "</div>");
 				htmlSolnPrice.appendTo(htmlDivSoln);
-				var htmlSolnDesc = $("<h4>" + item.solution.description + "</h4>");
-				htmlSolnDesc.appendTo(htmlDivSoln);
-				var htmlSolnCapabilitiesArticle = $("<article>");
-				htmlSolnCapabilitiesArticle.appendTo(htmlDivSoln);
-				var htmlSolnCapabilitiesTitle = $("<h5>Capabilities:</h5>");
-				htmlSolnCapabilitiesTitle.appendTo(htmlSolnCapabilitiesArticle);
 				
-				$.each( item.capabilities, function( i2, capability ) {
-					var htmlSolnCapabilitiesItem = $("<h5>" + capability.name + "</h5>");
-					htmlSolnCapabilitiesItem.appendTo(htmlSolnCapabilitiesArticle);					
+				$.each ( element.bundle.bundleItems, function( i2, bundleItem ) {
+					var htmlSolnDesc = $("<h4>" + bundleItem.solution.description + "</h4>");
+					htmlSolnDesc.appendTo(htmlDivSoln);
+					var htmlSolnCapabilitiesArticle = $("<article>");
+					htmlSolnCapabilitiesArticle.appendTo(htmlDivSoln);
+					var htmlSolnCapabilitiesTitle = $("<h5>Capabilities:</h5>");
+					htmlSolnCapabilitiesTitle.appendTo(htmlSolnCapabilitiesArticle);
+					
+					$.each( bundleItem.capabilities, function( i2, capability ) {
+						var htmlSolnCapabilitiesItem = $("<h5>" + capability.name + "</h5>");
+						htmlSolnCapabilitiesItem.appendTo(htmlSolnCapabilitiesArticle);					
+					});
+				
 				});
 				
 				htmlSolnListEntry.appendTo("#foundSolutions");
