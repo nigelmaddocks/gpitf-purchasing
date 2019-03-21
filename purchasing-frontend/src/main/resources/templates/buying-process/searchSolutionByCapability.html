@@ -199,14 +199,24 @@ $('#togFoundation').change(function() {
 
     function refreshCapabilityNames() {
 		var selectedCapabilityNames = "";
+		var selectedInteroperablesNames = "";
+
 		$("input[name=filterCapabilities]:checked").each( function () {
 			selectedCapabilityNames += ", " + $(this).siblings().first().text().trim();
 		});
 		if (selectedCapabilityNames.length > 0) {
 			selectedCapabilityNames = selectedCapabilityNames.substring(2);
 		}
+
+		$("input[name=filterInteroperable]:checked").each( function () {
+			selectedInteroperablesNames += ", " + $(this).siblings().first().text().trim();
+		});
+		if (selectedInteroperablesNames.length > 0) {
+			selectedInteroperablesNames = " Interoperable with " + selectedInteroperablesNames.substring(2);
+		}
+		
 		if ($("#selectedCapabilityNames") != null) {
-			$("#selectedCapabilityNames").text(selectedCapabilityNames);
+			$("#selectedCapabilityNames").text(selectedCapabilityNames + selectedInteroperablesNames);
 		}
     	
     }
