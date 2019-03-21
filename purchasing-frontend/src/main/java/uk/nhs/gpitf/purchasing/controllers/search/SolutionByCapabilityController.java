@@ -135,7 +135,7 @@ public class SolutionByCapabilityController {
 			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 					}
 					try {
-						procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities), Optional.of(foundation), Optional.empty());
+						procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities), Optional.empty(), Optional.of(foundation), Optional.empty());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -168,6 +168,7 @@ public class SolutionByCapabilityController {
 			myModel.setCsvPractices(",");
 		}
 		myModel.setCsvCapabilities(csvCapabilities);
+		myModel.setCsvInteroperables(procurement.getCsvInteroperables());
 		myModel.setAllCapabilities(onboardingService.orderByCoreThenName(onboardingService.findCapabilitiesFromCache()));
 		
 		// Set up the user's CCGs

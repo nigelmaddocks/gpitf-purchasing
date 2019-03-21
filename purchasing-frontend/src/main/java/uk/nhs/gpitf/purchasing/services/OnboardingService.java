@@ -243,7 +243,7 @@ public class OnboardingService {
 	/**
 	 * WARNING: Non-api method that works over cached solutions and capabilities
 	 */
-	public List<RankedBundle> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList, boolean foundation) {
+	public List<RankedBundle> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList, String csvInteroperables, boolean foundation) {
 		int RANK_LIMIT = 99;
 		String[] arrCapabilityIds = new String[] {};
 		if (csvCapabilityList != null && csvCapabilityList.trim().length() > 0) {
@@ -261,6 +261,21 @@ public class OnboardingService {
 		}
 		arrCapabilityIds = lstCapabilityIds.toArray(new String[] {});
 		
+		String[] arrInteroperableIds = new String[] {};
+		if (csvInteroperables != null && csvInteroperables.trim().length() > 0) {
+			arrInteroperableIds = csvInteroperables.split(",");
+		}
+		
+		// Clean the array 
+		List<String> lstInteroperableIds = new ArrayList<>();
+		for (String interoperableId : arrInteroperableIds) {
+			if (interoperableId != null && interoperableId.trim().length() > 0) {
+				lstInteroperableIds.add(interoperableId.trim());
+			}
+		}
+		arrInteroperableIds = lstInteroperableIds.toArray(new String[] {});
+
+		
 		HashSet<String> hshSolutionIds = new HashSet<>();
 		for (String capabilityId : arrCapabilityIds) {
 			capabilityId = capabilityId.trim();
@@ -270,7 +285,23 @@ public class OnboardingService {
 					//hshSolutionIds.addAll(Arrays.asList(arrSolutionIds));
 					for (var solutionId : arrSolutionIds) {
 						if (!foundation || !capabilitiesImplementedCache.getSolutions().get(solutionId).isFoundation()) {
-							hshSolutionIds.add(solutionId);
+							// If interoperability with particular foundation systems has been requested, then ensure that non-foundation systems are compatible with such
+							boolean bMeetsInteroperability = true;
+							if (arrInteroperableIds == null || arrInteroperableIds.length == 0) {
+								bMeetsInteroperability = true;
+							} else {
+								for (String sInteroperabilityWithThisRequested : arrInteroperableIds) {
+									SolutionEx2 solution = capabilitiesImplementedCache.getSolutions().get(solutionId);
+									if (!solution.isFoundation() 
+									 && !List.of(solution.getInteroperableFoundationSolutions()).contains(sInteroperabilityWithThisRequested)) {
+										bMeetsInteroperability = false;
+										break;
+									}
+								}
+							}
+							if (bMeetsInteroperability) {
+								hshSolutionIds.add(solutionId);
+							}
 						}
 					}
 				}
@@ -365,33 +396,37 @@ public class OnboardingService {
 				arlReturnedBundles.remove(rs);
 			}
 			
-			// Test - add some combined foundation bundles with DocMan
+			// Test - add some combined foundation bundles with DocMan (if DocMan is interoperable with it)
 			ADD_DOCMAN_TO_BUNDLES = Boolean.valueOf(ADD_DOCMAN_TO_BUNDLES_STRING);
 
 			List <RankedBundle> foundationCombinedBundles = new ArrayList<>();
 			if (ADD_DOCMAN_TO_BUNDLES && foundation) {
+				String sDocManId = "C8D558DA-8EC9-4E36-881A-344F0F852284";
+				
 				for (RankedBundle rb : foundationSolutions) {
-					RankedBundle foundationCombinedBundel = new RankedBundle();
-					foundationCombinedBundel.bundle = new ProcSolutionBundle();
-					for (var bundleItem : rb.bundle.getBundleItems()) {
-						ProcSolutionBundleItem newBundleItem = new ProcSolutionBundleItem();
-						newBundleItem.setAdditionalService(bundleItem.getAdditionalService());
-						newBundleItem.setBundle(bundleItem.getBundle());
-						newBundleItem.setCapabilities(bundleItem.getCapabilities());
-						newBundleItem.setSolution(bundleItem.getSolution());
-						newBundleItem.setSolutionId(bundleItem.getSolutionId());
-						foundationCombinedBundel.bundle.getBundleItems().add(newBundleItem);
+					SolutionEx2 dmSolution = capabilitiesImplementedCache.getSolutions().get(sDocManId);
+					if (List.of(dmSolution.interoperableFoundationSolutions).contains(rb.bundle.getBundleItems().get(0).getSolution().getId())) {
+						RankedBundle foundationCombinedBundel = new RankedBundle();
+						foundationCombinedBundel.bundle = new ProcSolutionBundle();
+						for (var bundleItem : rb.bundle.getBundleItems()) {
+							ProcSolutionBundleItem newBundleItem = new ProcSolutionBundleItem();
+							newBundleItem.setAdditionalService(bundleItem.getAdditionalService());
+							newBundleItem.setBundle(bundleItem.getBundle());
+							newBundleItem.setCapabilities(bundleItem.getCapabilities());
+							newBundleItem.setSolution(bundleItem.getSolution());
+							newBundleItem.setSolutionId(bundleItem.getSolutionId());
+							foundationCombinedBundel.bundle.getBundleItems().add(newBundleItem);
+						}
+						foundationCombinedBundel.rank = rb.rank+1;
+						
+						ProcSolutionBundleItem dmBundleItem = new ProcSolutionBundleItem();
+						dmBundleItem.setBundle(foundationCombinedBundel.bundle);
+						dmBundleItem.setSolution(dmSolution);
+						dmBundleItem.setSolutionId(dmSolution.getId());
+						foundationCombinedBundel.bundle.getBundleItems().add(dmBundleItem);
+						
+						foundationCombinedBundles.add(foundationCombinedBundel);
 					}
-					foundationCombinedBundel.rank = rb.rank+1;
-					
-					ProcSolutionBundleItem dmBundleItem = new ProcSolutionBundleItem();
-					SolutionEx2 dmSolution = capabilitiesImplementedCache.getSolutions().get("C8D558DA-8EC9-4E36-881A-344F0F852284");
-					dmBundleItem.setBundle(foundationCombinedBundel.bundle);
-					dmBundleItem.setSolution(dmSolution);
-					dmBundleItem.setSolutionId(dmSolution.getId());
-					foundationCombinedBundel.bundle.getBundleItems().add(dmBundleItem);
-					
-					foundationCombinedBundles.add(foundationCombinedBundel);
 				}
 				
 			}

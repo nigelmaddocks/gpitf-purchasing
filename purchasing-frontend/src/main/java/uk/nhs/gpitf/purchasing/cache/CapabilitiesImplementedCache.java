@@ -272,6 +272,23 @@ public class CapabilitiesImplementedCache {
 			}
 		}
 		
+		// TODO: Do this via data
+		// Setup foundation solution IDs that a non-foundation solution is interoperable with 
+		// (based on simple name comparison)
+		for (var solution1 : newSolutions.values()) {
+			if (!solution1.isFoundation()) {
+				ArrayList<String> interoperableFoundations = new ArrayList<>();
+				for (var solution2 : newSolutions.values()) {
+					if (solution2.isFoundation()) {
+						if (solution1.getName().compareTo(solution2.getName()) < 0) {
+							interoperableFoundations.add(solution2.getId());
+						}
+					}
+				}
+				solution1.setInteroperableFoundationSolutions(interoperableFoundations.toArray(new String[] {}));
+			}
+		}
+		
 		this.capabilityIdSolutionIds = newCapabilityIdSolutionIds;
 		this.solutionIdCapabilityIds = newSolutionIdCapabilityIds;
 		this.capabilities = newCapabilities;
@@ -280,6 +297,7 @@ public class CapabilitiesImplementedCache {
 		this.foundationCapabilityIds = newFoundationCapabilityIds;
 		this.standards = newStandards;
 		this.solutionStandardsApplicable = newSolutionStandardsApplicable;
+		
 		System.out.println("*** CapabilitiesImplemented loaded into Cache ***");
  
 		if (WRITE_ONBOARDINGCACHE) {

@@ -5,6 +5,8 @@ import java.math.RoundingMode;
 
 import org.springframework.beans.BeanUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.swagger.client.model.Solutions;
 import lombok.Data;
 
@@ -24,4 +26,7 @@ public class SolutionEx2 extends Solutions {
 		this(solutions);
 		this.foundation = foundation;
 	}
+	
+	@JsonIgnore
+	public String[] interoperableFoundationSolutions = new String[] {};
 }

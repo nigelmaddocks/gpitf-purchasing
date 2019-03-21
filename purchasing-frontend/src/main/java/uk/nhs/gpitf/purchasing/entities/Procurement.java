@@ -61,6 +61,8 @@ public class Procurement {
 	
 	private String csvCapabilities;
 	
+	private String csvInteroperables;
+	
 	private String csvPractices;
     
     @OneToMany(

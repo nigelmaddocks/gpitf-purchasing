@@ -129,7 +129,7 @@ public class ShortlistController {
 		}
 
 		// Perform a capability search and verify that the number of results is still below the threshold
-		List<RankedBundle> rankedBundles = onboardingService.findRankedSolutionsHavingCapabilitiesInList(procurement.getCsvCapabilities(), procurement.getFoundation().booleanValue());
+		List<RankedBundle> rankedBundles = onboardingService.findRankedSolutionsHavingCapabilitiesInList(procurement.getCsvCapabilities(), procurement.getCsvInteroperables(), procurement.getFoundation().booleanValue());
 		if (rankedBundles.size() > Integer.valueOf(SHORTLIST_MAX)) {
         	String message = "Shortlist size for procurement " + procurementId + " is " + rankedBundles.size() +
         			" but the maximum allowed size is " + SHORTLIST_MAX + " in order to proceed to shortlisting. " +
