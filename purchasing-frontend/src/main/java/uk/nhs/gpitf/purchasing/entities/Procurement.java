@@ -61,6 +61,8 @@ public class Procurement {
 	
 	private String csvCapabilities;
 	
+	private String csvInteroperables;
+	
 	private String csvPractices;
     
     @OneToMany(
@@ -71,6 +73,13 @@ public class Procurement {
     @JoinTable(name = "proc_shortlist", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
     @JsonIgnore
     private List<ProcShortlist> shortlistItems = new ArrayList<>();
+    
+    @OneToMany(
+    	fetch = FetchType.LAZY
+    )
+    @JoinTable(name = "proc_solution_bundle", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
+    @JsonIgnore
+    private List<ProcSolutionBundle> bundles = new ArrayList<>();
 	
 	private Integer initialPatientCount;
 	

@@ -25,14 +25,12 @@ public class ProcurementService implements IProcurementService {
     @Autowired
     private ProcurementRepository thisRepository;
 
-    @Override
     public List<Procurement> getAll() {
         List<Procurement> coll = new ArrayList<>();
         thisRepository.findAll().forEach(coll::add);
         return coll;
     }
 
-    @Override
     public List<Procurement> getAllByOrgContactAndStatusOrderByLastUpdatedDesc(long iOrgContact, long iStatus) {
         OrgContact orgContact = new OrgContact();
         orgContact.setId(iOrgContact);
@@ -44,28 +42,25 @@ public class ProcurementService implements IProcurementService {
         return coll;
     }
 
-    @Override
     public List<Procurement> getAllByOrgContactAndStatusOrderByLastUpdatedDesc(OrgContact orgContact, ProcStatus status) {
         List<Procurement> coll = new ArrayList<>();
         thisRepository.findAllByOrgContactAndStatusOrderByLastUpdatedDesc(orgContact, status).forEach(coll::add);
         return coll;
     }
 
-    @Override
     public List<Procurement> getUncompletedByOrgContactOrderByLastUpdated(long iOrgContact) {
         OrgContact orgContact = new OrgContact();
         orgContact.setId(iOrgContact);
         return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
-    @Override
     public List<Procurement> getUncompletedByOrgContactOrderByLastUpdated(OrgContact orgContact) {
        return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
     @Override
-    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, 
-    		Optional<String> csvCapabilities, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
+    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword,
+    		Optional<String> csvCapabilities, Optional<String> csvInteroperables, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
     	Procurement procurement = null;
     	if (procurementId == 0) {
     		procurement = createNewProcurement(orgContactId);
@@ -75,14 +70,17 @@ public class ProcurementService implements IProcurementService {
 
 
     	if (searchKeyword.isPresent()) {
-        procurement.setSearchKeyword(searchKeyword.get());
-      }
+    		procurement.setSearchKeyword(searchKeyword.get());
+    	}
     	if (csvCapabilities.isPresent()) {
-        procurement.setCsvCapabilities(csvCapabilities.get());
-      }
+    		procurement.setCsvCapabilities(csvCapabilities.get());
+    	}
+    	if (csvInteroperables.isPresent()) {
+    		procurement.setCsvInteroperables(csvInteroperables.get());
+    	}
     	if (foundation.isPresent()) {
-        procurement.setFoundation(foundation.get());
-      }
+    		procurement.setFoundation(foundation.get());
+    	}
     	if (csvPractices.isPresent()) {
     		String sCsvPractices = csvPractices.get();
     		if (sCsvPractices.startsWith(",")) {
@@ -99,7 +97,6 @@ public class ProcurementService implements IProcurementService {
     	return procurement;
     }
 
-    @Override
     public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
@@ -110,7 +107,6 @@ public class ProcurementService implements IProcurementService {
                            });
     }
 
-    @Override
     public Procurement save(Procurement procurement) {
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.

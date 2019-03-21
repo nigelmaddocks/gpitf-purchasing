@@ -13,7 +13,7 @@
         <form class="form-horizontal" th:object="${shortlistModel}" th:action="@{/buyingprocess/shortlist}" method="post">
             <input type="hidden" th:field="*{procurementId}" />
             <input type="hidden" th:field="*{numberOfPractices}" />
-            <input type="hidden" th:field="*{directAwardSolutionId}" />
+            <input type="hidden" th:field="*{directAwardBundleId}" />
 
 			<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
 			    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.fieldName + ': ' + err.message}"></p>    
@@ -26,20 +26,20 @@
 					<table class="table">
 						<thead>
 							<tr style="font-weight: 600;">
-								<td>Solution</td>
+								<td>Solution / Bundle</td>
 								<td>Foundation</td>
 								<td style="text-align: right; padding-right: 20px;">Price</td>
 								<td>Action</td>
 							</tr>
 						</thead>
 						<tbody>
-							<tr th:each="solution : ${shortlistModel.solutions}">
-								<td th:text="${solution.getName()}"></td>
-								<td th:text="${solution.foundation?'Yes':''}"></td>
-								<td th:text="${'£ ' + shortlistModel.getPrice(solution.id)}" style="text-align: right; padding-right: 20px;"></td>
-								<td><button th:if="${shortlistModel.canDirectAward(solution.id)}" th:id="${'btnDirectAward-'+solution.getId()}" id="btnDirectAward-" class="btn btn-default" style="display:noneX;" type="button" th:data1="${solution.getId()}" onclick="directAward(this.getAttribute('data1'));">Direct award</button>
-								<td><button th:id="${'btnRemove-'+solution.getId()}" id="btnRemove-" class="btn shortlist-remove" type="button" data-toggle="modal" 
-									data-target="#removeSolutionPanel" th:data-solution-name="${solution.getName()}" th:data-solution-id="${solution.getId()}" >Remove</button>
+							<tr th:each="bundle : ${shortlistModel.bundles}">
+								<td th:text="${bundle.getName()}"></td>
+								<td th:text="${bundle.isFoundation()?'Yes':''}"></td>
+								<td th:text="${'£ ' + shortlistModel.getPriceForBundle(bundle.id)}" style="text-align: right; padding-right: 20px;"></td>
+								<td><button th:if="${shortlistModel.canDirectAward(bundle.id)}" th:id="${'btnDirectAward-'+bundle.getId()}" id="btnDirectAward-" class="btn btn-default" style="display:noneX;" type="button" th:data1="${bundle.getId()}" onclick="directAward(this.getAttribute('data1'));">Direct award</button>
+								<td><button th:id="${'btnRemove-'+bundle.getId()}" id="btnRemove-" class="btn shortlist-remove" type="button" data-toggle="modal" 
+									data-target="#removeSolutionPanel" th:data-solution-name="${bundle.getName()}" th:data-solution-id="${bundle.getId()}" >Remove</button>
 								</td>
 							</tr>
 						</tbody>
@@ -146,18 +146,25 @@ function removalReasonTextDisplay() {
 	}
 }
 
-function directAward(solutionId) {
-	$("#directAwardSolutionId").val(solutionId);
+function directAward(bundleId) {
+	alert('Direct Award is not yet functional');
+/*	
+	$("#directAwardBundleId").val(bundleId);
 	document.forms[0].submit();
+*/	
 }
 
 $('#removeSolutionPanel').on('show.bs.modal', function (event) {
+	alert('Remove Solution/Bundle is not yet functional');
+	return false;
+/*
 	var button = $(event.relatedTarget) // Button that triggered the modal
 	var solutionName = button.data('solution-name') // Extract info from data-* attributes
 	var solutionId = button.data('solution-id') // Extract info from data-* attributes
 	var modal = $(this)
 	modal.find('.modal-title').text('Remove solution "' + solutionName + '"');
 	modal.find('#removeSolutionId').val(solutionId);
+*/	
 });
 
 $('#removeSolutionPanel').on('hide.bs.modal', function (event) {

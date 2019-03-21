@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.Setter;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 import lombok.AccessLevel;
 
 @Data
@@ -40,8 +41,25 @@ public class SearchSolutionByCapabilityModel {
 		return Arrays.stream(arrInitialCapabilities).anyMatch(capabilityId::equals);
 	}
 	
+	private String csvInteroperables;
+	private String[] arrInitialInteroperables = new String[] {};
+	
+	public void setCsvInteroperables(String csvInteroperables) {
+		this.csvInteroperables = csvInteroperables;
+		if (csvInteroperables != null) {
+			arrInitialInteroperables = csvInteroperables.split(",");
+		} else {
+			arrInitialInteroperables = new String[] {};
+		}
+	}
+	
+	public boolean inInitialInteroperables(String foundationSystemId) {
+		return Arrays.stream(arrInitialInteroperables).anyMatch(foundationSystemId::equals);
+	}
+	
 	private List<Organisation> myCCGs;
 	private String myCsvCCGIDs;
+	private List<SolutionEx2> foundationSolutions;
 	
 	private String csvPractices;
 	private long patientCount;

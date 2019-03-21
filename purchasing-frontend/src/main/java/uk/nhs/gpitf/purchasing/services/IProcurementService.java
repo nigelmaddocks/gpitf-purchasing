@@ -13,7 +13,7 @@ public interface IProcurementService {
     List<Procurement> getAllByOrgContactAndStatusOrderByLastUpdatedDesc(OrgContact orgContact, ProcStatus status);
     List<Procurement> getUncompletedByOrgContactOrderByLastUpdated(long iOrgContact);
     List<Procurement> getUncompletedByOrgContactOrderByLastUpdated(OrgContact orgContact);
-    Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, Optional<String> csvCapabilities, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception;
     Procurement findById(Long procurementId) throws ProcurementNotFoundException;
+    Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, Optional<String> csvCapabilities, Optional<String> csvInteroperables, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception;
     Procurement save(Procurement procurement);
 }

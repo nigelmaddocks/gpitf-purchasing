@@ -179,7 +179,8 @@ public class CapabilitiesImplementedCache {
 				for (var key : loadedSolutionIdCapabilityIds.keySet()) {
 					newSolutionIdCapabilityIds.put(key, loadedSolutionIdCapabilityIds.get(key).toArray(new String[] {}));
 				}
-				//newCapabilities = objectMapper.readValue(new File(folderOnboardingCache, "capabilities.json"), newCapabilities.getClass());
+				newCapabilities = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/capabilities.json"), newCapabilities.getClass());
+/*				
 				ArrayList<LinkedHashMap> arlLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/capabilities.json"), new ArrayList<LinkedHashMap>().getClass());
 				for (var lhm : arlLHM) {
 					Capabilities capability = new Capabilities();
@@ -190,9 +191,13 @@ public class CapabilitiesImplementedCache {
 					}
 					newCapabilities.put(capability.getId(), capability);
 				}
+*/			
 				//newSolutions = objectMapper.readValue(new File(folderOnboardingCache, "solutions.json"), newSolutions.getClass());
-				arlLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/solutions.json"), new ArrayList<LinkedHashMap>().getClass());
-				for (var lhm : arlLHM) {
+				//ArrayList<LinkedHashMap> arlLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/solutions.json"), new ArrayList<LinkedHashMap>().getClass());
+				//for (var lhm : arlLHM) {
+				Hashtable<String, LinkedHashMap> hshLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/solutions.json"), new Hashtable<String, LinkedHashMap>().getClass());
+				for (var key2 : hshLHM.keySet()) {
+					LinkedHashMap lhm = hshLHM.get(key2);
 					SolutionEx2 solutionEx2 = new SolutionEx2();
 					Solutions solution = new Solutions();
 					for (var key : lhm.keySet()) { 
@@ -232,7 +237,7 @@ public class CapabilitiesImplementedCache {
 				}
 				newOrganisations = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/organisations.json"), newOrganisations.getClass());
 				newFoundationCapabilityIds = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/foundationCapabilityIds.json"), newFoundationCapabilityIds.getClass());
-				Hashtable<String, LinkedHashMap> hshLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/standards.json"), new Hashtable<String, LinkedHashMap>().getClass());
+				hshLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/standards.json"), new Hashtable<String, LinkedHashMap>().getClass());
 				for (var key2 : hshLHM.keySet()) {
 					Standards standard = new Standards();
 					LinkedHashMap lhm = hshLHM.get(key2);
@@ -246,7 +251,7 @@ public class CapabilitiesImplementedCache {
 				
 				Hashtable<String, ArrayList<LinkedHashMap>> hshArlLHM = objectMapper.readValue(getClass().getResourceAsStream("/onboardingCache/solutionIdStandards.json"), new Hashtable<String, ArrayList<LinkedHashMap>>().getClass());
 				for (var key2 : hshArlLHM.keySet()) {
-					arlLHM = hshArlLHM.get(key2);
+					ArrayList<LinkedHashMap> arlLHM = hshArlLHM.get(key2);
 					ArrayList<StandardsApplicable> arlStdApp = new ArrayList<>();
 					
 					for (var lhm : arlLHM) {
@@ -267,6 +272,23 @@ public class CapabilitiesImplementedCache {
 			}
 		}
 		
+		// TODO: Do this via data
+		// Setup foundation solution IDs that a non-foundation solution is interoperable with 
+		// (based on simple name comparison)
+		for (var solution1 : newSolutions.values()) {
+			if (!solution1.isFoundation()) {
+				ArrayList<String> interoperableFoundations = new ArrayList<>();
+				for (var solution2 : newSolutions.values()) {
+					if (solution2.isFoundation()) {
+						if (solution1.getName().compareTo(solution2.getName()) < 0) {
+							interoperableFoundations.add(solution2.getId());
+						}
+					}
+				}
+				solution1.setInteroperableFoundationSolutions(interoperableFoundations.toArray(new String[] {}));
+			}
+		}
+		
 		this.capabilityIdSolutionIds = newCapabilityIdSolutionIds;
 		this.solutionIdCapabilityIds = newSolutionIdCapabilityIds;
 		this.capabilities = newCapabilities;
@@ -275,8 +297,9 @@ public class CapabilitiesImplementedCache {
 		this.foundationCapabilityIds = newFoundationCapabilityIds;
 		this.standards = newStandards;
 		this.solutionStandardsApplicable = newSolutionStandardsApplicable;
+		
 		System.out.println("*** CapabilitiesImplemented loaded into Cache ***");
-
+ 
 		if (WRITE_ONBOARDINGCACHE) {
 			ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
 			try {

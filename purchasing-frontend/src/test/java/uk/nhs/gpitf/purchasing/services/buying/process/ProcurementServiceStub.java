@@ -56,12 +56,12 @@ public class ProcurementServiceStub implements IProcurementService {
     }
 
     @Override
-    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, Optional<String> csvCapabilities, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
+    public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
         return new Procurement();
     }
 
     @Override
-    public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
+    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, Optional<String> csvCapabilities, Optional<String> csvInteroperables, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
         return new Procurement();
     }
 

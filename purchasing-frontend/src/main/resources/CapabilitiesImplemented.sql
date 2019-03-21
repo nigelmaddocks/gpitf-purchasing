@@ -87,3 +87,8 @@ insert into capabilitiesimplemented (id, solutionid, capabilityid, status) value
 insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(218, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'C30', 3);
 insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(219, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'C901', 3);
 insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(220, '8CFFD174-0831-411B-9FF0-7E1AF172BC8A', 'C902', 3);
+
+-- Docman
+
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status) values(301, 'C8D558DA-8EC9-4E36-881A-344F0F852284', 'C14', 3);
+ 

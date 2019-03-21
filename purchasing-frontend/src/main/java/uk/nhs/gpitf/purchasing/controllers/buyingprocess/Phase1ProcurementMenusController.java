@@ -41,7 +41,7 @@ public class Phase1ProcurementMenusController {
 			if (iOption == 2) {
 				long procurementId = 0;
 				try {
-					Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+					Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 					procurementId = procurement.getId();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -71,7 +71,7 @@ public class Phase1ProcurementMenusController {
 			Procurement procurement = null;
 			if (optProcurementId.isEmpty()) {
 				try {
-					procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 					procurementId = procurement.getId();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -119,7 +119,7 @@ public class Phase1ProcurementMenusController {
 				long procurementId = 0;
 				if (optProcurementId.isEmpty()) {
 					try {
-						Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+						Procurement procurement = procurementService.saveCurrentPosition(0L, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 						procurementId = procurement.getId();
 					} catch (Exception e) {
 						e.printStackTrace();

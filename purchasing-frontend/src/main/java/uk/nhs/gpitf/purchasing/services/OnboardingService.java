@@ -2,6 +2,7 @@ package uk.nhs.gpitf.purchasing.services;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -27,7 +29,10 @@ import io.swagger.client.model.Solutions;
 import io.swagger.client.model.Standards;
 import io.swagger.client.model.StandardsApplicable;
 import uk.nhs.gpitf.purchasing.cache.CapabilitiesImplementedCache;
+import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
+import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundleItem;
 import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 
 @Service
 public class OnboardingService {
@@ -54,6 +59,10 @@ public class OnboardingService {
 	
 	@Autowired
 	CapabilitiesImplementedCache capabilitiesImplementedCache;
+
+	@Value("${sysparam.addDocManToBundles}")
+    private String ADD_DOCMAN_TO_BUNDLES_STRING;
+	private static boolean ADD_DOCMAN_TO_BUNDLES;
 	
 	private static final String FRAMEWORK_ID = "5A8D06DD-8C32-4821-AC65-BD47294ACD8E";
 	public String getDefaultFramework() {
@@ -174,17 +183,67 @@ public class OnboardingService {
 
 	    return arl;
 	}
-	
+/*	
 	public static class RankedSolution {
 		public int rank;
 		public SolutionEx2 solution;
 		public Capabilities[] capabilities;
 	}
+*/	
+	public static class RankedBundle {
+		public int rank;
+		public ProcSolutionBundle bundle;
+		//public Capabilities[] capabilities;
+		public String getId() {
+			String id = "";
+			for (var item : bundle.getBundleItems()) {
+				if (item.getSolution() != null) {
+					id += "~S_" + item.getSolution().getId();
+				} else
+				if (GUtils.nullToString(item.getAdditionalService()).length() > 0) {
+					id += "~A_" + item.getAdditionalService();
+				}
+			}
+			if (id.length() > 1) {
+				id = id.substring(1);
+			}
+			
+			return id;
+		}
+		
+		public String getName() {
+			String name = "";
+			for (var item : bundle.getBundleItems()) {
+				if (item.getSolution() != null) {
+					name += " + " + item.getSolution().getName();
+				} else
+				if (GUtils.nullToString(item.getAdditionalService()).length() > 0) {
+					name += " + " + item.getAdditionalService();
+				}
+			}
+			if (name.length() > 3) {
+				name = name.substring(3);
+			}
+			
+			return name;
+		}
+		
+		public BigDecimal getPrice() {
+			BigDecimal price = new BigDecimal(0.0d);
+			for (var item : bundle.getBundleItems()) {
+				if (item.getSolution() != null) {
+					price = price.add(item.getSolution().getPrice());
+				}
+			}			
+			
+			return price;
+		}
+	}
 	
 	/**
 	 * WARNING: Non-api method that works over cached solutions and capabilities
 	 */
-	public List<RankedSolution> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList, boolean foundation) {
+	public List<RankedBundle> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList, String csvInteroperables, boolean foundation) {
 		int RANK_LIMIT = 99;
 		String[] arrCapabilityIds = new String[] {};
 		if (csvCapabilityList != null && csvCapabilityList.trim().length() > 0) {
@@ -202,6 +261,21 @@ public class OnboardingService {
 		}
 		arrCapabilityIds = lstCapabilityIds.toArray(new String[] {});
 		
+		String[] arrInteroperableIds = new String[] {};
+		if (csvInteroperables != null && csvInteroperables.trim().length() > 0) {
+			arrInteroperableIds = csvInteroperables.split(",");
+		}
+		
+		// Clean the array 
+		List<String> lstInteroperableIds = new ArrayList<>();
+		for (String interoperableId : arrInteroperableIds) {
+			if (interoperableId != null && interoperableId.trim().length() > 0) {
+				lstInteroperableIds.add(interoperableId.trim());
+			}
+		}
+		arrInteroperableIds = lstInteroperableIds.toArray(new String[] {});
+
+		
 		HashSet<String> hshSolutionIds = new HashSet<>();
 		for (String capabilityId : arrCapabilityIds) {
 			capabilityId = capabilityId.trim();
@@ -211,7 +285,23 @@ public class OnboardingService {
 					//hshSolutionIds.addAll(Arrays.asList(arrSolutionIds));
 					for (var solutionId : arrSolutionIds) {
 						if (!foundation || !capabilitiesImplementedCache.getSolutions().get(solutionId).isFoundation()) {
-							hshSolutionIds.add(solutionId);
+							// If interoperability with particular foundation systems has been requested, then ensure that non-foundation systems are compatible with such
+							boolean bMeetsInteroperability = true;
+							if (arrInteroperableIds == null || arrInteroperableIds.length == 0) {
+								bMeetsInteroperability = true;
+							} else {
+								for (String sInteroperabilityWithThisRequested : arrInteroperableIds) {
+									SolutionEx2 solution = capabilitiesImplementedCache.getSolutions().get(solutionId);
+									if (!solution.isFoundation() 
+									 && !List.of(solution.getInteroperableFoundationSolutions()).contains(sInteroperabilityWithThisRequested)) {
+										bMeetsInteroperability = false;
+										break;
+									}
+								}
+							}
+							if (bMeetsInteroperability) {
+								hshSolutionIds.add(solutionId);
+							}
 						}
 					}
 				}
@@ -228,7 +318,7 @@ public class OnboardingService {
 		}
 		
 		// Perform the ranking
-		List<RankedSolution> arlRankedSolutions = new ArrayList<>();
+		List<RankedBundle> arlRankedSolutions = new ArrayList<>();
 		for (String solutionId : hshSolutionIds) {
 			String[] arrSolnCapabilities = capabilitiesImplementedCache.getSolutionIdCapabilityIds().get(solutionId);
 			
@@ -262,55 +352,105 @@ public class OnboardingService {
 			
 			int iRank = iSolutionDeficient + iSolutionExceeds;
 			
-			RankedSolution rankedSolution = new RankedSolution();
+			RankedBundle rankedSolution = new RankedBundle();
 			rankedSolution.rank = iRank;
-			rankedSolution.solution = capabilitiesImplementedCache.getSolutions().get(solutionId);
+			rankedSolution.bundle = new ProcSolutionBundle(null, capabilitiesImplementedCache.getSolutions().get(solutionId));
 			
 			arlRankedSolutions.add(rankedSolution);
 		}
 		
 		// Shuffle solutions of equal rank - also adds solutions in rank order
-		List<RankedSolution> arlReturnedSolutions = new ArrayList<>();
+		List<RankedBundle> arlReturnedBundles = new ArrayList<>();
 
 		for (int iRank=0; iRank<=RANK_LIMIT; iRank++) {
-			List<RankedSolution> arlSolutionsOfRank = new ArrayList<>();
+			List<RankedBundle> arlSolutionsOfRank = new ArrayList<>();
 			for (var rs : arlRankedSolutions) {
 				if (rs.rank == iRank) {
 					arlSolutionsOfRank.add(rs);
 				}
 			}
 			Collections.shuffle(arlSolutionsOfRank);
-			arlReturnedSolutions.addAll(arlSolutionsOfRank);
+			arlReturnedBundles.addAll(arlSolutionsOfRank);
 		}
 
 		// If all the "foundation" capabilities were selected, then move the solutions having all the "foundation" capabilities to the top of the list
 //		boolean bRequestHasAllFoundationCapabilities = Arrays.asList(arrCapabilityIds).containsAll(capabilitiesImplementedCache.getFoundationCapabilityIds());
 //		if (bRequestHasAllFoundationCapabilities) {
 		if (foundation) {
-			List <RankedSolution> foundationSolutions = new ArrayList<>();
-			for (var rs : arlReturnedSolutions) {
-				if (rs.solution.isFoundation()) {
-					foundationSolutions.add(rs);
+			List <RankedBundle> foundationSolutions = new ArrayList<>();
+			for (RankedBundle rankedBundle : arlReturnedBundles) {
+				boolean isFoundation = false;
+				for (var bundleItem : rankedBundle.bundle.getBundleItems()) {
+					if (bundleItem.getSolution() != null
+					 && bundleItem.getSolution().isFoundation()) {
+						isFoundation = true;
+						break;
+					}
+				}
+				
+				if (isFoundation) {
+					foundationSolutions.add(rankedBundle);
 				}
 			}
 			for (var rs : foundationSolutions) {
-				arlReturnedSolutions.remove(rs);
+				arlReturnedBundles.remove(rs);
 			}
-			arlReturnedSolutions.addAll(0, foundationSolutions);
+			
+			// Test - add some combined foundation bundles with DocMan (if DocMan is interoperable with it)
+			ADD_DOCMAN_TO_BUNDLES = Boolean.valueOf(ADD_DOCMAN_TO_BUNDLES_STRING);
+
+			List <RankedBundle> foundationCombinedBundles = new ArrayList<>();
+			if (ADD_DOCMAN_TO_BUNDLES && foundation) {
+				String sDocManId = "C8D558DA-8EC9-4E36-881A-344F0F852284";
+				
+				for (RankedBundle rb : foundationSolutions) {
+					SolutionEx2 dmSolution = capabilitiesImplementedCache.getSolutions().get(sDocManId);
+					if (List.of(dmSolution.interoperableFoundationSolutions).contains(rb.bundle.getBundleItems().get(0).getSolution().getId())) {
+						RankedBundle foundationCombinedBundel = new RankedBundle();
+						foundationCombinedBundel.bundle = new ProcSolutionBundle();
+						for (var bundleItem : rb.bundle.getBundleItems()) {
+							ProcSolutionBundleItem newBundleItem = new ProcSolutionBundleItem();
+							newBundleItem.setAdditionalService(bundleItem.getAdditionalService());
+							newBundleItem.setBundle(bundleItem.getBundle());
+							newBundleItem.setCapabilities(bundleItem.getCapabilities());
+							newBundleItem.setSolution(bundleItem.getSolution());
+							newBundleItem.setSolutionId(bundleItem.getSolutionId());
+							foundationCombinedBundel.bundle.getBundleItems().add(newBundleItem);
+						}
+						foundationCombinedBundel.rank = rb.rank+1;
+						
+						ProcSolutionBundleItem dmBundleItem = new ProcSolutionBundleItem();
+						dmBundleItem.setBundle(foundationCombinedBundel.bundle);
+						dmBundleItem.setSolution(dmSolution);
+						dmBundleItem.setSolutionId(dmSolution.getId());
+						foundationCombinedBundel.bundle.getBundleItems().add(dmBundleItem);
+						
+						foundationCombinedBundles.add(foundationCombinedBundel);
+					}
+				}
+				
+			}
+			
+			arlReturnedBundles.addAll(0, foundationCombinedBundles);
+			arlReturnedBundles.addAll(0, foundationSolutions);
 		}
 		
 		// Add each solution's capabilities
 		
-		for (var rs : arlReturnedSolutions) {
-			String[] capabilityIds = capabilitiesImplementedCache.getSolutionIdCapabilityIds().get(rs.solution.getId());
-			Capabilities[] capabilities = new Capabilities[capabilityIds.length];
-			for (int idx=0; idx<capabilityIds.length; idx++) {
-				capabilities[idx] = capabilitiesImplementedCache.getCapabilities().get(capabilityIds[idx]);
+		for (var rankedBundle : arlReturnedBundles) {
+			for (var bundleItem : rankedBundle.bundle.getBundleItems()) {
+				if (bundleItem.getSolution() != null) {
+					String[] capabilityIds = capabilitiesImplementedCache.getSolutionIdCapabilityIds().get(bundleItem.getSolutionId());
+					Capabilities[] capabilities = new Capabilities[capabilityIds.length];
+					for (int idx=0; idx<capabilityIds.length; idx++) {
+						capabilities[idx] = capabilitiesImplementedCache.getCapabilities().get(capabilityIds[idx]);
+					}
+					bundleItem.setCapabilities(capabilities);
+				}
 			}
-			rs.capabilities = capabilities;
 		}
 		
-	    return arlReturnedSolutions;
+	    return arlReturnedBundles;
 	}
 	
 	/**
@@ -445,6 +585,20 @@ public class OnboardingService {
 		return capabilitiesImplementedCache.getSolutions().get(id);
 	}
 	
+	/**
+	 * WARNING: Non-api method that returns foundation solutions
+	 */
+	public List<SolutionEx2> getFoundationSolutions() {
+		List <SolutionEx2> foundationSolutions = new ArrayList<>() ;
+		for (var solution : capabilitiesImplementedCache.getSolutions().values()) {
+			if (solution.isFoundation()) {
+				foundationSolutions.add(solution);
+			}
+		}
+		foundationSolutions.sort((object1, object2) -> (object1.getName()).compareToIgnoreCase(object2.getName()));
+
+		return foundationSolutions;
+	}
 	// -------------------------------------------------------------------------------------------------------
 	
 	public List<Standards> findStandardsByCapability(String capability, Boolean isOptional) {		

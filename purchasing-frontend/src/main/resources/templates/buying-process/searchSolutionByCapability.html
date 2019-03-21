@@ -23,7 +23,7 @@
 		        </div>
 		    </div>
 			<div class="row">
-		        <div id="selectedPractices" class="col-md-12 capability-section-header-sub-text">Add sites to reveal baseline pricing and Interoperability percentage in search results
+		        <div id="selectedPractices" class="col-md-12 capability-section-header-sub-text">Add Service Recipients to reveal baseline pricing and Interoperability percentage in search results
 	        	</div>
 	        </div>
 		</div>
@@ -50,7 +50,7 @@
 	        	<h2>My Sites
 	        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
 	        	</h2>
-	        	<h4>Select sites to add them to your Procurement basket.</h4>
+	        	<h4>Select Service Recipients to add them to your Procurement basket.</h4>
 	        </div>
 		
 			<div class="panel-group" id="accordion">
@@ -81,7 +81,7 @@
     
         <div class="row">
         	<div class="col-md-10">
-        		<h2>Capability Search
+        		<h2><span id="capabilitySearchTitle">Capability Search</span>
         		<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
         		</h2>
         	</div>
@@ -104,13 +104,22 @@
                 </div>
             	<div class="row">
 	                <div class="col-md-4">
-	                	<input type="checkbox" id="togFoundation" name="togFoundation" th:checked="${myModel.foundation}" data-toggle="toggle" data-on="Foundation" data-off="Non-Foundation" data-onstyle="success" data-offstyle="info" data-width="150" /> <br />  <br /> 
+	                	<input type="checkbox" id="togFoundation" disabled="true" name="togFoundation" th:checked="${myModel.foundation}" data-toggle="toggle" data-on="Foundation" data-off="Non-Foundation" data-onstyle="success" data-offstyle="info" data-width="150" /> <br />  <br /> 
 			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : ''}" >		                
 		               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
 		               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
 		               		/>
 							<label class="col-md-11" th:text="${cap.name}" th:for="${'filterCapabilities_' + cap.id}" >Capability 1</label>		                
 			            </div>
+			            <div class="capabilitysearch-interoperable">&nbsp;</div>
+			            <div class="capabilitysearch-interoperable"><h4>Interoperable with</h4></div>
+			            <div th:each="fs : ${myModel.foundationSolutions}" class="capabilitysearch-interoperable">		                
+		               		<input class="col-md-1" type="checkbox" name="filterInteroperable" th:value="${fs.id}" th:id="${'filterInteroperable_' + fs.id}" 
+		               		th:checked="${myModel.inInitialInteroperables(fs.id)}"
+		               		/>
+							<label class="col-md-11" th:text="${fs.name}" th:for="${'filterInteroperable_' + fs.id}" >a foundation solution</label>		                
+			            </div>
+			            
 	                </div>
 	                <div class="col-md-8" style="border:solid 0px" id="foundSolutions">
 	                </div>
@@ -122,21 +131,29 @@
 </section>    
 
 <script th:inline="javascript">
-$("form").on("click", ":checkbox[name='filterCapabilities']", function(event){
-	//alert(event.target.id.split(event.target.name+'_')[1] + " clicked ; selected: " + event.target.checked);
-	var selectedCapabilities = "";
+$("form").on("click", ":checkbox[name='filterCapabilities']", function(event) {
+	var selectedCapabilities = getSelectedCapabilitiesCsv();
+	var selectedInteroperables = getSelectedInteroperablesCsv();
 	var vFoundation = $('#togFoundation').prop('checked');
-	$("input[name=" + event.target.name + "]:checked").each( function () {
-		selectedCapabilities += "," + this.id.split(event.target.name+'_')[1].trim();
-	});
-	//alert("selectedCapabilities: " + selectedCapabilities);
 
 	refreshCapabilityNames();
 	$("#foundSolutions").empty();
-	if (selectedCapabilities.length > 0 || vFoundation) {
-		selectedCapabilities = selectedCapabilities.substring(1);
-		updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities)
-		searchCapabilitiesForSolutions(selectedCapabilities, vFoundation);
+	if (selectedCapabilities.length > 0 || selectedInteroperables.length > 0 || vFoundation) {
+		updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities);
+		searchCapabilitiesForSolutions(selectedCapabilities, selectedInteroperables, vFoundation);
+	}
+});
+
+$("form").on("click", ":checkbox[name='filterInteroperable']", function(event) {
+	var selectedCapabilities = getSelectedCapabilitiesCsv();
+	var selectedInteroperables = getSelectedInteroperablesCsv();
+	var vFoundation = $('#togFoundation').prop('checked');
+
+	refreshCapabilityNames();
+	$("#foundSolutions").empty();
+	if (selectedCapabilities.length > 0 || selectedInteroperables.length > 0 || vFoundation) {
+		updateProcurementWithInteroperablesPOST([[${myModel.procurementId}]], selectedInteroperables);
+		searchCapabilitiesForSolutions(selectedCapabilities, selectedInteroperables, vFoundation);
 	}
 });
 
@@ -147,16 +164,12 @@ $('#togFoundation').change(function() {
 
 	updateProcurementWithFoundationPOST([[${myModel.procurementId}]], vFoundation)
 	
-	$("input[name=" + event.target.name + "]:checked").each( function () {
-		selectedCapabilities += "," + this.id.split(event.target.name+'_')[1].trim();
-	});
-	//alert("selectedCapabilities: " + selectedCapabilities);
-
 	var selectedCapabilities = getSelectedCapabilitiesCsv();
+	var selectedInteroperables = getSelectedInteroperablesCsv();
 	refreshCapabilityNames();
 	$("#foundSolutions").empty();
 	
-	searchCapabilitiesForSolutions(selectedCapabilities, vFoundation);
+	searchCapabilitiesForSolutions(selectedCapabilities, selectedInteroperables, vFoundation);
 });
 
 	function capabilitiesVisibility() {
@@ -168,6 +181,20 @@ $('#togFoundation').change(function() {
 				$(this).show();
 			}
 		});
+
+		$(".capabilitysearch-interoperable").each( function() {
+			if (vFoundation) {
+				$(this).hide();
+			} else {
+				$(this).show();
+			}
+		});
+
+		if (vFoundation) {
+	    	document.getElementById("capabilitySearchTitle").innerHTML = "Foundation Solutions Search";
+		} else {
+	    	document.getElementById("capabilitySearchTitle").innerHTML = "Non-Foundation Solutions Capability Search";
+		}
 	}
 
     function refreshCapabilityNames() {
@@ -195,10 +222,21 @@ $('#togFoundation').change(function() {
 		return selectedCapabilities;
     }
     
+    function getSelectedInteroperablesCsv() {
+		var selectedInteroperables = "";
+		$("input[name=filterInteroperable]:checked").each( function () {
+			selectedInteroperables += "," + $(this).attr('id').split($(this).attr('name')+'_')[1].trim();
+		});
+		if (selectedInteroperables.length > 0) {
+			selectedInteroperables = selectedInteroperables.substring(1);
+		}
+		return selectedInteroperables;
+    }
+    
     function showCapabilityPanel(show) {
     	if (show) {
    			var vFoundation = $('#togFoundation').prop('checked');
-    		searchCapabilitiesForSolutions(getSelectedCapabilitiesCsv(), vFoundation);
+    		searchCapabilitiesForSolutions(getSelectedCapabilitiesCsv(), getSelectedInteroperablesCsv(), vFoundation);
     		$("#capabilityPanel").show();
     		$("#practicePanel").hide();
     	} else {
@@ -215,6 +253,32 @@ $('#togFoundation').change(function() {
 		var sendInfo = {
 			"procurementId"	: procurementId,
 			"csvCapabilities" : csvCapabilities
+		};
+		$.ajax({
+		    type: 'POST',
+		    beforeSend: function(request) {
+		        request.setRequestHeader(header, token);
+		    },
+		    url: url,
+		    data: JSON.stringify (sendInfo),
+		    //success: function(data) { alert('data: ' + data); },
+		    contentType: "application/json",
+		    dataType: 'json'
+		})
+		.fail(function(error) {
+			console.error(error);
+        })
+		;
+	}
+    
+    function updateProcurementWithInteroperablesPOST(procurementId, csvInteroperables) {
+    	var token = $("meta[name='_csrf']").attr("content");
+    	var header = $("meta[name='_csrf_header']").attr("content");
+
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_UPDATE_PROCUREMENT_WITH_INTEROPERABLES}]];
+		var sendInfo = {
+			"procurementId"	: procurementId,
+			"csvInteroperables" : csvInteroperables
 		};
 		$.ajax({
 		    type: 'POST',
@@ -285,9 +349,9 @@ $('#togFoundation').change(function() {
 		;
 	}
     
-    function searchCapabilitiesForSolutions(csvCapabilities, isFoundation) {
+    function searchCapabilitiesForSolutions(csvCapabilities, csvInteroperables, isFoundation) {
 		//console.log(csvCapabilities);
-		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities + "?foundation=" + isFoundation;
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities + "?foundation=" + isFoundation + "&interoperables=" + csvInteroperables;
 		$.getJSON( url)
 		.done(function( data ) {
 			$("#foundSolutions").empty();
@@ -308,36 +372,41 @@ $('#togFoundation').change(function() {
 			htmlTable.appendTo("#foundSolutions");
 */
 			var solutionsCount = 0
-			$.each( data, function( i, item ) {
+			$.each ( data, function( i, element ) {
 				solutionsCount++;
 				
 				var htmlSolnListEntry = $("<div class=\"panel panel-default solution-list-entry\" style=\"width:95%;\">");
+				
 				var htmlDivCheck = $("<div>");
 				htmlDivCheck.appendTo(htmlSolnListEntry);
-				var htmlCheck = $("<input type=\"checkbox\" name=\"selectedSolution\" value=\"" + item.solution.id + "\" >");
+				var htmlCheck = $("<input type=\"checkbox\" name=\"selectedSolution\" value=\"" + element.id + "\" >");
 				htmlCheck.appendTo(htmlDivCheck);
 				
 				var htmlDivSoln = $("<div class=\"solution-content\">");
 				htmlDivSoln.appendTo(htmlSolnListEntry);
-				var htmlSolnName = $("<h3>" + item.solution.name + "</h3>");
+				var htmlSolnName = $("<h3>" + element.name + "</h3>");
 				htmlSolnName.appendTo(htmlDivSoln);
 				
-				var solutionPrice = "" + item.solution.price + "/patient";
+				var solutionPrice = "" + element.price + "/patient";
 				if (selectedPracticePatients > 0) {
-					solutionPrice = "" + (item.solution.price * selectedPracticePatients).toFixed(2);
+					solutionPrice = "" + (element.price * selectedPracticePatients).toFixed(2);
 				}
-				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (item.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£" + solutionPrice + "</div>");
+				var htmlSolnPrice = $("<div class=\"price\">Rank: " + (element.rank+1) + "&nbsp;&nbsp;&nbsp;&nbsp;" + "£" + solutionPrice + "</div>");
 				htmlSolnPrice.appendTo(htmlDivSoln);
-				var htmlSolnDesc = $("<h4>" + item.solution.description + "</h4>");
-				htmlSolnDesc.appendTo(htmlDivSoln);
-				var htmlSolnCapabilitiesArticle = $("<article>");
-				htmlSolnCapabilitiesArticle.appendTo(htmlDivSoln);
-				var htmlSolnCapabilitiesTitle = $("<h5>Capabilities:</h5>");
-				htmlSolnCapabilitiesTitle.appendTo(htmlSolnCapabilitiesArticle);
 				
-				$.each( item.capabilities, function( i2, capability ) {
-					var htmlSolnCapabilitiesItem = $("<h5>" + capability.name + "</h5>");
-					htmlSolnCapabilitiesItem.appendTo(htmlSolnCapabilitiesArticle);					
+				$.each ( element.bundle.bundleItems, function( i2, bundleItem ) {
+					var htmlSolnDesc = $("<h4>" + bundleItem.solution.description + "</h4>");
+					htmlSolnDesc.appendTo(htmlDivSoln);
+					var htmlSolnCapabilitiesArticle = $("<article>");
+					htmlSolnCapabilitiesArticle.appendTo(htmlDivSoln);
+					var htmlSolnCapabilitiesTitle = $("<h5>Capabilities:</h5>");
+					htmlSolnCapabilitiesTitle.appendTo(htmlSolnCapabilitiesArticle);
+					
+					$.each( bundleItem.capabilities, function( i2, capability ) {
+						var htmlSolnCapabilitiesItem = $("<h5>" + capability.name + "</h5>");
+						htmlSolnCapabilitiesItem.appendTo(htmlSolnCapabilitiesArticle);					
+					});
+				
 				});
 				
 				htmlSolnListEntry.appendTo("#foundSolutions");
@@ -469,6 +538,7 @@ $('#togFoundation').change(function() {
    	var selectedPracticePatients = [[${myModel.patientCount}]];
     $( document ).ready(function() {
        	var csvCapabilities = [[${myModel.csvCapabilities}]];
+       	var csvInteroperables = [[${myModel.csvInteroperables}]];
        	var vFoundation = $('#togFoundation').prop('checked');
     	capabilitiesVisibility();
        	var arrMyCsvCCGIDs = [[${myModel.myCsvCCGIDs}]].split(",");
@@ -485,7 +555,7 @@ $('#togFoundation').change(function() {
 
        	showCapabilityPanel([[${myModel.mode == myModel.MODE_ALL}]]);
        	refreshCapabilityNames();
-       	searchCapabilitiesForSolutions(csvCapabilities, vFoundation);
+       	searchCapabilitiesForSolutions(csvCapabilities, csvInteroperables, vFoundation);
        	refreshSelectedPractices();
        	
        	/*[# th:each="ccg : ${myModel.myCCGs}"]*/
