@@ -64,6 +64,10 @@ public class SolutionByCapabilityController {
     
 	@Value("${sysparam.shortlist.max}")
     private String SHORTLIST_MAX;
+    
+	@Value("${sysparam.foundationSearchAddCapabilities}")
+    private String FOUNDATION_SEARCH_ADD_CAPABILITIES_STRING;
+    private boolean FOUNDATION_SEARCH_ADD_CAPABILITIES;
 	
     private static final Logger logger = LoggerFactory.getLogger(SolutionByCapabilityController.class);
 /*	
@@ -153,8 +157,11 @@ public class SolutionByCapabilityController {
     }	
 
 	private Model setupSolutionByCapability(SecurityInfo secInfo, Procurement procurement, String csvCapabilities, int mode, boolean foundation, Model model) {
+		FOUNDATION_SEARCH_ADD_CAPABILITIES = Boolean.valueOf(FOUNDATION_SEARCH_ADD_CAPABILITIES_STRING);
+		
 		SearchSolutionByCapabilityModel myModel = new SearchSolutionByCapabilityModel();
 		myModel.setSHORTLIST_MAX(SHORTLIST_MAX);
+		myModel.setFOUNDATION_SEARCH_ADD_CAPABILITIES(FOUNDATION_SEARCH_ADD_CAPABILITIES);
 		myModel.setMode(mode);
 		myModel.setFoundation(foundation);
 		myModel.setProcurement(procurement);

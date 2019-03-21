@@ -253,7 +253,7 @@ public class OnboardingService {
 		// Clean the array - do not include Foundation capabilities if we are doing a foundation search. Solutions will be matched for Foundation more directly
 		List<String> lstCapabilityIds = new ArrayList<>();
 		for (String capabilityId : arrCapabilityIds) {
-			if (capabilityId != null && capabilityId.trim().length() > 0) {
+			if (capabilityId != null && !capabilityId.equals("null") && capabilityId.trim().length() > 0) {
 				if (!foundation || !capabilitiesImplementedCache.getCapabilities().get(capabilityId).getType().equals("C")) {
 					lstCapabilityIds.add(capabilityId.trim());
 				}
@@ -269,7 +269,7 @@ public class OnboardingService {
 		// Clean the array 
 		List<String> lstInteroperableIds = new ArrayList<>();
 		for (String interoperableId : arrInteroperableIds) {
-			if (interoperableId != null && interoperableId.trim().length() > 0) {
+			if (interoperableId != null && !interoperableId.equals("null") && interoperableId.trim().length() > 0) {
 				lstInteroperableIds.add(interoperableId.trim());
 			}
 		}

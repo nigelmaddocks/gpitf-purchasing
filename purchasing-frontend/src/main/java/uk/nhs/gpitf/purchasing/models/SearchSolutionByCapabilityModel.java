@@ -75,4 +75,5 @@ public class SearchSolutionByCapabilityModel {
 	}
 	
 	private String SHORTLIST_MAX;
+	private boolean FOUNDATION_SEARCH_ADD_CAPABILITIES;
 }
