@@ -1,8 +1,8 @@
 package uk.nhs.gpitf.purchasing.services.buying.process;
 
-import com.palantir.docker.compose.DockerComposeRule;
-import com.palantir.docker.compose.configuration.DockerComposeFiles;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,38 +10,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.models.SearchListProcurementsModel;
-import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
-import uk.nhs.gpitf.purchasing.services.IProcurementService;
-import uk.nhs.gpitf.purchasing.services.ProcStatusService;
 
 import static org.junit.Assert.assertEquals;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(classes={ProcurementServiceStub.class,OrgContactRepositoryStub.class,ProcurementsFilteringService.class,ProcStatusServiceStub.class})
 public class ProcurementsFilteringServiceTest {
-
-    @Autowired
-    private IProcurementService stubProcurementService;
-
-    @Autowired
-    private OrgContactRepository orgContactRepositoryStub;
 
     @Autowired
     private ProcurementsFilteringService procurementsFilteringService;
 
-    @Autowired
-    private ProcStatusService stubProcStatusService;
-
     private static SearchListProcurementsModel searchListProcurementsModel;
-
-    @Before
-    public void injectStubs() {
-        setField(procurementsFilteringService, "procurementService", stubProcurementService);
-        setField(procurementsFilteringService, "orgContactRepository", orgContactRepositoryStub);
-        setField(procurementsFilteringService, "procStatusService", stubProcStatusService);
-    }
 
     @Before
     public void setUpInitialConditionsOfFilter() {
@@ -53,14 +33,6 @@ public class ProcurementsFilteringServiceTest {
     public void restoreInitialConmditionsOfFilter() {
         searchListProcurementsModel = new SearchListProcurementsModel();
         searchListProcurementsModel.setOpenProcStatusSearchField("ALL");
-    }
-
-    @ClassRule
-    public static DockerComposeRule docker() {
-        return DockerComposeRule.builder()
-                .files(DockerComposeFiles.from("src/test/resources/docker-compose-mockserver.yml",
-                        "src/test/resources/docker-compose-postgres.yml"))
-                .build();
     }
 
     @Test

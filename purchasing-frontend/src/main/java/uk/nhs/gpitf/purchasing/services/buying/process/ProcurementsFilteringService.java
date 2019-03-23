@@ -23,7 +23,7 @@ import static uk.nhs.gpitf.purchasing.entities.ProcStatus.COMPLETED;
 
 ;
 
-@Component("buyingService")
+@Component("procurementsFilteringService")
 public class ProcurementsFilteringService implements IProcurementsFilteringService {
 
     private final OrgContactRepository orgContactRepository;

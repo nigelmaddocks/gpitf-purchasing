@@ -106,12 +106,6 @@
 			<artifactId>spring-security-test</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.palantir.docker.compose</groupId>
-			<artifactId>docker-compose-rule-junit4</artifactId>
-			<version>0.35.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-annotations</artifactId>
 			<version>${swagger-annotations-version}</version>
