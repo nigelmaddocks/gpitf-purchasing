@@ -3,7 +3,7 @@ package uk.nhs.gpitf.purchasing.entities;
 import lombok.Data;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
-
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,14 +13,16 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="procurement", schema="purchasing")
 @Data
 public class Procurement {
+
+	@Transient
+	public static final String SESSION_ATTR_NAME = "temp_procurement";
+	
 	@Transient
 	@JsonIgnore
 	PatientCountRunRepository patientCountRunRepository;
@@ -88,5 +90,31 @@ public class Procurement {
 	private Integer contractMonths;
 	
 	private Integer patientCount;
-
+	
+	@Data
+	public static class PrimitiveProcurement implements Serializable {
+		private static final long serialVersionUID = 7165183178416691678L;
+		private String name;
+		private long orgContactId;
+		private Boolean foundation;		
+		private String csvCapabilities;		
+		private String csvInteroperables;		
+		private String csvPractices;
+		private Integer initialPatientCount;		
+	}
+/*
+	public String serializeToString() throws IOException {
+		PrimitiveProcurement prim = new PrimitiveProcurement();
+		BeanUtils.copyProperties(this, prim);
+ 
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(baos);
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(bufferedOutputStream);
+		objectOutputStream.writeObject(prim);
+		objectOutputStream.close();
+		String s = baos.toString();
+		return s;
+		
+	}
+*/	
 }

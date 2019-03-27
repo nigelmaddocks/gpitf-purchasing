@@ -85,7 +85,11 @@
         		<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
         		</h2>
         	</div>
-        	<div class="col-md-2" th:if="${myModel.procurement != null}">
+        	<div class="col-md-2" th:if="${myModel.procurementId == 0}">
+        		<br />
+		     	<button id="btnCreateProcurement" class="btn btn-default" type="button" onclick="createProcurementPOST();">Store Procurement</button>
+		    </div>
+        	<div class="col-md-2" th:if="${myModel.procurementId != 0 && myModel.procurement != null}">
         		<br />
 		     	<button id="btnShortlist" class="btn btn-default" style="display:none;" type="button" onclick="proceedToShortlist();">Create Shortlist</button>
 		    </div>
@@ -131,6 +135,15 @@
 </section>    
 
 <script th:inline="javascript">
+$(window).bind('beforeunload', function() {
+		if (procurementId == 0) {
+			return "";
+		}
+		
+		return undefined;
+	}
+);
+
 $("form").on("click", ":checkbox[name='filterCapabilities']", function(event) {
 	var selectedCapabilities = getSelectedCapabilitiesCsv();
 	var selectedInteroperables = getSelectedInteroperablesCsv();
@@ -373,6 +386,41 @@ $('#togFoundation').change(function() {
 		;
 	}
     
+    function createProcurementPOST() {
+    	var token = $("meta[name='_csrf']").attr("content");
+    	var header = $("meta[name='_csrf_header']").attr("content");
+
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_CREATE_PROCUREMENT}]];
+		var sendInfo = {
+		};
+		$.ajax({
+		    type: 'POST',
+		    beforeSend: function(request) {
+		        request.setRequestHeader(header, token);
+		    },
+		    url: url,
+		    data: JSON.stringify (sendInfo),
+		    //success: function(data) { alert('data: ' + data); },
+		    contentType: "application/json",
+		    dataType: 'json'
+		})
+		.done(function( data ) {
+			procurementId = data.id;
+			/*<![CDATA[*/
+	        var url = /*[[@{'/buyingprocess/'}]]*/;
+	    	/*]]>*/
+	    	url += procurementId;
+	    	url += '/solutionByCapability/';
+
+	    	location.href = url;
+		})
+
+		.fail(function(error) {
+			console.error(error);
+        })
+		;
+	}
+    
     function searchCapabilitiesForSolutions(csvCapabilities, csvInteroperables, isFoundation) {
 		//console.log(csvCapabilities);
 		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities + "?foundation=" + isFoundation + "&interoperables=" + csvInteroperables;
@@ -554,6 +602,7 @@ $('#togFoundation').change(function() {
     }
     
     // On document ready, setup "selected practices" variables and perform a capability search
+    var procurementId = [[${myModel.procurementId}]];
    	var selectedPracticeIds = [[${myModel.csvPractices}]];
    	var selectedPractices = selectedPracticeIds.split(",").length-2;
    	var arrSelectedCCGPracticeIds = [];

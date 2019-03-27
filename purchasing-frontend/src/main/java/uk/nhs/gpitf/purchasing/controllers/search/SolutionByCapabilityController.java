@@ -110,45 +110,54 @@ public class SolutionByCapabilityController {
 				Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 				if (optProcurement.isPresent()) {
 					procurement = optProcurement.get();
-					
-					// Prioritise getting the "foundation" flag from querystring over that on the procurement record
-					if (sFoundationFromQuerystring == null || sFoundationFromQuerystring.trim().length() == 0) {
-						foundation = procurement.getFoundation()==null?false:procurement.getFoundation().booleanValue();
-					}
-					
-					if (procurement.getStatus().getId() != ProcStatus.DRAFT) {
-			        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
-			    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
-			    		attr.addFlashAttribute("security_message", message);
-			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
-					}
-					
-					// If we've skipped the keyword search, then put it in the breadcrumb
-					if (procurement.getSearchKeyword() != null && procurement.getSearchKeyword().trim().length() > 0) {
-						Breadcrumbs.removeLast(request);
-						Breadcrumbs.register("By keyword", "/buyingprocess/" + procurement.getId() + "/solutionByKeyword", request);
-						Breadcrumbs.register("By capability", request);						
-					}
-					
-					// Check that the user is authorised to this procurement
-					if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
-					 && !secInfo.isAdministrator()) {
-			        	String message = "view procurement " + procurementId;
-			    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
-			    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
-			        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
-					}
-					try {
-						procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities), Optional.empty(), Optional.of(foundation), Optional.empty());
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					if (csvCapabilities == null || csvCapabilities.trim().length() == 0) {
-						csvCapabilities = procurement.getCsvCapabilities();
-					}
 				}
+			}
+		} else {
+			procurement = procurementService.restoreFromSession(request.getSession());
+			if (procurement == null) {
+				procurementService.createAndPersistNewPrimitiveProcurement(request.getSession(), secInfo);
+				procurement = procurementService.restoreFromSession(request.getSession());
+			}
+		}
+		
+		if (procurement != null) {
+			
+			// Prioritise getting the "foundation" flag from querystring over that on the procurement record
+			if (sFoundationFromQuerystring == null || sFoundationFromQuerystring.trim().length() == 0) {
+				foundation = procurement.getFoundation()==null?false:procurement.getFoundation().booleanValue();
+			}
+			
+			if (procurement.getStatus().getId() != ProcStatus.DRAFT) {
+	        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
+	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		attr.addFlashAttribute("security_message", message);
+	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+			}
+			
+			// If we've skipped the keyword search, then put it in the breadcrumb
+			if (procurement.getSearchKeyword() != null && procurement.getSearchKeyword().trim().length() > 0) {
+				Breadcrumbs.removeLast(request);
+				Breadcrumbs.register("By keyword", "/buyingprocess/" + procurement.getId() + "/solutionByKeyword", request);
+				Breadcrumbs.register("By capability", request);						
+			}
+			
+			// Check that the user is authorised to this procurement
+			if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
+			 && !secInfo.isAdministrator()) {
+	        	String message = "view procurement " + procurementId;
+	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+	    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
+	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+			}
+			try {
+				procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities), Optional.empty(), Optional.of(foundation), Optional.empty());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (csvCapabilities == null || csvCapabilities.trim().length() == 0) {
+				csvCapabilities = procurement.getCsvCapabilities();
 			}
 		}
 

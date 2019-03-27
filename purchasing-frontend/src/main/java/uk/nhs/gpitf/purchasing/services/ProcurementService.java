@@ -6,16 +6,27 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.persistence.Transient;
+import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.entities.Procurement.PrimitiveProcurement;
 import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
+import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
+import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Service
 public class ProcurementService {
@@ -24,6 +35,9 @@ public class ProcurementService {
 
     @Autowired
     private ProcurementRepository thisRepository;
+    
+    @Autowired
+	OrgContactRepository orgContactRepository;
 
     public List<Procurement> getAll() {
         List<Procurement> coll = new ArrayList<>();
@@ -81,13 +95,7 @@ public class ProcurementService {
     		procurement.setFoundation(foundation.get());
     	}
     	if (csvPractices.isPresent()) {
-    		String sCsvPractices = csvPractices.get();
-    		if (sCsvPractices.startsWith(",")) {
-    			sCsvPractices = sCsvPractices.substring(1);
-    		}
-    		if (sCsvPractices.endsWith(",")) {
-    			sCsvPractices = sCsvPractices.substring(0, sCsvPractices.length()-1);
-    		}
+    		String sCsvPractices = GUtils.trimCommas(csvPractices.get());
     		procurement.setCsvPractices(sCsvPractices);
     	}
     	procurement.setLastUpdated(LocalDateTime.now());
@@ -96,6 +104,17 @@ public class ProcurementService {
     	return procurement;
     }
 
+    public Procurement saveCurrentPosition(Procurement.PrimitiveProcurement prim) throws Exception {
+    	Procurement procurement = null;
+    	procurement = saveCurrentPosition(0, prim.getOrgContactId(), Optional.empty(), 
+			prim.getCsvCapabilities()==null		?Optional.empty():Optional.of(prim.getCsvCapabilities()), 
+			prim.getCsvInteroperables()==null	?Optional.empty():Optional.of(prim.getCsvInteroperables()), 
+			prim.getFoundation()==null			?Optional.empty():Optional.of(prim.getFoundation()), 
+			prim.getCsvPractices()==null		?Optional.empty():Optional.of(GUtils.trimCommas(prim.getCsvPractices()))
+		);
+    	return procurement;
+    }    
+    
     public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
@@ -143,6 +162,51 @@ public class ProcurementService {
     	procurement = thisRepository.save(procurement);
 
     	return procurement;
+    }
+
+	/** Persists a procurement that is in its early stages and hasn't yet been saved to the database, to the session */
+	public void persistToSession(HttpSession session, Procurement procurement) {
+		PrimitiveProcurement prim = new PrimitiveProcurement();
+		BeanUtils.copyProperties(procurement, prim);
+		session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
+	}
+	
+	/** Restores a procurement that is in its early stages and hasn't yet been saved to the database, from the session */
+	public Procurement restoreFromSession(HttpSession session) {
+		PrimitiveProcurement prim = (PrimitiveProcurement) session.getAttribute(Procurement.SESSION_ATTR_NAME);
+		if (prim == null) {
+			return null;
+		}
+		Procurement proc = new Procurement();
+		BeanUtils.copyProperties(prim, proc);
+		try {
+			OrgContact orgContact = null;
+			if (prim.getOrgContactId() != 0) {
+				orgContact = orgContactRepository.findById(prim.getOrgContactId()).get();
+			}
+			
+			proc.setStatus((ProcStatus)GUtils.makeObjectForId(ProcStatus.class, ProcStatus.DRAFT));
+			proc.setOrgContact(orgContact);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return proc;
+	}
+
+    public Procurement.PrimitiveProcurement createNewPrimitiveProcurement(SecurityInfo secInfo) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMMyyyy");
+    	LocalDateTime now = LocalDateTime.now();
+    	
+    	Procurement.PrimitiveProcurement prim = new Procurement.PrimitiveProcurement();
+		prim.setName("Procurement-for-" + secInfo.getOrgContactId() + "-" + now.format(formatter));
+		prim.setOrgContactId(secInfo.getOrgContactId());
+    	return prim;
+    }
+
+    public Procurement.PrimitiveProcurement createAndPersistNewPrimitiveProcurement(HttpSession session, SecurityInfo secInfo) {
+    	Procurement.PrimitiveProcurement prim = createNewPrimitiveProcurement(secInfo);
+    	session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
+    	return prim;
     }
 
 }

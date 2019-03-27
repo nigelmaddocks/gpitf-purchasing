@@ -100,4 +100,17 @@ public class GUtils {
     public static String nullToString(String value) {
     	return value == null ? "" : value;
     }
+    
+    public static String trimCommas(String value) {
+    	if (value == null) {
+    		return value;
+    	}
+    	if (value.startsWith(",")) {
+    		value = value.substring(1);
+    	}
+    	if (value.endsWith(",")) {
+    		value = value.substring(0, value.length()-1);
+    	}
+    	return value;
+    }
 }
