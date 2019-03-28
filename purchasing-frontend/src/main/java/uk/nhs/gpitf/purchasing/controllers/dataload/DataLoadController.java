@@ -1069,6 +1069,134 @@ public class DataLoadController {
 		return true;
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	/**
+	 * Endpoint for loading Principal and Subsidiary services.
+	 * This needs more work. Currently it just lists the live services
+	 * but it should be developed to store some of the info against
+	 * GP Practices.
+	 * See notes in the view for info on how to obtain
+	 * the csv input file.
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping("/dataload/GPSOC")
+	public String loadGPSOCSelectFile(Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Load Subsidiary Services", request);
+		return "dataload/dataloadGPSOC";
+	}
+
+	@PostMapping("/dataload/GPSOC")
+	public String loadGPSOCSelectFile(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
+		String OUTPUT_PAGE = "dataload/dataloadGPSOCOutput";
+		
+		Breadcrumbs.register("Output", request);
+		
+		List<String> subsidiaryServicesAdded = new ArrayList<>();
+		List<String> principalServicesAdded = new ArrayList<>();
+		List<Exception> exceptions = new ArrayList<Exception>();
+		
+		model.addAttribute("principalServices", principalServicesAdded);
+		model.addAttribute("subsidiaryServices", subsidiaryServicesAdded);
+		model.addAttribute("exceptions", exceptions);
+
+		Scanner scanner = null;
+		try {
+			scanner = new Scanner(file.getInputStream());
+
+		} catch (Exception e) {
+			exceptions.add(e);
+		}
+		long iLine = 0;
+		if (scanner != null) {
+			CSVUtils csvUtils = new CSVUtils();
+
+			// Omit header line, but test that we're dealing with the correct columns
+			List<String> line = csvUtils.parseLine(scanner.nextLine());
+			String sExpectedCurrentPrincipalServicesColHdg = "GPSoCRCurrentPrincipalServices";
+			String sExpectedCurrentSubsidiaryServicesColHdg = "GPSoCRCurrentSubsidiaryServices";
+			String sActualCurrentPrincipalServicesColHdg = GUtils.nullToString(line.get(41)).trim();
+			String sActualCurrentSubsidiaryServicesColHdg = GUtils.nullToString(line.get(43)).trim();
+			if (!sExpectedCurrentPrincipalServicesColHdg.equals(sActualCurrentPrincipalServicesColHdg)) {
+				exceptions.add(new Exception("Column headers not right. Expected '" + sExpectedCurrentPrincipalServicesColHdg + "', found '" + sActualCurrentPrincipalServicesColHdg + "'"));
+			}
+			if (!sExpectedCurrentPrincipalServicesColHdg.equals(sActualCurrentPrincipalServicesColHdg)) {
+				exceptions.add(new Exception("Column headers not right. Expected '" + sExpectedCurrentSubsidiaryServicesColHdg + "', found '" + sActualCurrentSubsidiaryServicesColHdg + "'"));
+			}
+			
+			if (exceptions.size() > 0) {
+				return OUTPUT_PAGE;
+			}
+			
+	        while (scanner.hasNext()) {
+	            line = csvUtils.parseLine(scanner.nextLine());
+	            iLine++;
+	            
+	            if (line.size() > 41) {
+		            String sGPSOC = line.get(41); // GPSOCRCurrentPrincipalServices
+		            String[] arrGPSOC = sGPSOC.split(";");
+	
+		            for (String service : arrGPSOC) {
+		            	service = service.trim();
+		            	if (service.length() > 0) {
+		            		if (!principalServicesAdded.contains(service)) {
+		            			principalServicesAdded.add(service);
+		            		}
+		            	}
+		            }
+	            }
+	            
+	            if (line.size() > 43) {
+		            String sGPSOC = line.get(43); // GPSOCRCurrentSubsidiaryServices
+		            String[] arrGPSOC = sGPSOC.split(";");
+	
+		            for (String service : arrGPSOC) {
+		            	service = service.trim();
+		            	if (service.length() > 0) {
+		            		if (!subsidiaryServicesAdded.contains(service)) {
+		            			subsidiaryServicesAdded.add(service);
+		            		}
+		            	}
+		            }
+	            }
+	        }
+	        
+	        principalServicesAdded.sort((object1, object2) -> object1.compareToIgnoreCase(object2));
+	        subsidiaryServicesAdded.sort((object1, object2) -> object1.compareToIgnoreCase(object2));
+	        
+	        scanner.close();
+		}
+		
+		model.addAttribute("lineCount", iLine);
+
+		return OUTPUT_PAGE;
+	}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private String getPageOfOrganisations(String role, int pageSize, long offset) {
 		RestTemplate restTemplate = new RestTemplate();
 		String nonPrimaryRole = "";
