@@ -17,8 +17,10 @@ public class SearchSolutionByCapabilityModel {
 
 	public static final int MODE_ALL = 1;
 	public static final int MODE_SITES_ONLY = 2;
+	public static final int MODE_CAPABILITIES_ONLY = 3;
 	private int mode;
 	private boolean foundation;
+	private boolean userIsKnown;
 	private Long procurementId;
 	private Procurement procurement;
 

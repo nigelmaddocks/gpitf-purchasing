@@ -86,14 +86,14 @@ public class SolutionByCapabilityController {
 	public String solutionByCapability(
 			@PathVariable Optional<Long> optProcurementId, 
 			@PathVariable Optional<String> optCsvCapabilities, 
-			@RequestParam(value = "mode", defaultValue = "1") String sMode, 
+			@RequestParam(value = "mode", defaultValue = ""+SearchSolutionByCapabilityModel.MODE_ALL) String sMode, 
 			@RequestParam(value = "foundation", defaultValue = "") String sFoundationFromQuerystring, 
 			Model model, RedirectAttributes attr, HttpServletRequest request) {
 		
 		int mode = Integer.valueOf(sMode);
 		boolean foundation = Boolean.valueOf(sFoundationFromQuerystring);
 		
-		Breadcrumbs.register(mode==2 ? "Select sites" : "By capability", request);
+		Breadcrumbs.register(mode==SearchSolutionByCapabilityModel.MODE_SITES_ONLY ? "Select sites" : "By capability", request);
 
 		String csvCapabilities =  null;
 		if (optCsvCapabilities.isPresent()) {
@@ -142,18 +142,21 @@ public class SolutionByCapabilityController {
 			}
 			
 			// Check that the user is authorised to this procurement
-			if (procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
+			if (secInfo.isKnown()
+			 && procurement.getOrgContact().getOrganisation().getId() != secInfo.getOrganisationId()
 			 && !secInfo.isAdministrator()) {
 	        	String message = "view procurement " + procurementId;
 	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 	    		attr.addFlashAttribute("security_message", "You attempted to " + message + " but you are not authorised");
 	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 			}
-			try {
-				procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities), Optional.empty(), Optional.of(foundation), Optional.empty());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (secInfo.isKnown()) {
+				try {
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), csvCapabilities==null?Optional.empty():Optional.of(csvCapabilities), Optional.empty(), Optional.of(foundation), Optional.empty());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			
 			if (csvCapabilities == null || csvCapabilities.trim().length() == 0) {
@@ -172,6 +175,7 @@ public class SolutionByCapabilityController {
 		myModel.setSHORTLIST_MAX(SHORTLIST_MAX);
 		myModel.setFOUNDATION_SEARCH_ADD_CAPABILITIES(FOUNDATION_SEARCH_ADD_CAPABILITIES);
 		myModel.setMode(mode);
+		myModel.setUserIsKnown(secInfo.isKnown());
 		myModel.setFoundation(foundation);
 		myModel.setProcurement(procurement);
 		myModel.setProcurementId(0L);

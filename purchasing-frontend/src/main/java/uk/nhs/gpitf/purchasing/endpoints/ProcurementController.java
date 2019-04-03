@@ -82,6 +82,7 @@ public class ProcurementController {
 			}
 			prim.setCsvCapabilities(csvCapabilities);
 			request.getSession().setAttribute(Procurement.SESSION_ATTR_NAME, prim);
+			return new Procurement();
 		}
 		
     	return null;
@@ -127,6 +128,7 @@ public class ProcurementController {
 			}
 			prim.setCsvCapabilities(csvInteroperables);
 			request.getSession().setAttribute(Procurement.SESSION_ATTR_NAME, prim);			
+			return new Procurement();
 		}
     	return null;
     }

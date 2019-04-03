@@ -9,13 +9,13 @@
     <div class="container">
  	<div class="panel panel-default">
  	
-		<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
+		<div th:if="${myModel.userIsKnown && myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_SITES_ONLY)}" class="panel-heading" style="background-color: white;">
 			<div class="row">
 				<div class="col-md-10">
-					<h3>1A. Who you're buying for
+					<h3>Who you're buying for
 			        </h3>	
 		        </div>
-		        <div class="col-md-2" th:if="${myModel.mode == myModel.MODE_ALL}"><br />
+		        <div class="col-md-2" th:if="${(myModel.mode == myModel.MODE_ALL)}"><br />
 			        <a onclick="showCapabilityPanel(false);" href="#">Add answer</a>
 		        </div>
 		        <div class="col-md-2" th:if="${myModel.mode == myModel.MODE_SITES_ONLY}"><br />
@@ -28,23 +28,23 @@
 	        </div>
 		</div>
 	
-		<div th:if="${myModel.procurement != null && myModel.mode == myModel.MODE_ALL}" class="panel-heading" style="background-color: white;">
+		<div class="panel-heading" th:if="${myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_CAPABILITIES_ONLY)}" style="background-color: white;">
 			<div class="row">
 				<div class="col-md-10">
-					<h3>1B. Capabilities selected
+					<h3>Capabilities selected
 			        </h3>	
 			    </div>
 		        <div class="col-md-2"><br />
-        			<a onclick="showCapabilityPanel(true);" href="#">Add answer</a>
+        			<a onclick="showCapabilityPanel(true);" th:if="${myModel.userIsKnown && myModel.mode == myModel.MODE_ALL}" href="#">Add answer</a>
         		</div>
         	</div>
-			<div class="row">
+			<div class="row" th:if="${myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_CAPABILITIES_ONLY)}">
 				<div id="selectedCapabilityNames" class="col-md-12 capability-section-header-sub-text">
 				</div>
         	</div>
 		</div>
 		
-		<div id="practicePanel" class="panel-body" style="background-color: #f0f4f5;">
+		<div id="practicePanel" class="panel-body" th:if="${myModel.userIsKnown}" style="background-color: #f0f4f5;">
     
 	        <div class="row" style="margin-left: 1rem">
 	        	<h2>My Sites
@@ -82,14 +82,14 @@
         <div class="row">
         	<div class="col-md-10">
         		<h2><span id="capabilitySearchTitle">Capability Search</span>
-        		<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+        		<span th:if="${myModel.userIsKnown && myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
         		</h2>
         	</div>
-        	<div class="col-md-2" th:if="${myModel.procurementId == 0}">
+        	<div class="col-md-2" th:if="${myModel.userIsKnown && myModel.procurementId == 0}">
         		<br />
 		     	<button id="btnCreateProcurement" class="btn btn-default" type="button" onclick="createProcurementPOST();">Store Procurement</button>
 		    </div>
-        	<div class="col-md-2" th:if="${myModel.procurementId != 0 && myModel.procurement != null}">
+        	<div class="col-md-2" th:if="${myModel.userIsKnown && myModel.procurementId != 0 && myModel.procurement != null}">
         		<br />
 		     	<button id="btnShortlist" class="btn btn-default" style="display:none;" type="button" onclick="proceedToShortlist();">Create Shortlist</button>
 		    </div>
@@ -151,8 +151,8 @@ $("form").on("click", ":checkbox[name='filterCapabilities']", function(event) {
 
 	refreshCapabilityNames();
 	$("#foundSolutions").empty();
+	updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities);
 	if (selectedCapabilities.length > 0 || selectedInteroperables.length > 0 || vFoundation) {
-		updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities);
 		searchCapabilitiesForSolutions(selectedCapabilities, selectedInteroperables, vFoundation);
 	}
 });
@@ -164,8 +164,8 @@ $("form").on("click", ":checkbox[name='filterInteroperable']", function(event) {
 
 	refreshCapabilityNames();
 	$("#foundSolutions").empty();
+	updateProcurementWithInteroperablesPOST([[${myModel.procurementId}]], selectedInteroperables);
 	if (selectedCapabilities.length > 0 || selectedInteroperables.length > 0 || vFoundation) {
-		updateProcurementWithInteroperablesPOST([[${myModel.procurementId}]], selectedInteroperables);
 		searchCapabilitiesForSolutions(selectedCapabilities, selectedInteroperables, vFoundation);
 	}
 });
@@ -614,19 +614,22 @@ $('#togFoundation').change(function() {
        	var csvInteroperables = [[${myModel.csvInteroperables}]];
        	var vFoundation = $('#togFoundation').prop('checked');
     	capabilitiesVisibility();
-       	var arrMyCsvCCGIDs = [[${myModel.myCsvCCGIDs}]].split(",");
-       	for (var idx=0; idx<arrMyCsvCCGIDs.length; idx++) {
-			$('#ccg-' + arrMyCsvCCGIDs[idx]).on('hidden.bs.collapse', function () {
-				$("#practices-" + this.id.split("-")[1]).empty();
-			});    	   
-			$('#ccg-' + arrMyCsvCCGIDs[idx]).on('show.bs.collapse', function () {
-				getPracticesForCCG(this.id.split("-")[1]);
-			});  
-			arrSelectedCCGPracticeIds[""+arrMyCsvCCGIDs[idx]] = ",";
-		}
-       	getPracticesForCCG(arrMyCsvCCGIDs[0]);       
+    	var myCsvCCGIDs = [[${myModel.myCsvCCGIDs}]];
+    	if (myCsvCCGIDs != null && myCsvCCGIDs.length > 0) {
+	       	var arrMyCsvCCGIDs = myCsvCCGIDs.split(",");
+	       	for (var idx=0; idx<arrMyCsvCCGIDs.length; idx++) {
+				$('#ccg-' + arrMyCsvCCGIDs[idx]).on('hidden.bs.collapse', function () {
+					$("#practices-" + this.id.split("-")[1]).empty();
+				});    	   
+				$('#ccg-' + arrMyCsvCCGIDs[idx]).on('show.bs.collapse', function () {
+					getPracticesForCCG(this.id.split("-")[1]);
+				});  
+				arrSelectedCCGPracticeIds[""+arrMyCsvCCGIDs[idx]] = ",";
+			}
+	       	getPracticesForCCG(arrMyCsvCCGIDs[0]); 
+    	}
 
-       	showCapabilityPanel([[${myModel.mode == myModel.MODE_ALL}]]);
+       	showCapabilityPanel([[${myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_CAPABILITIES_ONLY}]]);
        	refreshCapabilityNames();
        	searchCapabilitiesForSolutions(csvCapabilities, csvInteroperables, vFoundation);
        	refreshSelectedPractices();
