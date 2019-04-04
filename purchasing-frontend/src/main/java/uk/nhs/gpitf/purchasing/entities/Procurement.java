@@ -58,8 +58,12 @@ public class Procurement {
 	private LocalDateTime completedDate;
     
 	private String searchKeyword;
-	
-	private Boolean foundation;
+    
+    @ManyToOne(optional=true)
+    @JoinColumn(name = "evaluation_type")
+	private EvaluationType evaluationType;
+
+    private Boolean foundation;
 	
 	private String csvCapabilities;
 	
@@ -96,6 +100,7 @@ public class Procurement {
 		private static final long serialVersionUID = 7165183178416691678L;
 		private String name;
 		private long orgContactId;
+		private long evaluationType;		
 		private Boolean foundation;		
 		private String csvCapabilities;		
 		private String csvInteroperables;		

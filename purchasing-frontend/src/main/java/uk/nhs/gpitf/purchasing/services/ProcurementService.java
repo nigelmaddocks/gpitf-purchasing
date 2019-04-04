@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import uk.nhs.gpitf.purchasing.entities.EvaluationType;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
@@ -72,8 +73,9 @@ public class ProcurementService {
        return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
-    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword,
-    		Optional<String> csvCapabilities, Optional<String> csvInteroperables, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
+    public Procurement saveCurrentPosition(long procurementId, long orgContactId, 
+    		Optional<String> searchKeyword, Optional<String> csvCapabilities, Optional<String> csvInteroperables, 
+    		Optional<Long> evaluationTypeId, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
     	Procurement procurement = null;
     	if (procurementId == 0) {
     		procurement = createNewProcurement(orgContactId);
@@ -90,6 +92,9 @@ public class ProcurementService {
     	}
     	if (csvInteroperables.isPresent()) {
     		procurement.setCsvInteroperables(csvInteroperables.get());
+    	}
+    	if (evaluationTypeId.isPresent()) {
+    		procurement.setEvaluationType((EvaluationType) GUtils.makeObjectForId(EvaluationType.class, evaluationTypeId.get()));
     	}
     	if (foundation.isPresent()) {
     		procurement.setFoundation(foundation.get());
@@ -109,6 +114,7 @@ public class ProcurementService {
     	procurement = saveCurrentPosition(0, prim.getOrgContactId(), Optional.empty(), 
 			prim.getCsvCapabilities()==null		?Optional.empty():Optional.of(prim.getCsvCapabilities()), 
 			prim.getCsvInteroperables()==null	?Optional.empty():Optional.of(prim.getCsvInteroperables()), 
+			prim.getEvaluationType()==0			?Optional.empty():Optional.of(prim.getEvaluationType()),
 			prim.getFoundation()==null			?Optional.empty():Optional.of(prim.getFoundation()), 
 			prim.getCsvPractices()==null		?Optional.empty():Optional.of(GUtils.trimCommas(prim.getCsvPractices()))
 		);
