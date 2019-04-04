@@ -136,7 +136,7 @@
 
 <script th:inline="javascript">
 $(window).bind('beforeunload', function() {
-		if (procurementId == 0) {
+		if ([[${myModel.userIsKnown}]] && procurementId == 0) {
 			return "";
 		}
 		

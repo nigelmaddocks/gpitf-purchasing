@@ -98,6 +98,9 @@ public class OrganisationService {
     		arlOrgIds.add(Long.valueOf(sOrgId));
     	}
     	Object object = thisRepository.getPatientCountForIds(arlOrgIds);
+    	if (object == null) {
+    		object = 0L;
+    	}    	
     	
     	return (long)object;
     }
