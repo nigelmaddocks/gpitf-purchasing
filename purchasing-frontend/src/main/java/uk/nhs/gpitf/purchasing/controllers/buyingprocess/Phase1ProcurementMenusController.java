@@ -3,17 +3,20 @@ package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByCapabilityModel;
+import uk.nhs.gpitf.purchasing.models.TmpBuyingStartModel;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
@@ -141,5 +144,26 @@ public class Phase1ProcurementMenusController {
 		}
 
         return "buying-process/capabilitiesOrKeywordsMenu";	
+	}
+	
+	// Temporary page to kick off a procurement
+	@GetMapping(value = {"/buyingprocess/tmpBuyingStart"})
+	public String tmpBuyingStart(Model model, RedirectAttributes attr, HttpServletRequest request) {
+		return "buying-process/tmpBuyingStart";
+	}
+	
+	// Temporary page to kick off a procurement
+	@PostMapping(value = {"/buyingprocess/tmpBuyingStart"})
+	public String tmpBuyingStartPOST(Model model, TmpBuyingStartModel tmpBuyingStartModel, RedirectAttributes attr, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+		Procurement.PrimitiveProcurement prim = procurementService.createAndPersistNewPrimitiveProcurement(session, secInfo);
+		
+		prim.setEvaluationType(tmpBuyingStartModel.getEvaluationType());
+		prim.setFoundation(tmpBuyingStartModel.getFoundation() == 1L);
+		
+		session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
+		
+		return "redirect:/buyingprocess/solutionByCapability";
 	}
 }
