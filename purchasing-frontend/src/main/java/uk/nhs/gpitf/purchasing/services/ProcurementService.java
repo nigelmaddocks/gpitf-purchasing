@@ -192,6 +192,10 @@ public class ProcurementService {
 			}
 			
 			proc.setStatus((ProcStatus)GUtils.makeObjectForId(ProcStatus.class, ProcStatus.DRAFT));
+			if (prim.getEvaluationType() != 0) {
+				proc.setEvaluationType((EvaluationType)GUtils.makeObjectForId(EvaluationType.class, prim.getEvaluationType()));
+			}
+
 			proc.setOrgContact(orgContact);
 		} catch (Exception e) {
 			e.printStackTrace();
