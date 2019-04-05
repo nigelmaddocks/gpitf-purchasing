@@ -512,7 +512,7 @@ $('#togFoundation').change(function() {
 			var htmlTable = $("<table class=\"table table-striped\">");
 			var htmlHead = $("<thead>");
 			htmlHead.appendTo(htmlTable);
-			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th><th scope=\"col\">Foundation System</th></tr>");
+			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th><th scope=\"col\">Foundation System [Contract End]</th></tr>");
 			htmlHeaderRow.appendTo(htmlHead);
 			var htmlSelectorRow = $("<tr>" +
 					"<td scope=\"col\"><input type=\"checkbox\" name=\"selAllOrg-" + ccgId + "\" onchange=\"checkAllOrgs(this.checked);\" /></td>" + 
@@ -530,7 +530,7 @@ $('#togFoundation').change(function() {
 				if (arrSelectedCCGPracticeIds[""+ccgId].includes("," + item.organisationId + ",")) {
 					checked = "checked";
 				}
-				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + (item.patientCount==null?"":item.patientCount) + "</td><td>" + item.formattedSolution + "</td></tr>");
+				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + (item.patientCount==null?"":item.patientCount) + "</td><td>" + item.htmlFormattedSolutions + "</td></tr>");
 				htmlRow.appendTo(htmlBody);
 			});
 			htmlTable.appendTo("#practices-" + ccgId);

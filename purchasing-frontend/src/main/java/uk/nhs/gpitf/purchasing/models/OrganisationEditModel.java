@@ -8,6 +8,7 @@ import lombok.Data;
 import uk.nhs.gpitf.purchasing.entities.Contact;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.OrgRelationship;
+import uk.nhs.gpitf.purchasing.entities.OrgSolution;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 
 @Data
@@ -21,6 +22,8 @@ public class OrganisationEditModel {
 	private List<Organisation> potentialParentOrgs;
 	
 	private List<OrgContact> orgContacts;
+	
+	private List<OrgSolution> orgSolutions;
 	
 	private long newParentOrgId;
 	

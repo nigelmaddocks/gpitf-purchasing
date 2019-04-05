@@ -13,4 +13,5 @@ import uk.nhs.gpitf.purchasing.entities.*;
 @Repository
 public interface OrgSolutionRepository extends CrudRepository<OrgSolution, Long> {
 	Optional<OrgSolution> findByOrganisationAndLegacySolution(Organisation organisation, LegacySolution legacySolution);
+	List<OrgSolution> findAllByOrganisation(Organisation organisation);
 }

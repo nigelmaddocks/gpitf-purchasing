@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.nhs.gpitf.purchasing.entities.Contact;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.OrgRelationship;
+import uk.nhs.gpitf.purchasing.entities.OrgSolution;
 import uk.nhs.gpitf.purchasing.entities.OrgType;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.RelationshipType;
@@ -32,6 +33,7 @@ import uk.nhs.gpitf.purchasing.models.OrganisationEditModel;
 import uk.nhs.gpitf.purchasing.repositories.ContactRepository;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
 import uk.nhs.gpitf.purchasing.repositories.OrgRelationshipRepository;
+import uk.nhs.gpitf.purchasing.repositories.OrgSolutionRepository;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.services.OrgContactService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
@@ -64,6 +66,9 @@ public class OrganisationAdminController {
     @Autowired
     private OrgContactService orgContactService;
 
+    @Autowired
+    private OrgSolutionRepository orgSolutionRepository;
+    
     @Autowired
     private SecurityService securityService;
 
@@ -314,6 +319,9 @@ public class OrganisationAdminController {
         List<OrgContact> orgContacts = orgContactService.getAllByOrganisation(org);
 
         List<OrgRelationship> parentOrgRelationships = new ArrayList<>();
+        
+        List<OrgSolution> orgSolutions = orgSolutionRepository.findAllByOrganisation(org);
+        orgSolutions.sort((object1, object2) -> (object1.getContractEndDate()).compareTo(object2.getContractEndDate()));
 
         if (parentRelationshipType.getId() != 0) {
         	parentOrgRelationships = orgRelationshipService.getAllByChildOrgAndRelationshipType(org, parentRelationshipType);
@@ -326,6 +334,7 @@ public class OrganisationAdminController {
         orgEditModel.setParentOrgRelationships(parentOrgRelationships);
         orgEditModel.setPotentialParentOrgs(potentialParentOrgs);
         orgEditModel.setOrgContacts(orgContacts);
+        orgEditModel.setOrgSolutions(orgSolutions);
     }
 
 	private List<Organisation> getParentOrgCandidates(long iOrgType) {

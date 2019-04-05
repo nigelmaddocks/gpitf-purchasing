@@ -17,6 +17,7 @@ import uk.nhs.gpitf.purchasing.entities.OrgType;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.RelationshipType;
 import uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolution;
+import uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolutions;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrgTypeService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
@@ -65,7 +66,7 @@ public class OrganisationDataController {
     }
 
     @GetMapping(value = "/organisationCoreSystemData/{parentOrg}/{relationshipType}")
-    public List<OrgAndCountAndSolution> getOrganisationsAndCoreSystemByParentOrgAndRelationshipType(
+    public List<OrgAndCountAndSolutions> getOrganisationsAndCoreSystemByParentOrgAndRelationshipType(
     		@PathVariable("parentOrg") long parentOrgId,
     		@PathVariable("relationshipType") long relationshipTypeId,
     		@RequestParam(value = "filterByName", defaultValue = "") String filterByName,
@@ -75,7 +76,7 @@ public class OrganisationDataController {
     	
     	objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     	
-    	List<OrgAndCountAndSolution> list;
+    	List<OrgAndCountAndSolutions> list;
     	Organisation parentOrg = new Organisation();
     	parentOrg.setId(parentOrgId);
     	RelationshipType relationshipType = new RelationshipType();

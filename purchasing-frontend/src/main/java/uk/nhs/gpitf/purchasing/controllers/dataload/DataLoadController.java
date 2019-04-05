@@ -1,6 +1,8 @@
 package uk.nhs.gpitf.purchasing.controllers.dataload;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -527,6 +529,8 @@ public class DataLoadController {
 	public String loadLegacySystemsExcelSelectFile(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
 		Breadcrumbs.register("Output", request);
 		
+		LocalDate contractEndDate = LocalDate.of(2019, Month.DECEMBER, 31);
+		
 		List<Organisation> suppliersAdded = new ArrayList<>();
 		List<LegacySolution> legacySolutionsAdded = new ArrayList<>();
 		List<Exception> exceptions = new ArrayList<Exception>();
@@ -656,14 +660,15 @@ public class DataLoadController {
 							orgSolution = new OrgSolution();
 							orgSolution.setOrganisation(orgGP);
 							orgSolution.setLegacySolution(legSolution);
-							try {
-								orgSolutionRepository.save(orgSolution);
-							} catch (Exception e) {
-								exceptions.add(e);
-								bContinue = false;
-							}
 						} else {
 							orgSolution = optOrgSolution.get();
+						}
+						orgSolution.setContractEndDate(contractEndDate);
+						try {
+							orgSolutionRepository.save(orgSolution);
+						} catch (Exception e) {
+							exceptions.add(e);
+							bContinue = false;
 						}
 					}
 				}
