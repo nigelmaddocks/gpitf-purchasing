@@ -29,7 +29,7 @@ import java.util.List;
  * A single Capability with its corresponding OptionalStandard
  */
 @ApiModel(description = "A single Capability with its corresponding OptionalStandard")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
 public class CapabilityMapping {
   @JsonProperty("capability")
   private Capabilities capability = null;

@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * StringSegment
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
 public class StringSegment {
   @JsonProperty("buffer")
   private String buffer = null;

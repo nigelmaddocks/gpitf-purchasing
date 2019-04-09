@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
  * A piece of &#39;evidence&#39; which supports a claim to a ‘capability’.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘capability’ it has claimed.
  */
 @ApiModel(description = "A piece of 'evidence' which supports a claim to a ‘capability’.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘capability’ it has claimed.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
 public class CapabilitiesImplementedEvidence {
   @JsonProperty("id")
   private String id = null;
@@ -42,6 +42,9 @@ public class CapabilitiesImplementedEvidence {
 
   @JsonProperty("createdOn")
   private OffsetDateTime createdOn = null;
+
+  @JsonProperty("originalDate")
+  private OffsetDateTime originalDate = null;
 
   @JsonProperty("evidence")
   private String evidence = null;
@@ -142,6 +145,24 @@ public class CapabilitiesImplementedEvidence {
     this.createdOn = createdOn;
   }
 
+  public CapabilitiesImplementedEvidence originalDate(OffsetDateTime originalDate) {
+    this.originalDate = originalDate;
+    return this;
+  }
+
+   /**
+   * UTC date and time at which record was originally created  Set by server when first creating record  SET ON SERVER
+   * @return originalDate
+  **/
+  @ApiModelProperty(value = "UTC date and time at which record was originally created  Set by server when first creating record  SET ON SERVER")
+  public OffsetDateTime getOriginalDate() {
+    return originalDate;
+  }
+
+  public void setOriginalDate(OffsetDateTime originalDate) {
+    this.originalDate = originalDate;
+  }
+
   public CapabilitiesImplementedEvidence evidence(String evidence) {
     this.evidence = evidence;
     return this;
@@ -211,6 +232,7 @@ public class CapabilitiesImplementedEvidence {
         Objects.equals(this.claimId, capabilitiesImplementedEvidence.claimId) &&
         Objects.equals(this.createdById, capabilitiesImplementedEvidence.createdById) &&
         Objects.equals(this.createdOn, capabilitiesImplementedEvidence.createdOn) &&
+        Objects.equals(this.originalDate, capabilitiesImplementedEvidence.originalDate) &&
         Objects.equals(this.evidence, capabilitiesImplementedEvidence.evidence) &&
         Objects.equals(this.hasRequestedLiveDemo, capabilitiesImplementedEvidence.hasRequestedLiveDemo) &&
         Objects.equals(this.blobId, capabilitiesImplementedEvidence.blobId);
@@ -218,7 +240,7 @@ public class CapabilitiesImplementedEvidence {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, previousId, claimId, createdById, createdOn, evidence, hasRequestedLiveDemo, blobId);
+    return Objects.hash(id, previousId, claimId, createdById, createdOn, originalDate, evidence, hasRequestedLiveDemo, blobId);
   }
 
 
@@ -232,6 +254,7 @@ public class CapabilitiesImplementedEvidence {
     sb.append("    claimId: ").append(toIndentedString(claimId)).append("\n");
     sb.append("    createdById: ").append(toIndentedString(createdById)).append("\n");
     sb.append("    createdOn: ").append(toIndentedString(createdOn)).append("\n");
+    sb.append("    originalDate: ").append(toIndentedString(originalDate)).append("\n");
     sb.append("    evidence: ").append(toIndentedString(evidence)).append("\n");
     sb.append("    hasRequestedLiveDemo: ").append(toIndentedString(hasRequestedLiveDemo)).append("\n");
     sb.append("    blobId: ").append(toIndentedString(blobId)).append("\n");

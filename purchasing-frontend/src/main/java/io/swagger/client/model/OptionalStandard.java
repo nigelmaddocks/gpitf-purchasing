@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A Standard and a flag associated with a Capability through a CapabilityMapping
  */
 @ApiModel(description = "A Standard and a flag associated with a Capability through a CapabilityMapping")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
 public class OptionalStandard {
   @JsonProperty("standardId")
   private String standardId = null;

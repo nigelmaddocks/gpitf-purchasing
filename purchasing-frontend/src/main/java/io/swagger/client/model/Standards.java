@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A formal set of requirements eg  * ISO 9001  Note that a ‘standard’ has a link to zero or one previous ‘standard’  Generally, only interested in current ‘standard’
  */
 @ApiModel(description = "A formal set of requirements eg  * ISO 9001  Note that a ‘standard’ has a link to zero or one previous ‘standard’  Generally, only interested in current ‘standard’")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
 public class Standards {
   @JsonProperty("isOverarching")
   private Boolean isOverarching = null;

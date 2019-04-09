@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
  * A piece of &#39;evidence&#39; which supports a claim to a ‘standard’.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘standard’ it has claimed.
  */
 @ApiModel(description = "A piece of 'evidence' which supports a claim to a ‘standard’.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘standard’ it has claimed.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
 public class StandardsApplicableEvidence {
   @JsonProperty("id")
   private String id = null;
@@ -42,6 +42,9 @@ public class StandardsApplicableEvidence {
 
   @JsonProperty("createdOn")
   private OffsetDateTime createdOn = null;
+
+  @JsonProperty("originalDate")
+  private OffsetDateTime originalDate = null;
 
   @JsonProperty("evidence")
   private String evidence = null;
@@ -142,6 +145,24 @@ public class StandardsApplicableEvidence {
     this.createdOn = createdOn;
   }
 
+  public StandardsApplicableEvidence originalDate(OffsetDateTime originalDate) {
+    this.originalDate = originalDate;
+    return this;
+  }
+
+   /**
+   * UTC date and time at which record was originally created  Set by server when first creating record  SET ON SERVER
+   * @return originalDate
+  **/
+  @ApiModelProperty(value = "UTC date and time at which record was originally created  Set by server when first creating record  SET ON SERVER")
+  public OffsetDateTime getOriginalDate() {
+    return originalDate;
+  }
+
+  public void setOriginalDate(OffsetDateTime originalDate) {
+    this.originalDate = originalDate;
+  }
+
   public StandardsApplicableEvidence evidence(String evidence) {
     this.evidence = evidence;
     return this;
@@ -211,6 +232,7 @@ public class StandardsApplicableEvidence {
         Objects.equals(this.claimId, standardsApplicableEvidence.claimId) &&
         Objects.equals(this.createdById, standardsApplicableEvidence.createdById) &&
         Objects.equals(this.createdOn, standardsApplicableEvidence.createdOn) &&
+        Objects.equals(this.originalDate, standardsApplicableEvidence.originalDate) &&
         Objects.equals(this.evidence, standardsApplicableEvidence.evidence) &&
         Objects.equals(this.hasRequestedLiveDemo, standardsApplicableEvidence.hasRequestedLiveDemo) &&
         Objects.equals(this.blobId, standardsApplicableEvidence.blobId);
@@ -218,7 +240,7 @@ public class StandardsApplicableEvidence {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, previousId, claimId, createdById, createdOn, evidence, hasRequestedLiveDemo, blobId);
+    return Objects.hash(id, previousId, claimId, createdById, createdOn, originalDate, evidence, hasRequestedLiveDemo, blobId);
   }
 
 
@@ -232,6 +254,7 @@ public class StandardsApplicableEvidence {
     sb.append("    claimId: ").append(toIndentedString(claimId)).append("\n");
     sb.append("    createdById: ").append(toIndentedString(createdById)).append("\n");
     sb.append("    createdOn: ").append(toIndentedString(createdOn)).append("\n");
+    sb.append("    originalDate: ").append(toIndentedString(originalDate)).append("\n");
     sb.append("    evidence: ").append(toIndentedString(evidence)).append("\n");
     sb.append("    hasRequestedLiveDemo: ").append(toIndentedString(hasRequestedLiveDemo)).append("\n");
     sb.append("    blobId: ").append(toIndentedString(blobId)).append("\n");
