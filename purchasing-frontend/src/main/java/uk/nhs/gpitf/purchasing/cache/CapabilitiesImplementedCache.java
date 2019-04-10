@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.swagger.client.model.Capabilities;
 import io.swagger.client.model.CapabilitiesImplemented;
+import io.swagger.client.model.CapabilitiesImplemented.StatusEnum;
 import io.swagger.client.model.Solutions;
 import io.swagger.client.model.Standards;
 import io.swagger.client.model.StandardsApplicable;
@@ -105,7 +107,13 @@ public class CapabilitiesImplementedCache {
 			List<Solutions> tmpSolutions = onboardingService.findSolutionsByFramework(onboardingService.getDefaultFramework());
 			List<SolutionEx2> solutions = new ArrayList<>();
 			for (var tmpSolution : tmpSolutions) {
-				solutions.add(new SolutionEx2(tmpSolution));
+				if (tmpSolution.getStatus().equals(io.swagger.client.model.Solutions.StatusEnum.APPROVED)
+				 || tmpSolution.getStatus().equals(io.swagger.client.model.Solutions.StatusEnum.FINALAPPROVAL)
+				 || tmpSolution.getStatus().equals(io.swagger.client.model.Solutions.StatusEnum.STANDARDSCOMPLIANCE)
+				 || tmpSolution.getStatus().equals(io.swagger.client.model.Solutions.StatusEnum.SOLUTIONPAGE)
+						) {
+					solutions.add(new SolutionEx2(tmpSolution)); 
+				}
 			}
 			
 			for (var capability : capabilities) {
@@ -117,7 +125,7 @@ public class CapabilitiesImplementedCache {
 			List<CapabilitiesImplemented> capabilitiesImplemented = new ArrayList<>();
 			for (SolutionEx2 solution : solutions) {
 				List<CapabilitiesImplemented> ciForSolution = onboardingService.findCapabilitiesImplementedBySolution(solution.getId());
-				capabilitiesImplemented.addAll(ciForSolution);
+				capabilitiesImplemented.addAll(ciForSolution.stream().filter(c -> c.getStatus().equals(StatusEnum.APPROVED)).collect(Collectors.toList()));
 						// Add to newSolutions
 				newSolutions.put(solution.getId(), solution);
 				String[] arrCapabilities = new String[ciForSolution.size()];
@@ -296,7 +304,7 @@ public class CapabilitiesImplementedCache {
 		this.organisations = newOrganisations;
 		this.foundationCapabilityIds = newFoundationCapabilityIds;
 		this.standards = newStandards;
-		this.solutionStandardsApplicable = newSolutionStandardsApplicable;
+		this.solutionStandardsApplicable = newSolutionStandardsApplicable; 
 		
 		System.out.println("*** CapabilitiesImplemented loaded into Cache ***");
  

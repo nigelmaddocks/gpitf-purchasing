@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A means of communicating with an organisation, typically a person, email address, telephone number etc.  Standard MS Dynamics CRM entity
  */
 @ApiModel(description = "A means of communicating with an organisation, typically a person, email address, telephone number etc.  Standard MS Dynamics CRM entity")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class Contacts {
   @JsonProperty("id")
   private String id = null;

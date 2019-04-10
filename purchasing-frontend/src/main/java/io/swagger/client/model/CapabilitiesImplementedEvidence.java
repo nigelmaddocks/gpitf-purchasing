@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
  * A piece of &#39;evidence&#39; which supports a claim to a ‘capability’.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘capability’ it has claimed.
  */
 @ApiModel(description = "A piece of 'evidence' which supports a claim to a ‘capability’.  This is then assessed by NHS to verify the ‘solution’ complies with the ‘capability’ it has claimed.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class CapabilitiesImplementedEvidence {
   @JsonProperty("id")
   private String id = null;

@@ -22,5 +22,9 @@ $'        if \(string\.contains\("T"\) \&\& string\.length\(\) \=\= 19 \&\& !str
 $'          string \+\= "Z"\;'\
 $'/' swagger_temp_java/src/main/java/io/swagger/client/CustomInstantDeserializer.java
 
+sed -i.bak 's/if (String.valueOf(b.value).equals(text))/if \(String\.valueOf\(b\.value\)\.equals\(text\) \/\* nima added via sed --> \*\/ || String\.valueOf\(b\.ordinal\(\)\)\.equals\(text\)\)/' swagger_temp_java/src/main/java/io/swagger/client/model/CapabilitiesImplemented.java
+sed -i.bak 's/if (String.valueOf(b.value).equals(text))/if \(String\.valueOf\(b\.value\)\.equals\(text\) \/\* nima added via sed --> \*\/ || String\.valueOf\(b\.ordinal\(\)-1\)\.equals\(text\)\)/' swagger_temp_java/src/main/java/io/swagger/client/model/Solutions.java
+sed -i.bak 's/if (String.valueOf(b.value).equals(text))/if \(String\.valueOf\(b\.value\)\.equals\(text\) \/\* nima added via sed --> \*\/ || String\.valueOf\(b\.ordinal\(\)\)\.equals\(text\)\)/' swagger_temp_java/src/main/java/io/swagger/client/model/StandardsApplicable.java
+
 mv swagger_temp_java/src/main/java/io ../../src/main/java/io
 mv swagger_temp_java/src/test/java/io ../../src/test/java/io
