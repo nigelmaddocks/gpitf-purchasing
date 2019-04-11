@@ -1107,13 +1107,17 @@ public class DataLoadController {
 		String OUTPUT_PAGE = "dataload/dataloadGPSOCOutput";
 		
 		Breadcrumbs.register("Output", request);
+
+		LocalDate contractEndDate = LocalDate.of(2019, Month.DECEMBER, 31);
 		
 		List<String> subsidiaryServicesAdded = new ArrayList<>();
 		List<String> principalServicesAdded = new ArrayList<>();
+		List<OrgSolution> orgSolutionsAdded = new ArrayList<>();
 		List<Exception> exceptions = new ArrayList<Exception>();
 		
 		model.addAttribute("principalServices", principalServicesAdded);
 		model.addAttribute("subsidiaryServices", subsidiaryServicesAdded);
+		model.addAttribute("orgSolutionsAdded", orgSolutionsAdded);
 		model.addAttribute("exceptions", exceptions);
 
 		Scanner scanner = null;
@@ -1171,6 +1175,100 @@ public class DataLoadController {
 		            	if (service.length() > 0) {
 		            		if (!subsidiaryServicesAdded.contains(service)) {
 		            			subsidiaryServicesAdded.add(service);
+		            		}
+		            		
+		            		// Add Docman to installed Legacy system where it's found
+		            		if (service.startsWith("Document Management - Docman GP")
+		            		 && service.contains("(Centrally funded)")) {
+		            			String sProductName = "Docman GP";
+		            			String sProductVersion = service.substring(service.indexOf(sProductName) + sProductName.length(), service.indexOf("(Centrally funded)")).trim();
+		            			String sSupplierName = service.substring(service.indexOf("(Centrally funded)") + "(Centrally funded)".length())
+		            					.trim().replace("(", "").replace(")", "").trim();
+		            			String sGPOrgCode = line.get(5).trim().replace("\"", "").trim().toUpperCase();
+		            			
+		            			// Add / Amend Supplier
+		            			if (sSupplierName.toUpperCase().contains("PCTI")) {
+		    						boolean bContinue = true;
+
+		    						Optional<Organisation> optGP  = organisationRepository.findByOrgCode(sGPOrgCode);	
+		    						Organisation orgGP = null;
+		        					if (optGP.isEmpty()) {
+		        						exceptions.add(new Exception("GP for Org Code " + sGPOrgCode + " not found"));
+		        						bContinue = false;
+		        					} else {
+		        						orgGP = optGP.get();
+		        					}
+		            				
+		            				
+		            				String sSupplierOrgCode = "8HP20";
+		    						Optional<Organisation> optSupplier = organisationRepository.findByOrgCode(sSupplierOrgCode);
+		    						Organisation orgSupplier = null;
+		    						if (optSupplier.isEmpty()) {
+		    							try {
+		    								orgSupplier = new Organisation();
+		    								orgSupplier.setOrgCode(sSupplierOrgCode);
+		    								orgSupplier.setOrgType((OrgType)GUtils.makeObjectForId(OrgType.class, OrgType.SUPPLIER));
+		    								orgSupplier.setName(sSupplierName);
+		    								organisationRepository.save(orgSupplier);
+		    							} catch (Exception e) {
+		    								exceptions.add(e);
+		    								bContinue = false;
+		    							}
+		    						} else {
+		    							orgSupplier = optSupplier.get();
+		    							if ((orgSupplier.getName() == null || orgSupplier.getName().trim().length() == 0)
+		    							 && sSupplierName != null && sSupplierName.trim().length() > 0) {
+		    								orgSupplier.setName(sSupplierName);
+		    								organisationRepository.save(orgSupplier);
+		    								exceptions.add(new Exception("**info** Supplier " + orgSupplier.getOrgCode() + " name updated to " + orgSupplier.getName()));
+		    							}
+		    						}
+
+		    						
+		    						// If solution doesn't exist, create it
+		    						LegacySolution legSolution = null;
+		    						if (bContinue) {
+		    							Optional<LegacySolution> optLegSol = legacySolutionRepository.findByNameAndVersionAndSupplier(sProductName, sProductVersion, orgSupplier);
+		    							if (optLegSol.isEmpty()) {
+		    								legSolution = new LegacySolution();
+		    								legSolution.setName(sProductName);
+		    								legSolution.setVersion(sProductVersion);
+		    								legSolution.setSupplier(orgSupplier);
+		    								legSolution.setFoundation(false);
+		    								try {
+		    									legacySolutionRepository.save(legSolution);
+		    								} catch (Exception e) {
+		    									exceptions.add(e);
+		    									bContinue = false;
+		    								}
+		    							} else {
+		    								legSolution = optLegSol.get();
+		    							}
+		    						}
+		    						
+		    						if (bContinue) {
+		    							Optional<OrgSolution> optOrgSolution = orgSolutionRepository.findByOrganisationAndLegacySolution(orgGP, legSolution);
+		    							OrgSolution orgSolution = null;
+		    							if (optOrgSolution.isEmpty()) {
+		    								orgSolution = new OrgSolution();
+		    								orgSolution.setOrganisation(orgGP);
+		    								orgSolution.setLegacySolution(legSolution);
+		    							} else {
+		    								orgSolution = optOrgSolution.get();
+		    							}
+		    							orgSolution.setContractEndDate(contractEndDate);
+		    							try {
+		    								orgSolutionRepository.save(orgSolution);
+		    								if (optOrgSolution.isEmpty() ) {
+		    									orgSolutionsAdded.add(orgSolution);
+		    								}
+		    							} catch (Exception e) {
+		    								exceptions.add(e);
+		    								bContinue = false;
+		    							}
+
+		    						}		    						
+		            			}		            			
 		            		}
 		            	}
 		            }

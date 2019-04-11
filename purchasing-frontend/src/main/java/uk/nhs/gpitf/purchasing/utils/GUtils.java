@@ -38,6 +38,9 @@ public class GUtils {
      * @return the same phrase with capitals applied.
      */
     public static String getCapitalized(String phrase) {
+    	if (phrase == null) {
+    		return null;
+    	}
 
         phrase = phrase.toUpperCase();
 

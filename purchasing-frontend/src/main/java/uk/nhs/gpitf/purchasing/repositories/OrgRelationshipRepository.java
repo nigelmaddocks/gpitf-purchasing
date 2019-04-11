@@ -26,7 +26,7 @@ public interface OrgRelationshipRepository extends CrudRepository<OrgRelationshi
 			"LEFT OUTER JOIN OrgSolution os ON os.organisation = orgr.childOrg " +
 			"LEFT OUTER JOIN LegacySolution ls ON ls.id = os.legacySolution " +
 			"WHERE orgr.parentOrg = :parentOrg AND orgr.relationshipType = :relationshipType " +
-			"ORDER BY orgr.childOrg")
+			"ORDER BY orgr.childOrg, os.contractEndDate, os.id")
 	Iterable<OrgAndCountAndSolution> findAllWithCoreSystemByParentOrgAndRelationshipType(@Param("parentOrg") Organisation parentOrg, @Param("relationshipType") RelationshipType relationshipType);
 
 	@Query("SELECT NEW uk.nhs.gpitf.purchasing.repositories.results.OrgAndCountAndSolution(o.id, o.name, o.orgCode, pc.patientCount, os.solution, ls, os.contractEndDate) " +
@@ -35,7 +35,7 @@ public interface OrgRelationshipRepository extends CrudRepository<OrgRelationshi
 			"LEFT OUTER JOIN OrgSolution os ON os.organisation = o " +
 			"LEFT OUTER JOIN LegacySolution ls ON ls.id = os.legacySolution " +
 			"WHERE o = :org " +
-			"ORDER BY o")
+			"ORDER BY o, os.contractEndDate, os.id")
 	Iterable<OrgAndCountAndSolution> findAllWithCoreSystemByOrg(@Param("org") Organisation org);
 
 }

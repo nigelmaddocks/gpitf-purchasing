@@ -32,4 +32,5 @@ public class LegacySolution {
     @JoinColumn(name = "supplier")
 	private Organisation supplier;    
     
+    private boolean foundation;
 }

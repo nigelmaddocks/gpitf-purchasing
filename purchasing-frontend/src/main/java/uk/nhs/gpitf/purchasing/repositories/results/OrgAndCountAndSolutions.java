@@ -46,6 +46,7 @@ public class OrgAndCountAndSolutions {
 		public String solutionId;
 		public LegacySolution legacySolution;
 		public String solutionName;
+		public String solutionVersion;
 		public String solutionSupplierName;
 		public String formattedSolution;
 		public LocalDate contractEndDate;
@@ -53,6 +54,7 @@ public class OrgAndCountAndSolutions {
 		public SolutionDetail(LegacySolution legacySolution, LocalDate contractEndDate) {
 			this.legacySolution = legacySolution;
 			this.solutionName = GUtils.getCapitalized(legacySolution.getName());
+			this.solutionVersion = GUtils.getCapitalized(legacySolution.getVersion());
 			this.solutionSupplierName = GUtils.getCapitalized(legacySolution.getSupplier().getName());
 			this.contractEndDate = contractEndDate;
 			formattedSolution = formatSolution();
@@ -70,7 +72,7 @@ public class OrgAndCountAndSolutions {
 			if (solutionName == null) {
 				return "";
 			}
-			String s = solutionName + " (" + solutionSupplierName + ")"  +
+			String s = solutionName + (solutionVersion==null?"":" " + solutionVersion) + " (" + solutionSupplierName + ")"  +
 					(contractEndDate == null ? "":" [" + contractEndDate + "]");
 			return s;
 		}
