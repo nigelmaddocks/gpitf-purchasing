@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * IFormFile
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class IFormFile {
   @JsonProperty("contentType")
   private String contentType = null;

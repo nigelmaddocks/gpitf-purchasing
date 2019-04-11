@@ -28,7 +28,7 @@ import java.util.List;
  * Mapping between a claimed capability or standard and it&#39;s corresponding  folders and files in blob datastore
  */
 @ApiModel(description = "Mapping between a claimed capability or standard and it's corresponding  folders and files in blob datastore")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class ClaimBlobInfoMap {
   @JsonProperty("claimId")
   private String claimId = null;

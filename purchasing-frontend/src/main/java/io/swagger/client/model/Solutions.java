@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
  * A product and/or service provided by an ‘organisation’.  Note that a ‘solution’ has a link to zero or one previous ‘solution’  Generally, only interested in current ‘solution’  Standard MS Dynamics CRM entity
  */
 @ApiModel(description = "A product and/or service provided by an ‘organisation’.  Note that a ‘solution’ has a link to zero or one previous ‘solution’  Generally, only interested in current ‘solution’  Standard MS Dynamics CRM entity")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class Solutions {
   @JsonProperty("id")
   private String id = null;
@@ -79,7 +79,7 @@ public class Solutions {
     @JsonCreator
     public static StatusEnum fromValue(String text) {
       for (StatusEnum b : StatusEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
+        if (String.valueOf(b.value).equals(text) /* nima added via sed --> */ || String.valueOf(b.ordinal()-1).equals(text)) {
           return b;
         }
       }

@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
  * Information about a folder or file in blob datastore,  typically SharePoint
  */
 @ApiModel(description = "Information about a folder or file in blob datastore,  typically SharePoint")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class BlobInfo {
   @JsonProperty("id")
   private String id = null;

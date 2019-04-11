@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A ‘Standard’ which a ‘Solution’ asserts that it provides.  This is then assessed by NHS to verify the ‘Solution’ complies with the ‘Standard’ it has claimed.
  */
 @ApiModel(description = "A ‘Standard’ which a ‘Solution’ asserts that it provides.  This is then assessed by NHS to verify the ‘Solution’ complies with the ‘Standard’ it has claimed.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-09T09:44:06.853Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class StandardsApplicable {
   @JsonProperty("standardId")
   private String standardId = null;
@@ -69,7 +69,7 @@ public class StandardsApplicable {
     @JsonCreator
     public static StatusEnum fromValue(String text) {
       for (StatusEnum b : StatusEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
+        if (String.valueOf(b.value).equals(text) /* nima added via sed --> */ || String.valueOf(b.ordinal()).equals(text)) {
           return b;
         }
       }
