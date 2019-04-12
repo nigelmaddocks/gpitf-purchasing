@@ -1,8 +1,11 @@
 package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +23,10 @@ import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller
 public class Phase1ProcurementMenusController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    protected static final String PAGE_PRICE_DECLARATION = "priceDeclaration";
 
 	@Autowired
 	ProcurementService procurementService;
@@ -142,7 +149,7 @@ public class Phase1ProcurementMenusController {
 
 	@GetMapping("/buyingprocess/price-declaration")
     public String priceDeclaration() {
-        return "buying-process/priceDeclaration";
+        return BuyingProcessController.PATH + PAGE_PRICE_DECLARATION;
     }
 
 	// Temporary page to kick off a procurement
