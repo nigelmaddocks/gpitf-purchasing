@@ -8,36 +8,22 @@
 <body>
 	<main id="content">
 		<h1>Price Declaration</h1>
-		<form action="" th:action="@{/buyingprocess/price-declaration}" method="POST">
+		<form action="" th:action="@{/buyingprocess/price-declaration}" th:object="${procurement}" method="POST">
 <!-- 			<input type="hidden" th:field="*{id}"> -->
+<!-- 			<input type="hidden" th:field="*{evaluationType}"> -->
+				<input type="hidden" id="evaluationType" name="evaluationType" value="" />
 <!-- 			<ul class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}"> -->
 <!--   				<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li> -->
 <!-- 			</ul> -->
 			<div class="form-group">
 				<div class="row">
 					<div class="col-xs-12 col-md-8 col-md-offset-2">
-						<ul class="flex-option-container" id="choices">
-							<li>
-								<div class="title">Price</div>
-								<div class="body">
-									Basing your procurement on price only will choose the lowest priced solution
-								</div>
+						<ul class="flex-option-container" id="select-evaluation-type">
+							<li th:each="type : ${T(uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum).values()}" th:id="|evaluation-type-item-${type.id}|">
+								<div class="title" th:text="${type.name}"></div>
+								<div class="body" th:text="#{evaluation-type.description[__${type.id}__]}"></div>
 								<div class="select">
-<!-- 										<input type="radio" id="price" name="option" value="price"> -->
-<!-- 										<label for="price" class="btn button">Select</label> -->
-									<button type="button" class="btn button" id="" value="">Select</button>
-								</div>
-							</li>
-							<li>
-								<div class="title">Price &amp; Quality</div>
-								<div class="body">
-									If you base your procurement on price and quality, you need to provide your evaluation
-									criteria and ratings that you will be comparing solutions against
-								</div>
-								<div class="select" >
-<!-- 										<input type="radio" id="price-quality" name="option" value="price & quality"> -->
-<!-- 										<label for="price-quality" class="btn button">Select</label> -->
-									<button type="button" class="btn button" id="" value="">Select</button>
+									<button type="button" class="btn button" th:value="${type.id}">Select</button>
 								</div>
 							</li>
 						</ul>
@@ -45,7 +31,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<button type="submit" class="btn button">Select and Continue</button>
+				<button type="submit" class="btn button" id="continue" disabled>Select and Continue</button>
 			</div>
 			<div class="form-group">
 				<a class="back-link" href="#" th:href="@{#}"></a>	

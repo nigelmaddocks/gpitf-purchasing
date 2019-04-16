@@ -45,7 +45,7 @@ h5 {
     padding-top: 0rem; !important;
 }
 
-a.button:link, a.button:hover, a.button:visited {
+a.button:link, a.button:hover, a.button:visited, .btn:focus {
 	color: #fff;
 }
 
