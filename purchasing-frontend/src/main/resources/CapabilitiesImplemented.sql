@@ -82,5 +82,14 @@ insert into capabilitiesimplemented (id, solutionid, capabilityid, status, origi
 
 insert into capabilitiesimplemented (id, solutionid, capabilityid, status, originaldate) values(301, 'C8D558DA-8EC9-4E36-881A-344F0F852284', 'C9', 3, '1970-01-01T00:00:00');
  
+-- EMIS (adding foundation capabilities only as I don't know the others)
+ 
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status, originaldate) values(401, 'D8922903-D02E-48F0-8340-3D94D3DE9147', 'C5', 3, '1970-01-01T00:00:00');
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status, originaldate) values(402, 'D8922903-D02E-48F0-8340-3D94D3DE9147', 'C11', 3, '1970-01-01T00:00:00');
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status, originaldate) values(403, 'D8922903-D02E-48F0-8340-3D94D3DE9147', 'C12', 3, '1970-01-01T00:00:00');
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status, originaldate) values(404, 'D8922903-D02E-48F0-8340-3D94D3DE9147', 'C13', 3, '1970-01-01T00:00:00');
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status, originaldate) values(405, 'D8922903-D02E-48F0-8340-3D94D3DE9147', 'C14', 3, '1970-01-01T00:00:00');
+insert into capabilitiesimplemented (id, solutionid, capabilityid, status, originaldate) values(406, 'D8922903-D02E-48F0-8340-3D94D3DE9147', 'C15', 3, '1970-01-01T00:00:00');
+ 
 -- Solutions status. Set them all to Available.
 update Solutions set status=6 where status=0;
