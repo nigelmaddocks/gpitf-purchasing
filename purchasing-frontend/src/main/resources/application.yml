@@ -77,6 +77,6 @@ sysparam.shortlist.max: 14							## Default 4. This should be the default value 
 sysparam.directaward.maxvalue: 20000
 sysparam.writeOnboardingCache: false    			## Default false. Set to true to write to  resources/onboardingCache json files
 sysparam.readOnboardingCache: false     			## Default false. Set to true to read from resources/onboardingCache json files
-sysparam.addDocManToBundles: true					## Default false. This is a temporary flag to add DocMan to bundles. This should be the default value or removed in Prod or later development
+sysparam.addDocManToBundles: false					## Default false. This is a temporary flag to add DocMan to bundles. This should be the default value or removed in Prod or later development
 sysparam.foundationSearchAddCapabilities: false		## Default false. Foundation search will have additional capabilities available as a filter. In Drop 2 this is expected to be "true"
  

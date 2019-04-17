@@ -23,32 +23,34 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import uk.nhs.gpitf.purchasing.entities.OrgType;
+import io.micrometer.core.instrument.util.StringUtils;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlist;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundleItem;
+import uk.nhs.gpitf.purchasing.entities.ProcSrvRecipient;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
-import uk.nhs.gpitf.purchasing.entities.RelationshipType;
-import uk.nhs.gpitf.purchasing.models.ShortlistModel;
+import uk.nhs.gpitf.purchasing.models.InitiateModel;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcShortlistRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleItemRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleRepository;
+import uk.nhs.gpitf.purchasing.repositories.ProcSrvRecipientRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
 import uk.nhs.gpitf.purchasing.services.ProcShortlistRemovalReasonService;
+import uk.nhs.gpitf.purchasing.services.ProcSrvRecipientService;
 import uk.nhs.gpitf.purchasing.services.OnboardingService.RankedBundle;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller 
-public class ShortlistController {
+public class InitiateController {
 	
 	@Autowired
 	ProcurementRepository procurementRepository;
@@ -69,6 +71,12 @@ public class ShortlistController {
 	ProcShortlistRepository procShortlistRepository;
     
 	@Autowired
+	ProcSrvRecipientRepository procSrvRecipientRepository;
+    
+	@Autowired
+	ProcSrvRecipientService procSrvRecipientService;
+	
+	@Autowired
 	ProcSolutionBundleRepository procSolutionBundleRepository;
     
 	@Autowired
@@ -83,14 +91,14 @@ public class ShortlistController {
 	@Value("${sysparam.directaward.maxvalue}")
     private String DIRECTAWARD_MAXVALUE;
 	
-    private static final Logger logger = LoggerFactory.getLogger(ShortlistController.class);
+    private static final Logger logger = LoggerFactory.getLogger(InitiateController.class);
 
-	@GetMapping(value = {"/buyingprocess/directShortlistInitialise/{procurementId}"})
+	@GetMapping(value = {"/buyingprocess/directInitiateInitialise/{procurementId}"})
 	@Transactional
-	public String directShortlistInitialise(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
+	public String directInitiateInitialise(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.removeTitle("By capability", request);
 		Breadcrumbs.removeTitle("By keyword", request);
-		Breadcrumbs.register("Shortlist", request);
+		Breadcrumbs.register("Initiate", request);
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
@@ -128,16 +136,8 @@ public class ShortlistController {
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 		}
 
-		// Perform a capability search and verify that the number of results is still below the threshold
+		// Re-perform the capability search
 		List<RankedBundle> rankedBundles = onboardingService.findRankedSolutionsHavingCapabilitiesInList(procurement.getCsvCapabilities(), procurement.getCsvInteroperables(), procurement.getFoundation().booleanValue());
-		if (rankedBundles.size() > Integer.valueOf(SHORTLIST_MAX)) {
-        	String message = "Shortlist size for procurement " + procurementId + " is " + rankedBundles.size() +
-        			" but the maximum allowed size is " + SHORTLIST_MAX + " in order to proceed to shortlisting. " +
-        			"Please re-visit your procurement to reduce the solution results or go through the long-listing process.";
-    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
-    		attr.addFlashAttribute("security_message", message);
-        	return SecurityInfo.SECURITY_ERROR_REDIRECT;								
-		}
 		
 		// Save the shortlisted solution ids and calculated patient count to the the procurement
 		// and set its status to Shortlist
@@ -156,34 +156,14 @@ public class ShortlistController {
 			csvSolutionIds = csvSolutionIds.substring(1);
 		}
 		
-		// . . Set up the user's CCGs
-		ArrayList<Organisation> arlCCGs = new ArrayList<>();
-		if (secInfo.getOrganisationTypeId() == OrgType.CCG || secInfo.getOrganisationTypeId() == OrgType.CSU) {
-			Organisation myOrganisation = organisationRepository.findById(secInfo.getOrganisationId()).get();
-			if (secInfo.getOrganisationTypeId() == OrgType.CCG) {
-				arlCCGs.add(myOrganisation);
-			}
-			if (secInfo.getOrganisationTypeId() == OrgType.CSU) {
-				try {
-					RelationshipType relTypeCSUtoCCG = (RelationshipType) GUtils.makeObjectForId(RelationshipType.class, RelationshipType.CSU_TO_CCG);
-					List<Organisation> myCCGs = orgRelationshipService.getOrganisationsByParentOrgAndRelationshipType(myOrganisation, relTypeCSUtoCCG);
-					for (var org : myCCGs) {
-						arlCCGs.add(org);
-					}
-				} catch (Exception e) {	
-					e.printStackTrace();
-				}
-			}
-		}
-		
 		// . . Get patient count info for each practice in each CCG and sum the patient count for selected practices
 		long initialPatientCount = organisationService.getPatientCountForOrganisationsInList(procurement.getCsvPractices());
 		// . . Update the procurement	
 		try {
-			ProcStatus statusShortlist = (ProcStatus) GUtils.makeObjectForId(ProcStatus.class, ProcStatus.INITIATE);
+			ProcStatus statusInitiate = (ProcStatus) GUtils.makeObjectForId(ProcStatus.class, ProcStatus.INITIATE);
 //			procurement.setCsvShortlistSolutions(csvSolutionIds);
 			procurement.setInitialPatientCount((int)initialPatientCount);
-			procurement.setStatus(statusShortlist);
+			procurement.setStatus(statusInitiate);
 			procurement.setStatusLastChangedDate(LocalDateTime.now());
 			procurement.setLastUpdated(LocalDateTime.now());
 			procurementRepository.save(procurement);
@@ -213,21 +193,41 @@ public class ShortlistController {
 					procSolutionBundleItemRepository.save(bundleItem);
 				}
 			}
+			
+			// Create the Procurement Service Recipients
+			List <ProcSrvRecipient> lstSrvRecipient = new ArrayList<>();
+			String[] arrSRIDs = procurement.getCsvPractices().split(",");
+			for (String sSRID : arrSRIDs) {
+				if (StringUtils.isNotEmpty(sSRID)) {
+					long iSRID = Long.valueOf(sSRID.trim());
+					Optional<Organisation> optSR = organisationRepository.findById(iSRID);
+					if (optSR.isPresent()) {
+						Organisation orgSR = optSR.get();
+						ProcSrvRecipient procSrvRecipient = new ProcSrvRecipient();
+						procSrvRecipient.setProcurement(procurement);
+						procSrvRecipient.setOrganisation(orgSR);
+						procSrvRecipient.setPatientCount(orgSR.getPatientCount());
+						procSrvRecipient.setTerm(null);
+						lstSrvRecipient.add(procSrvRecipient);
+					}
+				}
+			}
+			procSrvRecipientRepository.saveAll(lstSrvRecipient);
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		ShortlistModel shortlistModel = new ShortlistModel();
-		
 		setupModel(secInfo, procurement, model);
 		
-		return "buying-process/shortlist";
+		return "buying-process/initiate";
 
 	}
 	
 
-	@GetMapping(value = {"/buyingprocess/shortlist/{procurementId}"})
-	public String directShortlist(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
+	@GetMapping(value = {"/buyingprocess/initiate/{procurementId}"})
+	public String initiate(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.register("Shortlist", request);
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
@@ -240,144 +240,94 @@ public class ShortlistController {
 		
 		setupModel(secInfo, procurement, model);
 		
-		return "buying-process/shortlist";
+		return "buying-process/initiate";
 	}
 	
-	@PostMapping("/buyingprocess/shortlist")
-	public String directShortlistRecalculate(
-			@Valid ShortlistModel shortlistModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
+	@PostMapping("/buyingprocess/initiate")
+	public String initiateRecalculate(
+			@Valid InitiateModel initiateModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 		
-		long procurementId = shortlistModel.getProcurementId();
+		long procurementId = initiateModel.getProcurementId();
 		Object rtnObject = procurementSecurityValidation(secInfo, procurementId, attr);
 		if (rtnObject instanceof String) {
 			return (String) rtnObject;
 		}
 		Procurement procurement = (Procurement)rtnObject;
 		
-		shortlistModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
-		setupModelCollections(shortlistModel, procurement);;
-		
-		// Validate that if a solution is being removed, a reason is given
-		if (!bindingResult.hasErrors()) {			
-			if (shortlistModel.removeSolutionId != null && shortlistModel.removeSolutionId.trim().length() > 0) {
-				if (shortlistModel.removalReasonId == 0) {
-					bindingResult.addError(new ObjectError("removalReasonId", "Please specify a reason for removing a solution from the shortlist"));
-				} else 
-				if (shortlistModel.removalReasonId == ProcShortlistRemovalReason.OTHER
-				 && (shortlistModel.removalReasonText == null || shortlistModel.removalReasonText.trim().length() == 0)) {
-					bindingResult.addError(new ObjectError("removalReasonText", "When specifying \"Other\" as the reason for removal, please supply additional text"));
-				}
-			}
-		}
+		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
+		setupModelCollections(initiateModel, procurement);;
 		
 		// Validate that if a direct award is being made for a solution, that the value is less than the threshold
 		if (!bindingResult.hasErrors()) {	
-			if (!bindingResult.hasErrors() && (shortlistModel.contractMonthsYears == null || shortlistModel.contractMonthsMonths == null)) {
+			if (!bindingResult.hasErrors() && (initiateModel.contractMonthsYears == null || initiateModel.contractMonthsMonths == null)) {
 				bindingResult.addError(new ObjectError("directAward", "Please select the contract length"));
 			}
 			
-			if (!bindingResult.hasErrors() && shortlistModel.directAwardBundleId != null && shortlistModel.directAwardBundleId.trim().length() > 0) {
-				if (shortlistModel.getPriceForBundle(Long.valueOf(shortlistModel.directAwardBundleId)).compareTo(new BigDecimal(Integer.valueOf(DIRECTAWARD_MAXVALUE))) > 0) {
+			if (!bindingResult.hasErrors() && initiateModel.directAwardBundleId != null && initiateModel.directAwardBundleId.trim().length() > 0) {
+				if (initiateModel.getPriceForBundle(Long.valueOf(initiateModel.directAwardBundleId)).compareTo(new BigDecimal(Integer.valueOf(DIRECTAWARD_MAXVALUE))) > 0) {
 					bindingResult.addError(new ObjectError("directAward", "Cannot directly award if the value is £" + DIRECTAWARD_MAXVALUE + " or greater"));
 				}
 			}
 		}
 		
-		// Remove a solution if the model attribute non-blank
-		if (!bindingResult.hasErrors()) {
-			if (shortlistModel.removeSolutionId != null && shortlistModel.removeSolutionId.trim().length() > 0) {
-				
-				String removeSolutionId = shortlistModel.removeSolutionId.trim();
-				for (ProcShortlist shortlistItem : procurement.getShortlistItems()) {
-					if (shortlistItem.getSolutionId().equals(removeSolutionId)) {
-						shortlistItem.setRemoved(true);
-						if (shortlistModel.removalReasonId != 0) {
-							try {
-								ProcShortlistRemovalReason removalReason = (ProcShortlistRemovalReason) GUtils.makeObjectForId(ProcShortlistRemovalReason.class, shortlistModel.removalReasonId);
-								shortlistItem.setRemovalReason(removalReason);
-								if (shortlistModel.removalReasonId == ProcShortlistRemovalReason.OTHER) {
-									shortlistItem.setRemovalReasonText(shortlistModel.removalReasonText);
-								} else {
-									shortlistItem.setRemovalReasonText(null);
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-						procShortlistRepository.save(shortlistItem);
-						break;
-					}
-				}
-			}
-		}
 		
 		// Store any new procurement attributes
 		if (!bindingResult.hasErrors()) {
-			procurement.setPlannedContractStart(shortlistModel.getPlannedContractStart());
-			procurement.setContractMonths(shortlistModel.getContractMonthsYears() * 12 + shortlistModel.getContractMonthsMonths());
-			procurement.setPatientCount(shortlistModel.getNumberOfPatients());
+			procurement.setPlannedContractStart(initiateModel.getPlannedContractStart());
+			procurement.setContractMonths(initiateModel.getContractMonthsYears() * 12 + initiateModel.getContractMonthsMonths());
+			procurement.setPatientCount(initiateModel.getNumberOfPatients());
 			procurementRepository.save(procurement);
 		}
 		
 		// Reset any fields that lead to actions
 		if (!bindingResult.hasErrors()) {
-			shortlistModel.setRemoveSolutionId("");
-			shortlistModel.setRemovalReasonId(null);
-			shortlistModel.setRemovalReasonText("");
-			shortlistModel.setDirectAwardBundleId(null);
+			initiateModel.setRemoveSolutionId("");
+			initiateModel.setRemovalReasonId(null);
+			initiateModel.setRemovalReasonText("");
+			initiateModel.setDirectAwardBundleId(null);
 		}		
 
-		setupModelCollections(shortlistModel, procurement); // again
+		setupModelCollections(initiateModel, procurement); // again
 		
-		return "buying-process/shortlist";	
+		return "buying-process/initiate";	
 	}
 	
 	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model) {
 		
-		ShortlistModel shortlistModel = new ShortlistModel();
-		shortlistModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
+		InitiateModel initiateModel = new InitiateModel();
+		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
 		
-		shortlistModel.setProcurementId(procurement.getId());
+		initiateModel.setProcurementId(procurement.getId());
 		
-		setupModelCollections(shortlistModel, procurement);
+		setupModelCollections(initiateModel, procurement);
 		
-		shortlistModel.setNumberOfPractices(procurement.getCsvPractices().split(",").length);
-		shortlistModel.setNumberOfPatients(procurement.getPatientCount() == null ? procurement.getInitialPatientCount() : procurement.getPatientCount());
-		shortlistModel.setPlannedContractStart(procurement.getPlannedContractStart());
+		initiateModel.setNumberOfPractices(procurement.getCsvPractices().split(",").length);
+		initiateModel.setNumberOfPatients(procurement.getPatientCount() == null ? procurement.getInitialPatientCount() : procurement.getPatientCount());
+		initiateModel.setPlannedContractStart(procurement.getPlannedContractStart());
 		if (procurement.getContractMonths() != null) {
-			shortlistModel.setContractMonthsYears(procurement.getContractMonths() / 12);
-			shortlistModel.setContractMonthsMonths(procurement.getContractMonths() % 12);
+			initiateModel.setContractMonthsYears(procurement.getContractMonths() / 12);
+			initiateModel.setContractMonthsMonths(procurement.getContractMonths() % 12);
 		}
 		
-		model.addAttribute("shortlistModel", shortlistModel);
+		model.addAttribute("initiateModel", initiateModel);
 		
 		return model;
 	}
 	
-	private void setupModelCollections(ShortlistModel shortlistModel, Procurement procurement) {		
-//		String[] arrSolutionIds = procurement.getCsvShortlistSolutions().split(",");
-		
-/*		
-		shortlistModel.getSolutions().clear();
-		for (ProcShortlist shortlistItem : procurement.getShortlistItems()) {
-			String solutionId = shortlistItem.getSolutionId();
-			if (solutionId.trim().length() > 0 && shortlistItem.isRemoved() == false) {
-				shortlistModel.getSolutions().add(onboardingService.getSolutionEx2ById(solutionId));
-			}
-		}
-*/		
-		shortlistModel.getBundles().clear();
+	private void setupModelCollections(InitiateModel initiateModel, Procurement procurement) {		
+		initiateModel.getBundles().clear();
 		List<ProcSolutionBundle> bundles = procurement.getBundles();
-		shortlistModel.getBundles().addAll(bundles);
-		
-		shortlistModel.setRemovalReasons(procShortlistRemovalReasonService.getAll());
+		initiateModel.getBundles().addAll(bundles);
+		List<ProcSrvRecipient> srvRecipients = procSrvRecipientService.getAllByParentOrgAndRelationshipType(procurement);
+		initiateModel.getSrvRecipients().clear();
+		initiateModel.getSrvRecipients().addAll(srvRecipients);
 	}
 	
 	private Object procurementSecurityValidation(SecurityInfo secInfo, long procurementId, RedirectAttributes attr) {
 		if (procurementId == 0) {
-        	String message = "Unidentified route to shortlist";
+        	String message = "Unidentified route to Initiate";
     		logger.warn(secInfo.loggerSecurityMessage(message));
     		attr.addFlashAttribute("security_message", message);
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;					

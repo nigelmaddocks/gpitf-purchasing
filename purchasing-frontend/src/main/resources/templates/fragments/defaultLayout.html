@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" th:fragment="layout (title, content, script)" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" th:fragment="layout (title, content, script, link)" xmlns:th="http://www.thymeleaf.org">
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta charset="UTF-8">
@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="../../static/scss/styles.css" th:href="@{/scss/styles.css}">
     <link rel="stylesheet" href="../../static/css/override.css" th:href="@{/css/override.css}">
     <link rel="stylesheet" href="../../static/css/purchasing.css" th:href="@{/css/purchasing.css}">
+   	<th:block th:if="${link != null}">
+   		<link th:replace="${link}">
+   	</th:block>
     <meta name="_csrf" th:content="${_csrf.token}"/>
 	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>    
 </head>

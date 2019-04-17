@@ -93,7 +93,7 @@ public class BuyingProcessController {
 				return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + GUtils.nullToString(procurement.getCsvCapabilities()).trim();
 			//}
 		} else
-		if (procurementStatusId == ProcStatus.SHORTLIST) {
+		if (procurementStatusId == ProcStatus.INITIATE) {
 			return "redirect:/buyingprocess/shortlist/" + procurementId;
 		}
 
