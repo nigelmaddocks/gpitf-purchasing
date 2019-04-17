@@ -14,9 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EvaluationType {
 
-//	public static final long PRICE_ONLY = 1;
-//	public static final long PRICE_AND_QUALITY = 2;
-
 	@Id
 	private long id;
 	@Size(max = 255)

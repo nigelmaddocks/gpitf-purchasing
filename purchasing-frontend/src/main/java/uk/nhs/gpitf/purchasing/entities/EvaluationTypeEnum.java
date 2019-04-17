@@ -21,7 +21,7 @@ public enum EvaluationTypeEnum {
     return Stream.of(EvaluationTypeEnum.values())
               .filter(e -> e.getId() == id)
               .findFirst()
-              .orElseThrow(() -> new IllegalArgumentException("ID not found: " + id.toString()) );
+              .orElseThrow();
   }
 
 }

@@ -8,12 +8,12 @@ public class EvaluationTypeConverter implements AttributeConverter<EvaluationTyp
 
   @Override
   public Long convertToDatabaseColumn(EvaluationTypeEnum attribute) {
-    return attribute.getId();
+    return attribute == null ? null : attribute.getId();
   }
 
   @Override
   public EvaluationTypeEnum convertToEntityAttribute(Long dbData) {
-    return EvaluationTypeEnum.getById(dbData);
+    return dbData == null ? null : EvaluationTypeEnum.getById(dbData);
   }
 
 }

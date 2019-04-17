@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
 import uk.nhs.gpitf.purchasing.models.SearchSolutionByCapabilityModel;
@@ -148,8 +149,24 @@ public class Phase1ProcurementMenusController {
 	}
 
 	@GetMapping("/buyingprocess/price-declaration")
-    public String priceDeclaration() {
+    public String priceDeclaration(Model model, HttpServletRequest request) {
+	    HttpSession session = request.getSession();
+	    model.addAttribute("procurement", session.getAttribute(Procurement.SESSION_ATTR_NAME));
+
         return BuyingProcessController.PATH + PAGE_PRICE_DECLARATION;
+    }
+
+	@PostMapping("/buyingprocess/price-declaration")
+	public String priceDeclarationPost(@RequestParam Long evaluationType, HttpServletRequest request) {
+	    HttpSession session = request.getSession();
+	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+
+	    Procurement.PrimitiveProcurement prim = procurementService.createAndPersistNewPrimitiveProcurement(session, secInfo);
+	    prim.setEvaluationType(EvaluationTypeEnum.getById(evaluationType));
+	    session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
+
+	    // TODO change to correct view when known
+        return BuyingProcessController.PATH + BuyingProcessController.PAGE_LIST_PROCUREMENTS;
     }
 
 	// Temporary page to kick off a procurement

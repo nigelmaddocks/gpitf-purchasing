@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -67,9 +68,10 @@ public class Procurement {
 
 	private String searchKeyword;
 
-    @ManyToOne(optional=true)
-    @JoinColumn(name = "evaluation_type")
-	private EvaluationType evaluationType;
+//    @ManyToOne(optional=true)
+//    @JoinColumn(name = "evaluation_type")
+    @Convert(converter = EvaluationTypeConverter.class)
+	private EvaluationTypeEnum evaluationType;
 
     private Boolean foundation;
 
@@ -108,7 +110,7 @@ public class Procurement {
 		private static final long serialVersionUID = 7165183178416691678L;
 		private String name;
 		private long orgContactId;
-		private long evaluationType;
+		private EvaluationTypeEnum evaluationType;
 		private Boolean foundation;
 		private String csvCapabilities;
 		private String csvInteroperables;
