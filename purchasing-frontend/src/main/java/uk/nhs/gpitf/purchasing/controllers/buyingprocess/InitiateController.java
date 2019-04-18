@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import io.micrometer.core.instrument.util.StringUtils;
+import uk.nhs.gpitf.purchasing.entities.Framework;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlist;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
@@ -39,6 +42,7 @@ import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleItemRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSrvRecipientRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
+import uk.nhs.gpitf.purchasing.services.FrameworkService;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
@@ -51,6 +55,9 @@ import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller 
 public class InitiateController {
+	
+	@Autowired
+	FrameworkService frameworkService;
 	
 	@Autowired
 	ProcurementRepository procurementRepository;
@@ -219,7 +226,7 @@ public class InitiateController {
 			e.printStackTrace();
 		}
 		
-		setupModel(secInfo, procurement, model);
+		setupModel(secInfo, procurement, model, HttpMethod.GET);
 		
 		return "buying-process/initiate";
 
@@ -238,7 +245,7 @@ public class InitiateController {
 		}
 		Procurement procurement = (Procurement)rtnObject;
 		
-		setupModel(secInfo, procurement, model);
+		setupModel(secInfo, procurement, model, HttpMethod.GET);
 		
 		return "buying-process/initiate";
 	}
@@ -257,11 +264,11 @@ public class InitiateController {
 		Procurement procurement = (Procurement)rtnObject;
 		
 		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
-		setupModelCollections(initiateModel, procurement);;
+		setupModelCollections(initiateModel, procurement, HttpMethod.GET);
 		
 		// Validate that if a direct award is being made for a solution, that the value is less than the threshold
 		if (!bindingResult.hasErrors()) {	
-			if (!bindingResult.hasErrors() && (initiateModel.contractMonthsYears == null || initiateModel.contractMonthsMonths == null)) {
+			if (!bindingResult.hasErrors() && initiateModel.contractTermMonths == null) {
 				bindingResult.addError(new ObjectError("directAward", "Please select the contract length"));
 			}
 			
@@ -276,7 +283,7 @@ public class InitiateController {
 		// Store any new procurement attributes
 		if (!bindingResult.hasErrors()) {
 			procurement.setPlannedContractStart(initiateModel.getPlannedContractStart());
-			procurement.setContractMonths(initiateModel.getContractMonthsYears() * 12 + initiateModel.getContractMonthsMonths());
+			//procurement.setContractMonths(initiateModel.getContractTermMonths());
 			procurement.setPatientCount(initiateModel.getNumberOfPatients());
 			procurementRepository.save(procurement);
 		}
@@ -289,40 +296,51 @@ public class InitiateController {
 			initiateModel.setDirectAwardBundleId(null);
 		}		
 
-		setupModelCollections(initiateModel, procurement); // again
+		setupModelCollections(initiateModel, procurement, HttpMethod.GET); // again
 		
 		return "buying-process/initiate";	
 	}
 	
-	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model) {
+	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model, HttpMethod method) {
 		
 		InitiateModel initiateModel = new InitiateModel();
 		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
 		
 		initiateModel.setProcurementId(procurement.getId());
 		
-		setupModelCollections(initiateModel, procurement);
+		setupModelCollections(initiateModel, procurement, method);
 		
 		initiateModel.setNumberOfPractices(procurement.getCsvPractices().split(",").length);
 		initiateModel.setNumberOfPatients(procurement.getPatientCount() == null ? procurement.getInitialPatientCount() : procurement.getPatientCount());
 		initiateModel.setPlannedContractStart(procurement.getPlannedContractStart());
-		if (procurement.getContractMonths() != null) {
-			initiateModel.setContractMonthsYears(procurement.getContractMonths() / 12);
-			initiateModel.setContractMonthsMonths(procurement.getContractMonths() % 12);
-		}
 		
 		model.addAttribute("initiateModel", initiateModel);
 		
 		return model;
 	}
 	
-	private void setupModelCollections(InitiateModel initiateModel, Procurement procurement) {		
+	private void setupModelCollections(InitiateModel initiateModel, Procurement procurement, HttpMethod method) {		
 		initiateModel.getBundles().clear();
 		List<ProcSolutionBundle> bundles = procurement.getBundles();
 		initiateModel.getBundles().addAll(bundles);
-		List<ProcSrvRecipient> srvRecipients = procSrvRecipientService.getAllByParentOrgAndRelationshipType(procurement);
+		List<ProcSrvRecipient> srvRecipients = procSrvRecipientService.getAllByProcurementOrderByOrganisationName(procurement);
 		initiateModel.getSrvRecipients().clear();
 		initiateModel.getSrvRecipients().addAll(srvRecipients);
+		Framework framework = frameworkService.getDefaultFramework();
+		initiateModel.setPossibleContractTermMonths(IntStream.rangeClosed(1, framework.getMaxTermMonths()).toArray());
+		if (initiateModel.getContractTermMonths().length == 0) {
+			initiateModel.setContractTermMonths(new Integer[srvRecipients.size()]);
+		}
+		if (initiateModel.getPatientCount().length == 0) {
+			initiateModel.setPatientCount(new String[srvRecipients.size()]);
+		}
+		if (method.equals(HttpMethod.GET)) {
+			int idx = 0;
+			for (ProcSrvRecipient sr : srvRecipients) {
+				initiateModel.getPatientCount()[idx] = ""+sr.getPatientCount();
+				idx++;
+			}
+		}
 	}
 	
 	private Object procurementSecurityValidation(SecurityInfo secInfo, long procurementId, RedirectAttributes attr) {

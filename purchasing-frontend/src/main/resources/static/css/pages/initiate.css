@@ -30,4 +30,26 @@
 	background-color: #FFF1CE;
 	border: 1px solid #FED86F;
 	text-align: left;
+	padding-top: 0.5em;
+	height: 2em;
+	margin-bottom: 0.5em;
+}
+
+.contract-term-months {
+	width: 4em;
+}
+
+.contract-term-months-read-only {
+	text-align: left;
+	padding-top: 0.5em;
+}
+
+.patient-count-read-only {
+	text-align: left;
+	padding-top: 0.5em;
+}
+
+.nopadding {
+	padding-left: 0px;
+	padding-right: 0px;
 }

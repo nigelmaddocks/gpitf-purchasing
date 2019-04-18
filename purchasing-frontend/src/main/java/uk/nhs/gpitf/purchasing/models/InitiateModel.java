@@ -24,16 +24,15 @@ public class InitiateModel {
 	private int numberOfPractices = 0;
 	private int numberOfPatients = 0;
 	private LocalDate plannedContractStart = null;
-	public Integer contractMonthsYears = null;
-	public Integer contractMonthsMonths = null;
+	public Integer[] contractTermMonths = new Integer[] {};
+	public String[] patientCount = new String[] {};
 	public String removeSolutionId = null;
 	public Long removalReasonId = null;
 	@Size(max = 255)
 	public String removalReasonText = "";
 	public int DIRECTAWARD_MAXVALUE = 0;
 	public String directAwardBundleId = "";
-	private int[] possibleContractMonthsYears  = new int[] {0,1,2,3,4,5,6,7,8,9,10};
-	private int[] possibleContractMonthsMonths = new int[] {0,1,2,3,4,5,6,7,8,9,10,11}; 
+	private int[] possibleContractTermMonths = new int[] {}; 
 /*	
 	public BigDecimal getPrice(String solutionId) {
 		for (var solution : solutions) {

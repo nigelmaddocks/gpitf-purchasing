@@ -27,10 +27,53 @@
 
 			<!-- Tab panes -->
 			<div class="tab-content">
-				<div th:each="bundle, info : ${initiateModel.bundles}" th:class="${'tab-pane ' + (info.count==1?'active':'')}" th:id="${'b_' + bundle.id}">
-					<div class="row" th:text="${'Content for ' + bundle.getName()}"></div>
-					<div th:each="srvRecipient, info2 : ${initiateModel.srvRecipients}" class="row">
+				<div th:each="bundle, infoBundle : ${initiateModel.bundles}" th:class="${'tab-pane ' + (infoBundle.count==1?'active':'')}" th:id="${'b_' + bundle.id}">
+					<div class="row">
+						<label class="col-md-11"></label>
+						<label class="col-md-1 nopadding">Over Term</label>
+					</div>
+					<div th:each="srvRecipient, infoSR : ${initiateModel.srvRecipients}" class="row">
+
+						<!-- Service Recipient Name -->
+
 						<div th:text="${srvRecipient.organisation.nameProperCase}" class="col-md-3 srv-recipient-name" ></div>
+
+						<!-- Contract Term Months : 1st solution is input, others are read-only -->
+
+		                <label class="col-md-1 control-label">Term</label>
+						<div th:if="${infoBundle.index==0}" th:class="${#fields.hasErrors('contractTermMonths')}? 'col-md-2 has-error' : 'col-md-2'">
+							<div class="input-group">
+							    <select class="form-control contract-term-months" th:field="*{contractTermMonths[__${infoSR.index}__]}">
+							    <option value="">Months</option>
+							    <option th:each="month : ${initiateModel.possibleContractTermMonths}" th:value="${month}" th:text="${month + ' month' + (month==1?'':'s')}"></option>
+							    </select>
+				                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
+				            </div>
+			            </div>
+			            
+						<div th:if="${infoBundle.index!=0}" class="col-md-2 contract-term-months-read-only" th:id="${'contractTermMonthsRO_' + infoBundle.index + '_' + infoSR.index}">
+						</div>
+
+						<!-- Patient : 1st solution is input, others are read-only -->
+
+		                <label class="col-md-2 control-label">Patient Count</label>
+						<div th:if="${infoBundle.index==0}" th:class="${#fields.hasErrors('patientCount')}? 'col-md-1 has-error' : 'col-md-2'">
+							<div class="input-group">
+							    <input class="form-control patient-count" th:field="*{patientCount[__${infoSR.index}__]}" size="6">
+				                <span th:if="${#fields.hasErrors('patientCount')}" class="help-block">[[${#fields.errors('patientCount')[0]}]]</span>
+				            </div>
+			            </div>
+			            
+						<div th:if="${infoBundle.index!=0}" class="col-md-1 patient-count-read-only" th:id="${'patientCountRO_' + infoBundle.index + '_' + infoSR.index}"
+							th:text="${initiateModel.patientCount[__${infoSR.index}__]}">
+						</div>
+						
+						
+						
+						
+						
+						
+						
 					</div>
 				</div>
 			</div>
@@ -60,25 +103,6 @@
 				                <span th:if="${#fields.hasErrors('plannedContractStart')}" class="help-block">[[${#fields.errors('plannedContractStart')[0]}]]</span>
 				            </div>
 			            </div>
-		                <label class="col-md-3 control-label">Contract length</label>
-						<div th:class="${#fields.hasErrors('contractMonthsYears')}? 'col-md-1 has-error' : 'col-md-1'">
-							<div class="input-group">
-							    <select class="form-control" th:field="*{contractMonthsYears}" id="ddlContractMonthsYears" style="width: 80px;">
-							    <option value="">Years</option>
-							    <option th:each="year : ${initiateModel.possibleContractMonthsYears}" th:value="${year}" th:text="${year + ' year' + (year==1?'':'s')}"></option>
-							    </select>
-				                <span th:if="${#fields.hasErrors('contractMonthsYears')}" class="help-block">[[${#fields.errors('contractMonthsYears')[0]}]]</span>
-				            </div>
-			            </div>
-						<div th:class="${#fields.hasErrors('contractMonthsYears')}? 'col-md-2 has-error' : 'col-md-2'">
-							<div class="input-group">
-							    <select class="form-control" th:field="*{contractMonthsMonths}" id="ddlContractMonthsMonths" style="width: 90px;">
-							    <option value="">Months</option>
-							    <option th:each="month : ${initiateModel.possibleContractMonthsMonths}" th:value="${month}" th:text="${month + ' month' + (month==1?'':'s')}"></option>
-							    </select>
-				                <span th:if="${#fields.hasErrors('contractMonthsYears')}" class="help-block">[[${#fields.errors('contractMonthsYears')[0]}]]</span>
-				            </div>
-			            </div>
 					</div>
 				</div>
 				<div class="panel-footer">
@@ -91,6 +115,37 @@
 </section>
 
 <script th:inline="javascript">
+
+// Default the Term value from the 1st Service Recipient into the Term for the other Service Recipients (if they don't already contain a value)
+$("form").on("change", ":input[id='contractTermMonths0']", function(event) {
+	$(".contract-term-months").each( function() {
+		if (this.id != 'contractTermMonths0' && $(this).val() == "") {
+			$(this).val(event.target.value).trigger('change');
+		}
+	});
+});
+
+//Sets the r/o Term in the 2nd and subsequent tabs to the value from the 1st tab
+$("form").on("change", ":input.contract-term-months", function(event) {
+	var sMonths = event.target.value + " months";
+	if (event.target.value == "1") {
+		sMonths = event.target.value + " months";
+	} else if (event.target.value == "") {
+		sMonths = "";
+	}
+	var idxSR = parseInt(event.target.id.split("contractTermMonths")[1]);
+	for (var idxBundle=1; idxBundle<$("div.tab-pane").length; idxBundle++) {
+		$("#contractTermMonthsRO_" + idxBundle + "_" + idxSR).text(sMonths);
+	}
+});
+
+//Sets the r/o Patient Count in the 2nd and subsequent tabs to the value from the 1st tab
+$("form").on("change", ":input.patient-count", function(event) {
+	var idxSR = parseInt(event.target.id.split("patientCount")[1]);
+	for (var idxBundle=1; idxBundle<$("div.tab-pane").length; idxBundle++) {
+		$("#patientCountRO_" + idxBundle + "_" + idxSR).text(event.target.value);
+	}
+});
 
 $( document ).ready(function() {
 

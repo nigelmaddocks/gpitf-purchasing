@@ -15,7 +15,7 @@ public class ProcSrvRecipientService {
     @Autowired
     private ProcSrvRecipientRepository thisRepository;
 
-    public List<ProcSrvRecipient> getAllByParentOrgAndRelationshipType(Procurement procurement) {
+    public List<ProcSrvRecipient> getAllByProcurementOrderByOrganisationName(Procurement procurement) {
         List<ProcSrvRecipient> coll = new ArrayList<>();
         thisRepository.findAllByProcurementOrderByOrganisationName(procurement).forEach(coll::add);
         return coll;
