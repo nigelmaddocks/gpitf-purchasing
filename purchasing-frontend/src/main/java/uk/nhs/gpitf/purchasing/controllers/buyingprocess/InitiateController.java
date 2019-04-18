@@ -264,7 +264,7 @@ public class InitiateController {
 		Procurement procurement = (Procurement)rtnObject;
 		
 		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
-		setupModelCollections(initiateModel, procurement, HttpMethod.GET);
+		setupModelCollections(initiateModel, procurement, HttpMethod.POST);
 		
 		// Validate that if a direct award is being made for a solution, that the value is less than the threshold
 		if (!bindingResult.hasErrors()) {	
@@ -288,6 +288,21 @@ public class InitiateController {
 			procurementRepository.save(procurement);
 		}
 		
+		// Store the Term and Patient Count against the Service Recipients
+		if (!bindingResult.hasErrors()) {
+			int idx = 0;
+			for (ProcSrvRecipient sr : initiateModel.getSrvRecipients()) {
+				Integer iNewTerm = initiateModel.getContractTermMonths()[idx];
+				Integer iNewPatientCount = initiateModel.getPatientCount()[idx];
+				if (!iNewTerm.equals(sr.getTerm()) || !iNewPatientCount.equals(sr.getPatientCount())) {
+					sr.setTerm(iNewTerm);
+					sr.setPatientCount(iNewPatientCount);
+					sr = procSrvRecipientRepository.save(sr);
+				}
+				idx++;
+			}
+		}
+		
 		// Reset any fields that lead to actions
 		if (!bindingResult.hasErrors()) {
 			initiateModel.setRemoveSolutionId("");
@@ -296,7 +311,7 @@ public class InitiateController {
 			initiateModel.setDirectAwardBundleId(null);
 		}		
 
-		setupModelCollections(initiateModel, procurement, HttpMethod.GET); // again
+		setupModelCollections(initiateModel, procurement, HttpMethod.POST); // again
 		
 		return "buying-process/initiate";	
 	}
@@ -332,12 +347,12 @@ public class InitiateController {
 			initiateModel.setContractTermMonths(new Integer[srvRecipients.size()]);
 		}
 		if (initiateModel.getPatientCount().length == 0) {
-			initiateModel.setPatientCount(new String[srvRecipients.size()]);
+			initiateModel.setPatientCount(new Integer[srvRecipients.size()]);
 		}
 		if (method.equals(HttpMethod.GET)) {
 			int idx = 0;
 			for (ProcSrvRecipient sr : srvRecipients) {
-				initiateModel.getPatientCount()[idx] = ""+sr.getPatientCount();
+				initiateModel.getPatientCount()[idx] = +sr.getPatientCount();
 				idx++;
 			}
 		}

@@ -25,7 +25,7 @@ public class InitiateModel {
 	private int numberOfPatients = 0;
 	private LocalDate plannedContractStart = null;
 	public Integer[] contractTermMonths = new Integer[] {};
-	public String[] patientCount = new String[] {};
+	public Integer[] patientCount = new Integer[] {};
 	public String removeSolutionId = null;
 	public Long removalReasonId = null;
 	@Size(max = 255)

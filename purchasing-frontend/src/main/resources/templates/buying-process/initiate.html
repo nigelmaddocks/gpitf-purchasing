@@ -51,7 +51,8 @@
 				            </div>
 			            </div>
 			            
-						<div th:if="${infoBundle.index!=0}" class="col-md-2 contract-term-months-read-only" th:id="${'contractTermMonthsRO_' + infoBundle.index + '_' + infoSR.index}">
+						<div th:if="${infoBundle.index!=0}" class="col-md-2 contract-term-months-read-only" th:id="${'contractTermMonthsRO_' + infoBundle.index + '_' + infoSR.index}"
+							th:text="${initiateModel.contractTermMonths[__${infoSR.index}__] + ' month' + (initiateModel.contractTermMonths[__${infoSR.index}__]==1?'':'s')}">
 						</div>
 
 						<!-- Patient : 1st solution is input, others are read-only -->
