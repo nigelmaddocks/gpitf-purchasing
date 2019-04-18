@@ -17,7 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -46,8 +46,8 @@ public class Procurement {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private long id;
 
-    @NotBlank
-	@Size(max = 255)
+    @NotNull
+	@Size(min = 5, max = 255)
 	private String name;
 
 	private LocalDateTime startedDate;
