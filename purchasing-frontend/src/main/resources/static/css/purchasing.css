@@ -84,7 +84,7 @@
 }
 
 .table thead th { 
-  background-color: #005ab8;
+  background-color: #005EB8;
   color: white;
   font-weight: 300;
 }
@@ -105,4 +105,74 @@
 .shortlist-remove:hover {
 	background-color: #DA291C !important;
 	filter: brightness(80%);
+}
+
+a.minor-link:link, a.minor-link:visited, a.minor-link:hover, a.minor-link:active {
+	font-size: 0.8rem;
+	color: #005EB8;
+}
+a.minor-link::before {
+	color: #425563;
+	content: "["
+}
+a.minor-link::after {
+	color: #425563;
+	content: "]"
+}
+
+#content a.back-link:link, #content a.back-link:visited,
+#content a.back-link:hover, #content a.back-link:active {
+	font-size: 1.0rem;
+	color: #000;
+}
+
+ul.flex-option-container {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-around;
+	list-style-type: none;
+}
+
+ul.flex-option-container li {
+	position: relative;
+	width: 40%;
+	border: 1px solid #005EB8;
+	background: white;
+	padding-bottom: 3rem;
+}
+
+ul.flex-option-container .title {
+	text-align: center;
+	padding: 20px 10px;
+	font-style: bold;
+	color: white;
+	background: #005EB8;
+}
+
+ul.flex-option-container .body {
+	padding: 20px 10px;
+}
+
+ul.flex-option-container .select {
+	position: absolute;
+	bottom: 0px;
+	height: 3rem;
+	text-align: center;
+	width: 100%;
+}
+
+ul.flex-option-container .select span.glyphicon-ok {
+	padding-right: 1rem;
+}
+
+@media only screen and (max-width: 768px) {
+	
+	ul.flex-option-container {
+		flex-direction: column;;
+	}
+	
+	ul.flex-option-container li {
+	 	width: 100%;
+	 	margin: 10px 0px;
+	}
 }

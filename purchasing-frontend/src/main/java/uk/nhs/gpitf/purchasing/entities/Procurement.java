@@ -1,19 +1,28 @@
 package uk.nhs.gpitf.purchasing.entities;
 
-import lombok.Data;
-import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
-import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.*;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
+import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
 
 @Entity
 @Table(name="procurement", schema="purchasing")
@@ -22,31 +31,31 @@ public class Procurement {
 
 	@Transient
 	public static final String SESSION_ATTR_NAME = "temp_procurement";
-	
+
 	@Transient
 	@JsonIgnore
 	PatientCountRunRepository patientCountRunRepository;
-	
+
 	@Transient
 	@JsonIgnore
 	PatientCountRepository patientCountRepository;
-	
-	
-	
+
+
+
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private long id;
-	
+
     @NotBlank
 	@Size(max = 255)
 	private String name;
 
 	private LocalDateTime startedDate;
-    
+
     @ManyToOne(optional=false)
     @JoinColumn(name = "org_contact")
 	private OrgContact orgContact;
-    
+
     @ManyToOne(optional=false)
     @JoinColumn(name = "status")
 	private ProcStatus status;
@@ -56,62 +65,63 @@ public class Procurement {
 	private LocalDateTime lastUpdated;
 
 	private LocalDateTime completedDate;
-    
+
 	private String searchKeyword;
-    
-    @ManyToOne(optional=true)
-    @JoinColumn(name = "evaluation_type")
-	private EvaluationType evaluationType;
+
+//    @ManyToOne(optional=true)
+//    @JoinColumn(name = "evaluation_type")
+    @Convert(converter = EvaluationTypeConverter.class)
+	private EvaluationTypeEnum evaluationType;
 
     private Boolean foundation;
-	
+
 	private String csvCapabilities;
-	
+
 	private String csvInteroperables;
-	
+
 	private String csvPractices;
-    
+
     @OneToMany(
     	fetch = FetchType.LAZY
-        //cascade = CascadeType.ALL, 
+        //cascade = CascadeType.ALL,
         //orphanRemoval = true
     )
     @JoinTable(name = "proc_shortlist", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
     @JsonIgnore
     private List<ProcShortlist> shortlistItems = new ArrayList<>();
-    
+
     @OneToMany(
     	fetch = FetchType.LAZY
     )
     @JoinTable(name = "proc_solution_bundle", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
     @JsonIgnore
     private List<ProcSolutionBundle> bundles = new ArrayList<>();
-	
+
 	private Integer initialPatientCount;
-	
+
 	private LocalDate plannedContractStart;
 
 	private Integer contractMonths;
-	
+
 	private Integer patientCount;
-	
+
 	@Data
 	public static class PrimitiveProcurement implements Serializable {
 		private static final long serialVersionUID = 7165183178416691678L;
 		private String name;
 		private long orgContactId;
-		private long evaluationType;		
-		private Boolean foundation;		
-		private String csvCapabilities;		
-		private String csvInteroperables;		
+		private EvaluationTypeEnum evaluationType;
+		private Boolean foundation;
+		private String csvCapabilities;
+		private String csvInteroperables;
 		private String csvPractices;
-		private Integer initialPatientCount;		
+		private Integer initialPatientCount;
 	}
 /*
 	public String serializeToString() throws IOException {
 		PrimitiveProcurement prim = new PrimitiveProcurement();
 		BeanUtils.copyProperties(this, prim);
- 
+
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(baos);
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(bufferedOutputStream);
@@ -119,7 +129,7 @@ public class Procurement {
 		objectOutputStream.close();
 		String s = baos.toString();
 		return s;
-		
+
 	}
-*/	
+*/
 }
