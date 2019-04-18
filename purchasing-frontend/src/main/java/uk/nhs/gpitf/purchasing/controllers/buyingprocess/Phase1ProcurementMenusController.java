@@ -151,7 +151,12 @@ public class Phase1ProcurementMenusController {
 	@GetMapping("/buyingprocess/price-declaration")
     public String priceDeclaration(Model model, HttpServletRequest request) {
 	    HttpSession session = request.getSession();
-	    model.addAttribute("procurement", session.getAttribute(Procurement.SESSION_ATTR_NAME));
+
+	    Procurement.PrimitiveProcurement procurement = (Procurement.PrimitiveProcurement) session.getAttribute(Procurement.SESSION_ATTR_NAME);
+	    if (procurement == null) {
+	      procurement = new Procurement.PrimitiveProcurement();
+	    }
+	    model.addAttribute("procurement", procurement);
 
         return BuyingProcessController.PATH + PAGE_PRICE_DECLARATION;
     }
@@ -166,7 +171,7 @@ public class Phase1ProcurementMenusController {
 	    session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
 
 	    // TODO change to correct view when known
-        return BuyingProcessController.PATH + BuyingProcessController.PAGE_LIST_PROCUREMENTS;
+        return BuyingProcessController.PATH + BuyingProcessController.PAGE_PROCUREMENT;
     }
 
 	// Temporary page to kick off a procurement

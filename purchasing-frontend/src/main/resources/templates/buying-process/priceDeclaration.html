@@ -9,12 +9,12 @@
 	<main id="content">
 		<h1>Price Declaration</h1>
 		<form action="" th:action="@{/buyingprocess/price-declaration}" th:object="${procurement}" method="POST">
-<!-- 			<input type="hidden" th:field="*{id}"> -->
-<!-- 			<input type="hidden" th:field="*{evaluationType}"> -->
-				<input type="hidden" id="evaluationType" name="evaluationType" value="" />
-<!-- 			<ul class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}"> -->
-<!--   				<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li> -->
-<!-- 			</ul> -->
+				<input type="hidden" th:with="field='evaluationType'" th:attr="id=${field},name=${field}" th:value="*{__${field}__} != null ? *{__${field}__.id} : ''" />
+<!--/*
+			<ul class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}">
+  				<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+			</ul>
+*/-->
 			<div class="form-group">
 				<div class="row">
 					<div class="col-xs-12 col-md-8 col-md-offset-2">

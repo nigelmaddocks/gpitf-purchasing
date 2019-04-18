@@ -13,7 +13,7 @@ public class EvaluationTypeConverter implements AttributeConverter<EvaluationTyp
 
   @Override
   public EvaluationTypeEnum convertToEntityAttribute(Long dbData) {
-    return dbData == null ? null : EvaluationTypeEnum.getById(dbData);
+    return EvaluationTypeEnum.getById(dbData);
   }
 
 }
