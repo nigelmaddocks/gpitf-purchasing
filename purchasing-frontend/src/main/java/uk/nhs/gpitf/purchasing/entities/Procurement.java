@@ -43,11 +43,11 @@ public class Procurement {
 
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
     @NotNull
-	@Size(min = 5, max = 255)
+	@Size(min = 5, max = 255, message = "Name needs to be at least 5-250 characters long")
 	private String name;
 
 	private LocalDateTime startedDate;
