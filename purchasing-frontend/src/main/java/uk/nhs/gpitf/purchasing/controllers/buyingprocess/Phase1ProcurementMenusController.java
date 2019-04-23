@@ -1,6 +1,7 @@
 package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -157,6 +158,7 @@ public class Phase1ProcurementMenusController {
 	      procurement = new Procurement.PrimitiveProcurement();
 	    }
 	    model.addAttribute("procurement", procurement);
+	    model.addAttribute("evaluationTypes", Arrays.asList(EvaluationTypeEnum.values()));
 
         return BuyingProcessController.PATH + PAGE_PRICE_DECLARATION;
     }

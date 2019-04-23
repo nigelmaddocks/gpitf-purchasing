@@ -19,7 +19,7 @@
 				<div class="row">
 					<div class="col-xs-12 col-md-8 col-md-offset-2">
 						<ul class="flex-option-container" id="select-evaluation-type">
-							<li th:each="type : ${T(uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum).values()}" th:id="|evaluation-type-item-${type.id}|">
+							<li th:each="type : ${evaluationTypes}" th:id="|evaluation-type-item-${type.id}|">
 								<div class="title" th:text="${type.name}"></div>
 								<div class="body" th:text="#{evaluation-type.description[__${type.id}__]}"></div>
 								<div class="select">
