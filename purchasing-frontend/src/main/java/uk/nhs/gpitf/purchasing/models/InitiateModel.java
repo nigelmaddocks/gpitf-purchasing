@@ -70,7 +70,6 @@ public class InitiateModel {
 	public BigDecimal getPriceOverTermForBundle(long bundleId, int bandingUnits, int priceUnits, int termMonths) {
 		for (var bundle : dbBundles) {
 			if (bundle.getId() == bundleId) {
-				//return bundle.getPrice().multiply(BigDecimal.valueOf(numberOfPatients)).setScale(0, RoundingMode.HALF_UP);
 				BigDecimal price = BigDecimal.valueOf(0L);
 				for (var bundleItem : bundle.getBundleItems()) {
 					String solutionId = bundleItem.getSolutionId();
@@ -92,7 +91,6 @@ public class InitiateModel {
 	public BigDecimal getUnitPriceForBundle(long bundleId, int bandingUnits) {
 		for (var bundle : dbBundles) {
 			if (bundle.getId() == bundleId) {
-				//return bundle.getPrice().multiply(BigDecimal.valueOf(numberOfPatients)).setScale(0, RoundingMode.HALF_UP);
 				BigDecimal price = BigDecimal.valueOf(0L);
 				for (var bundleItem : bundle.getBundleItems()) {
 					String solutionId = bundleItem.getSolutionId();

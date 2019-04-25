@@ -84,6 +84,7 @@ public class Procurement {
     	fetch = FetchType.LAZY
     )
     @JoinTable(name = "proc_solution_bundle", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
+    @OrderBy(value="id asc")
     @JsonIgnore
     private List<ProcSolutionBundle> bundles = new ArrayList<>();
 	

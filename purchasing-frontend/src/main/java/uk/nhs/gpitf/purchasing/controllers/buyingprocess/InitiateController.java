@@ -266,6 +266,7 @@ public class InitiateController {
 	@PostMapping("/buyingprocess/initiate")
 	public String initiateRecalculate(
 			@Valid InitiateModel initiateModel, BindingResult bindingResult, RedirectAttributes attr, HttpServletRequest request) {
+		initiateModel.setTmpSolutionPriceBandService(this.tmpSolutionPriceBandService);
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 		
@@ -350,8 +351,8 @@ public class InitiateController {
 	
 	private void setupModelCollections(InitiateModel initiateModel, Procurement procurement, HttpMethod method) {		
 		List<ProcSolutionBundle> bundles = procurement.getBundles();
-		// Keep order they were written to DB as this was the correct random order
-		bundles.sort((object1, object2) -> (int)(object1.getId() - object2.getId()));
+		// The bundles should be in bundle.id sequence as specified by the @OrderBy directive on the Procurement entity
+		initiateModel.getDbBundles().clear();
 		initiateModel.getDbBundles().addAll(bundles);
 		
 		List<ProcSrvRecipient> srvRecipients = procSrvRecipientService.getAllByProcurementOrderByOrganisationName(procurement);
