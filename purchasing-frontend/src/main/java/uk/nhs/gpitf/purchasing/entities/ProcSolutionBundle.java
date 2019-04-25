@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -28,6 +29,10 @@ public class ProcSolutionBundle {
 	private Procurement procurement;
 
     private BigDecimal evaluationScorePercent;
+
+    private Integer numberOfUnits;
+
+    private BigDecimal price;
     
     @OneToMany(
     //	fetch = FetchType.EAGER
@@ -87,5 +92,14 @@ public class ProcSolutionBundle {
 		}			
 		
 		return false;
+	}
+	
+	public String getSolutionId() {
+		for (var item : bundleItems) {
+			if (StringUtils.isNotEmpty(item.getSolutionId())) {
+				return item.getSolutionId();
+			}
+		}			
+		return "";		
 	}
 }

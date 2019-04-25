@@ -35,6 +35,9 @@ import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundleItem;
 import uk.nhs.gpitf.purchasing.entities.ProcSrvRecipient;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.entities.TmpAssociatedService;
+import uk.nhs.gpitf.purchasing.entities.TmpPriceBasis;
+import uk.nhs.gpitf.purchasing.entities.TmpUnitType;
 import uk.nhs.gpitf.purchasing.models.InitiateModel;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcShortlistRepository;
@@ -47,7 +50,10 @@ import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
 import uk.nhs.gpitf.purchasing.services.ProcShortlistRemovalReasonService;
+import uk.nhs.gpitf.purchasing.services.ProcSolutionBundleService;
 import uk.nhs.gpitf.purchasing.services.ProcSrvRecipientService;
+import uk.nhs.gpitf.purchasing.services.TmpAssociatedServiceService;
+import uk.nhs.gpitf.purchasing.services.TmpSolutionPriceBandService;
 import uk.nhs.gpitf.purchasing.services.OnboardingService.RankedBundle;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
@@ -85,12 +91,19 @@ public class InitiateController {
 	
 	@Autowired
 	ProcSolutionBundleRepository procSolutionBundleRepository;
+	
+	@Autowired
+	ProcSolutionBundleService procSolutionBundleService;
     
 	@Autowired
 	ProcSolutionBundleItemRepository procSolutionBundleItemRepository;
     
 	@Autowired
 	ProcShortlistRemovalReasonService procShortlistRemovalReasonService;
+	
+	@Autowired
+	TmpSolutionPriceBandService tmpSolutionPriceBandService;
+
 	
 	@Value("${sysparam.shortlist.max}")
     private String SHORTLIST_MAX;
@@ -273,12 +286,11 @@ public class InitiateController {
 			}
 			
 			if (!bindingResult.hasErrors() && initiateModel.directAwardBundleId != null && initiateModel.directAwardBundleId.trim().length() > 0) {
-				if (initiateModel.getPriceForBundle(Long.valueOf(initiateModel.directAwardBundleId)).compareTo(new BigDecimal(Integer.valueOf(DIRECTAWARD_MAXVALUE))) > 0) {
+				if (initiateModel.getPriceOverTermForBundle(Long.valueOf(initiateModel.directAwardBundleId), 0, 1000, 12).compareTo(new BigDecimal(Integer.valueOf(DIRECTAWARD_MAXVALUE))) > 0) {
 					bindingResult.addError(new ObjectError("directAward", "Cannot directly award if the value is £" + DIRECTAWARD_MAXVALUE + " or greater"));
 				}
 			}
 		}
-		
 		
 		// Store any new procurement attributes
 		if (!bindingResult.hasErrors()) {
@@ -319,6 +331,8 @@ public class InitiateController {
 	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model, HttpMethod method) {
 		
 		InitiateModel initiateModel = new InitiateModel();
+		initiateModel.setTmpSolutionPriceBandService(this.tmpSolutionPriceBandService);
+
 		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
 		
 		initiateModel.setProcurementId(procurement.getId());
@@ -335,12 +349,73 @@ public class InitiateController {
 	}
 	
 	private void setupModelCollections(InitiateModel initiateModel, Procurement procurement, HttpMethod method) {		
-		initiateModel.getBundles().clear();
 		List<ProcSolutionBundle> bundles = procurement.getBundles();
-		initiateModel.getBundles().addAll(bundles);
+		// Keep order they were written to DB as this was the correct random order
+		bundles.sort((object1, object2) -> (int)(object1.getId() - object2.getId()));
+		initiateModel.getDbBundles().addAll(bundles);
+		
 		List<ProcSrvRecipient> srvRecipients = procSrvRecipientService.getAllByProcurementOrderByOrganisationName(procurement);
 		initiateModel.getSrvRecipients().clear();
 		initiateModel.getSrvRecipients().addAll(srvRecipients);
+		
+		initiateModel.setBundleInfoForBaseSystemPerBundleAndSR(new InitiateModel.BundleInfo[bundles.size()][srvRecipients.size()]);
+		int idxBundle = 0;
+		for (var bundle : bundles) {
+			int idxSR = 0;
+			for (var sr : srvRecipients) {
+				TmpUnitType bandingUnit = tmpSolutionPriceBandService.getBandingUnitForSolution(bundle.getSolutionId());
+				long iBandingUnitType = 0;
+				if (bandingUnit != null) {
+					iBandingUnitType = bandingUnit.getId();
+				}
+				InitiateModel.BundleInfo bundleInfo = new InitiateModel.BundleInfo();
+				bundleInfo.bundleId = bundle.getId();
+				bundleInfo.solutionId = bundle.getSolutionId();
+				bundleInfo.name = bundle.getName();
+				bundleInfo.priceUnits = bundle.getNumberOfUnits();
+				bundleInfo.unitTypeName = tmpSolutionPriceBandService.getUnitTextForSolution(bundle.getSolutionId());
+				TmpPriceBasis priceBasis = tmpSolutionPriceBandService.getPriceBasisForSolution(bundle.getSolutionId());
+				if (priceBasis != null) {
+					TmpUnitType priceBasisUnit1 = priceBasis.getUnit1();
+					TmpUnitType priceBasisUnit2 = priceBasis.getUnit2();
+					bundleInfo.readonly = priceBasisUnit2 == null 
+						&& (priceBasisUnit1.getId() == TmpUnitType.PATIENT || priceBasisUnit1.getId() == TmpUnitType.SERVICE_RECIPIENT);
+					if (priceBasisUnit1.getId() == TmpUnitType.PATIENT) {
+						bundleInfo.priceUnits = sr.getPatientCount();
+					} else
+					if (priceBasisUnit1.getId() == TmpUnitType.SERVICE_RECIPIENT) {
+						bundleInfo.priceUnits = srvRecipients.size();
+					}
+				} else {
+					bundleInfo.unitTypeName = "";
+					bundleInfo.readonly = false;
+				}
+				
+				if (bandingUnit != null) {
+					if (iBandingUnitType == TmpUnitType.PATIENT) {
+						bundleInfo.bandingUnits = sr.getPatientCount();
+					} else
+					if (iBandingUnitType == TmpUnitType.SERVICE_RECIPIENT) {
+						bundleInfo.bandingUnits = srvRecipients.size();
+					}
+				}
+				
+				bundleInfo.unitPrice = initiateModel.getUnitPriceForBundle(bundleInfo.bundleId, bundleInfo.bandingUnits==null?0:bundleInfo.bandingUnits);
+				bundleInfo.price = initiateModel.getPriceForBundle(bundleInfo.bundleId, 
+						bundleInfo.bandingUnits==null?0:bundleInfo.bandingUnits, 
+						bundleInfo.priceUnits==null?0:bundleInfo.priceUnits);
+				bundleInfo.priceOverTerm = initiateModel.getPriceOverTermForBundle(bundleInfo.bundleId, 
+						bundleInfo.bandingUnits==null?0:bundleInfo.bandingUnits, 
+						bundleInfo.priceUnits==null?0:bundleInfo.priceUnits, 
+						sr.getTerm()==null?12:sr.getTerm());
+				initiateModel.getBundleInfoForBaseSystemPerBundleAndSR()[idxBundle][idxSR] = bundleInfo;
+				idxSR++;
+			}
+			idxBundle++;
+		}
+		
+		
+		
 		Framework framework = frameworkService.getDefaultFramework();
 		initiateModel.setPossibleContractTermMonths(IntStream.rangeClosed(1, framework.getMaxTermMonths()).toArray());
 		if (initiateModel.getContractTermMonths().length == 0) {
@@ -352,9 +427,16 @@ public class InitiateController {
 		if (method.equals(HttpMethod.GET)) {
 			int idx = 0;
 			for (ProcSrvRecipient sr : srvRecipients) {
-				initiateModel.getPatientCount()[idx] = +sr.getPatientCount();
+				initiateModel.getContractTermMonths()[idx] = sr.getTerm();
+				initiateModel.getPatientCount()[idx] = sr.getPatientCount();
 				idx++;
 			}
+		}
+		
+		// Add each bundle's possible Associated Services into their key value
+		for (ProcSolutionBundle bundle : bundles) {
+			List<TmpAssociatedService> bundleAssociatedServices = procSolutionBundleService.getAssociatedServicesForBundle(bundle);
+			initiateModel.getPossibleBundleAssociatedServices().put(bundle.getId(), bundleAssociatedServices);
 		}
 	}
 	

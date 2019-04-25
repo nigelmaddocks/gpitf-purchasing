@@ -21,59 +21,114 @@
 			</div>
 
 			<ul class="nav nav-tabs" role="tablist">
-				<li th:each="bundle, info : ${initiateModel.bundles}" th:class="${info.count==1?'active':''}">
-				<a th:href="${'#b_' + bundle.id}" role="tab" data-toggle="tab" th:text="${bundle.getName()}"></a>
+				<li th:each="bundle, info : ${initiateModel.dbBundles}" th:class="${info.count==1?'active':''}">
+				<a th:href="${'#b_' + bundle.id}" role="tab" data-toggle="tab" th:text="${bundle.name}"></a>
 			</ul>
 
 			<!-- Tab panes -->
 			<div class="tab-content">
-				<div th:each="bundle, infoBundle : ${initiateModel.bundles}" th:class="${'tab-pane ' + (infoBundle.count==1?'active':'')}" th:id="${'b_' + bundle.id}">
+				<div th:each="bundle, infoBundle : ${initiateModel.dbBundles}" th:class="${'tab-pane ' + (infoBundle.count==1?'active':'')}" th:id="${'b_' + bundle.id}">
 					<div class="row">
 						<label class="col-md-11"></label>
 						<label class="col-md-1 nopadding">Over Term</label>
 					</div>
 					<div th:each="srvRecipient, infoSR : ${initiateModel.srvRecipients}" class="row">
 
-						<!-- Service Recipient Name -->
-
-						<div th:text="${srvRecipient.organisation.nameProperCase}" class="col-md-3 srv-recipient-name" ></div>
-
-						<!-- Contract Term Months : 1st solution is input, others are read-only -->
-
-		                <label class="col-md-1 control-label">Term</label>
-						<div th:if="${infoBundle.index==0}" th:class="${#fields.hasErrors('contractTermMonths')}? 'col-md-2 has-error' : 'col-md-2'">
-							<div class="input-group">
-							    <select class="form-control contract-term-months" th:field="*{contractTermMonths[__${infoSR.index}__]}">
-							    <option value="">Months</option>
-							    <option th:each="month : ${initiateModel.possibleContractTermMonths}" th:value="${month}" th:text="${month + ' month' + (month==1?'':'s')}"></option>
-							    </select>
-				                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
+						<!-- Service Recipient Info -->
+						<div class="row">
+	
+							<!-- Service Recipient Name -->
+	
+							<div th:text="${srvRecipient.organisation.nameProperCase}" class="col-md-3 srv-recipient-name" ></div>
+	
+							<!-- Contract Term Months : 1st solution is input, others are read-only -->
+	
+			                <label class="col-md-1 control-label">Term</label>
+							<div th:if="${infoBundle.index==0}" th:class="${#fields.hasErrors('contractTermMonths')}? 'col-md-2 has-error' : 'col-md-2'">
+								<div class="input-group">
+								    <select class="form-control contract-term-months" th:field="*{contractTermMonths[__${infoSR.index}__]}">
+								    <option value="">Months</option>
+								    <option th:each="month : ${initiateModel.possibleContractTermMonths}" th:value="${month}" th:text="${month + ' month' + (month==1?'':'s')}"></option>
+								    </select>
+					                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
+					            </div>
 				            </div>
-			            </div>
-			            
-						<div th:if="${infoBundle.index!=0}" class="col-md-2 contract-term-months-read-only" th:id="${'contractTermMonthsRO_' + infoBundle.index + '_' + infoSR.index}"
-							th:text="${initiateModel.contractTermMonths[__${infoSR.index}__] + ' month' + (initiateModel.contractTermMonths[__${infoSR.index}__]==1?'':'s')}">
+				            
+							<div th:if="${infoBundle.index!=0}" class="col-md-2 contract-term-months-read-only" th:id="${'contractTermMonthsRO_' + infoBundle.index + '_' + infoSR.index}"
+								th:text="${initiateModel.contractTermMonths[__${infoSR.index}__] + ' month' + (initiateModel.contractTermMonths[__${infoSR.index}__]==1?'':'s')}">
+							</div>
+	
+							<!-- Patient Count: 1st solution is input, others are read-only -->
+	
+			                <label class="col-md-2 control-label">Patient Count</label>
+							<div th:if="${infoBundle.index==0}" th:class="${#fields.hasErrors('patientCount')}? 'col-md-2 has-error' : 'col-md-2'">
+								<div class="input-group patient-count">
+								    <input class="form-control patient-count" th:field="*{patientCount[__${infoSR.index}__]}" size="6">
+					                <span th:if="${#fields.hasErrors('patientCount')}" class="help-block">[[${#fields.errors('patientCount')[0]}]]</span>
+					            </div>
+				            </div>
+				            
+							<div th:if="${infoBundle.index!=0}" th:class="'col-md-1 patient-count-read-only PCRO-' + ${infoSR.index}" th:id="${'patientCountRO_' + infoBundle.index + '_' + infoSR.index}"
+								th:text="${initiateModel.patientCount[__${infoSR.index}__]}">
+							</div>
+							
+							<label class="col-md-1 nopadding"></label>
+							<label class="col-md-1 nopadding"></label>
 						</div>
 
-						<!-- Patient : 1st solution is input, others are read-only -->
-
-		                <label class="col-md-2 control-label">Patient Count</label>
-						<div th:if="${infoBundle.index==0}" th:class="${#fields.hasErrors('patientCount')}? 'col-md-1 has-error' : 'col-md-2'">
-							<div class="input-group">
-							    <input class="form-control patient-count" th:field="*{patientCount[__${infoSR.index}__]}" size="6">
-				                <span th:if="${#fields.hasErrors('patientCount')}" class="help-block">[[${#fields.errors('patientCount')[0]}]]</span>
+						<!-- Base system -->
+						<div class="row base-system-row">
+							<div class="col-md-3 control-label" style="padding-right: 0px">
+								<div class="base-system-name">Base system</div>
+							</div>
+							<div class="col-md-1 unit-text"></div>
+							<div class="col-md-1 unit-text" th:text="${'£' + initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].unitPrice}">£??.??</div>
+							<div class="col-md-2 unit-text" th:text="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].unitTypeName}">/ thingy / week</div>
+							<div class="col-md-1 unit-text"></div>
+							<div class="col-md-2">
+								<div class="input-group unit-numbers">
+								    <input th:if="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == false}" class="form-control" size="6" 
+								    	th:value="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}" />
+								    <div   th:if="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == true}" class="unit-numbers"
+								    	th:text="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}"></div>
+					            </div>
 				            </div>
-			            </div>
-			            
-						<div th:if="${infoBundle.index!=0}" class="col-md-1 patient-count-read-only" th:id="${'patientCountRO_' + infoBundle.index + '_' + infoSR.index}"
-							th:text="${initiateModel.patientCount[__${infoSR.index}__]}">
+							<div class="col-md-1 money-value" th:text="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].price}">.</div>
+							<div class="col-md-1 money-value" th:text="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceOverTerm}">.</div>
 						</div>
 						
-						
-						
-						
-						
-						
+						<!-- Associated Services -->
+						<div class="panel panel-default service-panel">
+						    <div class="panel-body">
+						        <div class="service-header">Associated Services</div>
+								<div class="row"></div>
+		         
+								<div class="row service-row">
+									<div class="col-md-3 control-label" style="padding-right: 0px">
+										<div class="input-group">
+										    <select class="form-control contract-term-months" th:field="*{contractTermMonths[__${infoSR.index}__]}">
+										    <option value=""></option>
+										    <option th:each="assocSrv : ${initiateModel.possibleBundleAssociatedServices.get(bundle.id)}" th:value="${assocSrv.id}" th:text="${assocSrv.name}"></option>
+										    </select>
+							                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
+										</div>
+									</div>
+									<div class="col-md-1 unit-text"></div>
+									<div class="col-md-1 unit-text">£??.??</div>
+									<div class="col-md-2 unit-text">/ widget / year</div>
+									<div class="col-md-1 unit-text"></div>
+									<div class="col-md-2">
+										<div class="input-group unit-numbers">
+										    <input class="form-control" size="6">
+							            </div>
+						            </div>
+									<div class="col-md-1 money-value">.</div>
+									<div class="col-md-1 money-value">.</div>
+								</div>
+		         
+         
+						    </div>
+						</div>						
 						
 					</div>
 				</div>
@@ -143,9 +198,13 @@ $("form").on("change", ":input.contract-term-months", function(event) {
 //Sets the r/o Patient Count in the 2nd and subsequent tabs to the value from the 1st tab
 $("form").on("change", ":input.patient-count", function(event) {
 	var idxSR = parseInt(event.target.id.split("patientCount")[1]);
-	for (var idxBundle=1; idxBundle<$("div.tab-pane").length; idxBundle++) {
-		$("#patientCountRO_" + idxBundle + "_" + idxSR).text(event.target.value);
-	}
+	//for (var idxBundle=1; idxBundle<$("div.tab-pane").length; idxBundle++) {
+	//	$("#patientCountRO_" + idxBundle + "_" + idxSR).text(event.target.value);
+	//}
+	$(".PCRO-" + idxSR).each( function() {
+		$(this).text(event.target.value);
+	});
+
 });
 
 $( document ).ready(function() {

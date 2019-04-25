@@ -32,7 +32,7 @@
 	text-align: left;
 	padding-top: 0.5em;
 	height: 2em;
-	margin-bottom: 0.5em;
+	margin-bottom: 0.3em;
 }
 
 .contract-term-months {
@@ -44,10 +44,78 @@
 	padding-top: 0.5em;
 }
 
+.patient-count {
+}
+
 .patient-count-read-only {
 	text-align: left;
 	padding-top: 0.5em;
 }
+
+.base-system-row {
+	padding-left: 1.0rem;
+	padding-right: 1.0rem;
+	margin-left: 0.0rem;
+	margin-right: 0.0rem;
+	
+}
+
+.base-system-name {
+	background-color: white;
+	border: 1px solid silver;
+	text-align: left;
+	padding-left: 1em;
+	padding-top: 0.4em;
+	height: 2em;
+	margin-top: 0.0em;
+	margin-bottom: 0.5em;
+}
+
+.unit-text {
+	text-align: left;
+	padding-top: 0.8em;
+}
+
+.unit-numbers {
+	text-align: right;
+	padding-left: 0.3rem;
+	padding-top: 0.4em;
+}
+
+.service-panel {
+	margin-top: 1.0rem;
+	background-color: transparent;
+}
+
+.service-header {
+	position: relative;
+	top: -1.8rem;
+	left: 0.0rem;
+	float: left;
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+	padding-top: 0.2rem;
+	padding-bottom: 0.2rem;
+	text-align: left;	
+	border: 1px solid silver;
+	background-color: white;
+	display: inline;
+}
+
+.service-row {
+	position: relative;
+	top: -1.8rem;
+	padding-left: 0.0rem;
+	padding-right: 0.0rem;
+	margin-left: 0.0rem;
+	margin-right: 0.0rem;
+}
+
+.money-value {
+	text-align: right;
+	padding-top: 0.8em;
+}
+
 
 .nopadding {
 	padding-left: 0px;
