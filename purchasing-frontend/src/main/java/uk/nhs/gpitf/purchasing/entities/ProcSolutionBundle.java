@@ -29,10 +29,6 @@ public class ProcSolutionBundle {
 	private Procurement procurement;
 
     private BigDecimal evaluationScorePercent;
-
-    private Integer numberOfUnits;
-
-    private BigDecimal price;
     
     @OneToMany(
     //	fetch = FetchType.EAGER
@@ -72,7 +68,8 @@ public class ProcSolutionBundle {
 		
 		return name;
 	}
-	
+
+	// TODO: Remove as it's very artificial
 	public BigDecimal getPrice() {
 		BigDecimal price = new BigDecimal(0.0d);
 		for (var item : bundleItems) {

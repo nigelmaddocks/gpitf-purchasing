@@ -71,6 +71,14 @@
 	margin-bottom: 0.5em;
 }
 
+.associated-service {
+	background-color: #E2F0DA
+}
+
+.additional-service {
+	background-color: #FAE5D7
+}
+
 .unit-text {
 	text-align: left;
 	padding-top: 0.8em;

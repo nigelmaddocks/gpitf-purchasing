@@ -16,6 +16,7 @@ import lombok.Data;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
 import uk.nhs.gpitf.purchasing.entities.ProcSrvRecipient;
+import uk.nhs.gpitf.purchasing.entities.TmpAdditionalService;
 import uk.nhs.gpitf.purchasing.entities.TmpAssociatedService;
 import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 import uk.nhs.gpitf.purchasing.services.TmpSolutionPriceBandService;
@@ -34,7 +35,13 @@ public class InitiateModel {
 	private LocalDate plannedContractStart = null;
 	public Integer[] contractTermMonths = new Integer[] {}; // One element per Service Recipient
 	public Integer[] patientCount = new Integer[] {}; // One element per Service Recipient
-	public BundleInfo[][] bundleInfoForBaseSystemPerBundleAndSR = new BundleInfo[][] {};
+	public RowDetail[][] rowDetailForBaseSystemPerBundleAndSR = new RowDetail[][] {};
+	public RowDetail[][][] rowDetailForAssocSrvPerBundleAndSR = new RowDetail[][][] {};
+	public String[][][] assocSrv = new String[][][] {};
+	public Integer[][][] assocSrvUnits = new Integer[][][] {};
+	public RowDetail[][][] rowDetailForAdditSrvPerBundleAndSR = new RowDetail[][][] {};
+	public String[][][] additSrv = new String[][][] {};
+	public Integer[][][] additSrvUnits = new Integer[][][] {};
 	public String removeSolutionId = null;
 	public Long removalReasonId = null;
 	@Size(max = 255)
@@ -43,7 +50,29 @@ public class InitiateModel {
 	public String directAwardBundleId = "";
 	private int[] possibleContractTermMonths = new int[] {}; 
 	private Hashtable<Long, List<TmpAssociatedService>> possibleBundleAssociatedServices = new Hashtable<>();
+	private Hashtable<Long, List<TmpAdditionalService>> possibleBundleAdditionalServices = new Hashtable<>();
 	
+	
+	public BigDecimal getUnitPriceForBundle(long bundleId, int bandingUnits) {
+		for (var bundle : dbBundles) {
+			if (bundle.getId() == bundleId) {
+				BigDecimal price = BigDecimal.valueOf(0L);
+				for (var bundleItem : bundle.getBundleItems()) {
+					String solutionId = bundleItem.getSolutionId();
+					if (StringUtils.isNotEmpty(solutionId)) {
+						price = price.add(tmpSolutionPriceBandService.getUnitPriceForSolution(solutionId, bandingUnits));						
+					} else {
+						String additionalService = bundleItem.getAdditionalService();
+						if (StringUtils.isNotEmpty(additionalService)) {
+							price = price.add(tmpSolutionPriceBandService.getUnitPriceForAdditionalService(additionalService, bandingUnits));						
+						}
+					}
+				}
+				return price;
+			}
+		}
+		return BigDecimal.ZERO;
+	}
 
 	public BigDecimal getPriceForBundle(long bundleId, int bandingUnits, int priceUnits) {
 		for (var bundle : dbBundles) {
@@ -87,27 +116,8 @@ public class InitiateModel {
 		}
 		return BigDecimal.ZERO;
 	}
+
 	
-	public BigDecimal getUnitPriceForBundle(long bundleId, int bandingUnits) {
-		for (var bundle : dbBundles) {
-			if (bundle.getId() == bundleId) {
-				BigDecimal price = BigDecimal.valueOf(0L);
-				for (var bundleItem : bundle.getBundleItems()) {
-					String solutionId = bundleItem.getSolutionId();
-					if (StringUtils.isNotEmpty(solutionId)) {
-						price = price.add(tmpSolutionPriceBandService.getUnitPriceForSolution(solutionId, bandingUnits));						
-					} else {
-						String additionalService = bundleItem.getAdditionalService();
-						if (StringUtils.isNotEmpty(additionalService)) {
-							price = price.add(tmpSolutionPriceBandService.getUnitPriceForAdditionalService(additionalService, bandingUnits));						
-						}
-					}
-				}
-				return price;
-			}
-		}
-		return BigDecimal.ZERO;
-	}
 	
 	public boolean canDirectAward(long bundleId, int bandingUnits, int priceUnits, int termMonths) {
 		BigDecimal price = getPriceOverTermForBundle(bundleId, bandingUnits, priceUnits, termMonths);
@@ -122,11 +132,11 @@ public class InitiateModel {
 */
 	}
 	
-	public static class BundleInfo {
+	public static class RowDetail {
 		public long bundleId;
 		public String solutionId;
-		public String associatedServiceId;
-		public String additionalServiceId;
+		public String associatedService;
+		public String additionalService;
 		public String name;
 		public String unitTypeName;
 		public BigDecimal unitPrice;

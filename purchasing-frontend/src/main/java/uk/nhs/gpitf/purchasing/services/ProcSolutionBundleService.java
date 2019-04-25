@@ -17,6 +17,9 @@ public class ProcSolutionBundleService {
     private ProcSolutionBundleRepository thisRepository;
 
     @Autowired
+    private TmpAdditionalServiceService additionalServiceService;
+
+    @Autowired
     private TmpAssociatedServiceService associatedServiceService;
 
     public List<TmpAssociatedService>getAssociatedServicesForBundle(ProcSolutionBundle bundle) {
@@ -31,5 +34,18 @@ public class ProcSolutionBundleService {
     	associatedServices.sort((object1, object2) -> (object1.getName()).compareToIgnoreCase(object2.getName()));
     	return associatedServices;
     }
-    
+
+    public List<TmpAdditionalService>getAdditionalServicesForBundle(ProcSolutionBundle bundle) {
+    	List<TmpAdditionalService> additionalServices = new ArrayList<>();
+    	for (ProcSolutionBundleItem item : bundle.getBundleItems()) {
+    		if (StringUtils.isNotEmpty(item.getSolutionId())) {
+    			List<TmpAdditionalService> itemAdditionalServices = additionalServiceService.getAllBySolutionIdOrderByName(item.getSolutionId());
+    			additionalServices.addAll(itemAdditionalServices);
+    		}
+    	}
+    	
+    	additionalServices.sort((object1, object2) -> (object1.getName()).compareToIgnoreCase(object2.getName()));
+    	return additionalServices;
+    }
+
 }

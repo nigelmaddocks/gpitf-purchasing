@@ -28,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import io.micrometer.core.instrument.util.StringUtils;
 import uk.nhs.gpitf.purchasing.entities.Framework;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
+import uk.nhs.gpitf.purchasing.entities.ProcBundleSrService;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlist;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
@@ -35,10 +36,13 @@ import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundleItem;
 import uk.nhs.gpitf.purchasing.entities.ProcSrvRecipient;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.entities.ServiceType;
+import uk.nhs.gpitf.purchasing.entities.TmpAdditionalService;
 import uk.nhs.gpitf.purchasing.entities.TmpAssociatedService;
 import uk.nhs.gpitf.purchasing.entities.TmpPriceBasis;
 import uk.nhs.gpitf.purchasing.entities.TmpUnitType;
 import uk.nhs.gpitf.purchasing.models.InitiateModel;
+import uk.nhs.gpitf.purchasing.models.InitiateModel.RowDetail;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcShortlistRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleItemRepository;
@@ -49,6 +53,7 @@ import uk.nhs.gpitf.purchasing.services.FrameworkService;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
+import uk.nhs.gpitf.purchasing.services.ProcBundleSrServiceService;
 import uk.nhs.gpitf.purchasing.services.ProcShortlistRemovalReasonService;
 import uk.nhs.gpitf.purchasing.services.ProcSolutionBundleService;
 import uk.nhs.gpitf.purchasing.services.ProcSrvRecipientService;
@@ -104,6 +109,8 @@ public class InitiateController {
 	@Autowired
 	TmpSolutionPriceBandService tmpSolutionPriceBandService;
 
+	@Autowired
+	ProcBundleSrServiceService procBundleSrServiceService;
 	
 	@Value("${sysparam.shortlist.max}")
     private String SHORTLIST_MAX;
@@ -359,57 +366,46 @@ public class InitiateController {
 		initiateModel.getSrvRecipients().clear();
 		initiateModel.getSrvRecipients().addAll(srvRecipients);
 		
-		initiateModel.setBundleInfoForBaseSystemPerBundleAndSR(new InitiateModel.BundleInfo[bundles.size()][srvRecipients.size()]);
+		initiateModel.setRowDetailForBaseSystemPerBundleAndSR(new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()]);
+		initiateModel.setRowDetailForAssocSrvPerBundleAndSR(  new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setRowDetailForAdditSrvPerBundleAndSR(  new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAssocSrv(  						  new String[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAssocSrvUnits(						  new Integer[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAdditSrv(  						  new String[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAdditSrvUnits(						  new Integer[bundles.size()][srvRecipients.size()][0]);
 		int idxBundle = 0;
 		for (var bundle : bundles) {
+			List<ProcBundleSrService> bundleServices = procBundleSrServiceService.getAllForBundle(bundle);
+
 			int idxSR = 0;
 			for (var sr : srvRecipients) {
-				TmpUnitType bandingUnit = tmpSolutionPriceBandService.getBandingUnitForSolution(bundle.getSolutionId());
-				long iBandingUnitType = 0;
-				if (bandingUnit != null) {
-					iBandingUnitType = bandingUnit.getId();
-				}
-				InitiateModel.BundleInfo bundleInfo = new InitiateModel.BundleInfo();
-				bundleInfo.bundleId = bundle.getId();
-				bundleInfo.solutionId = bundle.getSolutionId();
-				bundleInfo.name = bundle.getName();
-				bundleInfo.priceUnits = bundle.getNumberOfUnits();
-				bundleInfo.unitTypeName = tmpSolutionPriceBandService.getUnitTextForSolution(bundle.getSolutionId());
-				TmpPriceBasis priceBasis = tmpSolutionPriceBandService.getPriceBasisForSolution(bundle.getSolutionId());
-				if (priceBasis != null) {
-					TmpUnitType priceBasisUnit1 = priceBasis.getUnit1();
-					TmpUnitType priceBasisUnit2 = priceBasis.getUnit2();
-					bundleInfo.readonly = priceBasisUnit2 == null 
-						&& (priceBasisUnit1.getId() == TmpUnitType.PATIENT || priceBasisUnit1.getId() == TmpUnitType.SERVICE_RECIPIENT);
-					if (priceBasisUnit1.getId() == TmpUnitType.PATIENT) {
-						bundleInfo.priceUnits = sr.getPatientCount();
-					} else
-					if (priceBasisUnit1.getId() == TmpUnitType.SERVICE_RECIPIENT) {
-						bundleInfo.priceUnits = srvRecipients.size();
-					}
-				} else {
-					bundleInfo.unitTypeName = "";
-					bundleInfo.readonly = false;
-				}
+				InitiateModel.RowDetail rowDetail = setupRowDetails(bundle, sr, srvRecipients.size(), initiateModel, ServiceType.BASE_SOLUTION, bundleServices).get(0);				
+				initiateModel.getRowDetailForBaseSystemPerBundleAndSR()[idxBundle][idxSR] = rowDetail;
 				
-				if (bandingUnit != null) {
-					if (iBandingUnitType == TmpUnitType.PATIENT) {
-						bundleInfo.bandingUnits = sr.getPatientCount();
-					} else
-					if (iBandingUnitType == TmpUnitType.SERVICE_RECIPIENT) {
-						bundleInfo.bandingUnits = srvRecipients.size();
-					}
+				InitiateModel.RowDetail[] rowDetails = setupRowDetails(bundle, sr, srvRecipients.size(), initiateModel, ServiceType.ASSOCIATED_SERVICE, bundleServices)
+						.toArray(new InitiateModel.RowDetail[] {});
+				initiateModel.getRowDetailForAssocSrvPerBundleAndSR()[idxBundle][idxSR] = rowDetails;
+				List<String> lstAssocSrv = new ArrayList<>();
+				List<Integer> lstAssocSrvUnits = new ArrayList<>();
+				for (var rd : rowDetails) {
+					lstAssocSrv.add(rd.associatedService);
+					lstAssocSrvUnits.add(rd.priceUnits);
 				}
+				initiateModel.getAssocSrv()[idxBundle][idxSR] = lstAssocSrv.toArray(new String[] {});
+				initiateModel.getAssocSrvUnits()[idxBundle][idxSR] = lstAssocSrvUnits.toArray(new Integer[] {});
+
+				rowDetails = setupRowDetails(bundle, sr, srvRecipients.size(), initiateModel, ServiceType.ADDITIONAL_SERVICE, bundleServices)
+						.toArray(new InitiateModel.RowDetail[] {});
+				initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR] = rowDetails;
+				List<String> lstAdditSrv = new ArrayList<>();
+				List<Integer> lstAdditSrvUnits = new ArrayList<>();
+				for (var rd : rowDetails) {
+					lstAdditSrv.add(rd.additionalService);
+					lstAdditSrvUnits.add(rd.priceUnits);
+				}
+				initiateModel.getAdditSrv()[idxBundle][idxSR] = lstAdditSrv.toArray(new String[] {});
+				initiateModel.getAdditSrvUnits()[idxBundle][idxSR] = lstAdditSrvUnits.toArray(new Integer[] {});
 				
-				bundleInfo.unitPrice = initiateModel.getUnitPriceForBundle(bundleInfo.bundleId, bundleInfo.bandingUnits==null?0:bundleInfo.bandingUnits);
-				bundleInfo.price = initiateModel.getPriceForBundle(bundleInfo.bundleId, 
-						bundleInfo.bandingUnits==null?0:bundleInfo.bandingUnits, 
-						bundleInfo.priceUnits==null?0:bundleInfo.priceUnits);
-				bundleInfo.priceOverTerm = initiateModel.getPriceOverTermForBundle(bundleInfo.bundleId, 
-						bundleInfo.bandingUnits==null?0:bundleInfo.bandingUnits, 
-						bundleInfo.priceUnits==null?0:bundleInfo.priceUnits, 
-						sr.getTerm()==null?12:sr.getTerm());
-				initiateModel.getBundleInfoForBaseSystemPerBundleAndSR()[idxBundle][idxSR] = bundleInfo;
 				idxSR++;
 			}
 			idxBundle++;
@@ -438,6 +434,17 @@ public class InitiateController {
 		for (ProcSolutionBundle bundle : bundles) {
 			List<TmpAssociatedService> bundleAssociatedServices = procSolutionBundleService.getAssociatedServicesForBundle(bundle);
 			initiateModel.getPossibleBundleAssociatedServices().put(bundle.getId(), bundleAssociatedServices);
+		}
+		
+		// Add each bundle's possible Additional Services into their key value
+		for (ProcSolutionBundle bundle : bundles) {
+			List<TmpAdditionalService> bundleAdditionalServices = procSolutionBundleService.getAdditionalServicesForBundle(bundle);
+			initiateModel.getPossibleBundleAdditionalServices().put(bundle.getId(), bundleAdditionalServices);
+		}
+		
+		// 
+		for (ProcSolutionBundle bundle : bundles) {
+			List<ProcBundleSrService> lstBundleServices = procBundleSrServiceService.getAllForBundle(bundle);
 		}
 	}
 	
@@ -478,5 +485,160 @@ public class InitiateController {
 		
 		return procurement;
 		
+	}
+	
+	private List<InitiateModel.RowDetail> setupRowDetails(ProcSolutionBundle bundle, ProcSrvRecipient sr, int serviceRecipientCount, InitiateModel initiateModel, 
+			long iServiceType, List<ProcBundleSrService> allBundleServices) {
+
+		List<InitiateModel.RowDetail> rowDetails = new ArrayList<>();
+		
+		List<ProcBundleSrService> bundleServices = getBundleServicesForServiceType(bundle, sr, iServiceType, allBundleServices);
+		if (bundleServices.size() == 0 && iServiceType == ServiceType.BASE_SOLUTION) {
+			bundleServices.add(new ProcBundleSrService());
+		}
+		
+		for (var bundleService : bundleServices) {
+			TmpUnitType bandingUnit = null;
+			InitiateModel.RowDetail rowDetail = new InitiateModel.RowDetail();
+			rowDetail.bundleId = bundle.getId();
+			if (iServiceType == ServiceType.BASE_SOLUTION) {
+				rowDetail.name = bundle.getName();
+				rowDetail.solutionId = bundle.getSolutionId();
+			}
+			rowDetail.priceUnits = 0;
+			if (bundleService.getId() != 0) {
+				rowDetail.priceUnits = bundleService.getNumberOfUnits()==null?0:bundleService.getNumberOfUnits();
+			}
+			
+			TmpPriceBasis priceBasis = null;
+			if (iServiceType == ServiceType.BASE_SOLUTION) {
+				rowDetail.unitTypeName = tmpSolutionPriceBandService.getUnitTextForSolution(bundle.getSolutionId());
+				priceBasis = tmpSolutionPriceBandService.getPriceBasisForSolution(bundle.getSolutionId());
+				bandingUnit = tmpSolutionPriceBandService.getBandingUnitForSolution(bundle.getSolutionId());
+			} else 
+			if ((iServiceType == ServiceType.ASSOCIATED_SERVICE || iServiceType == ServiceType.ASSOCIATED_SERVICE_OF_ADDITIONAL_SERVICE) && bundleService.getId() != 0) {
+				rowDetail.unitTypeName = tmpSolutionPriceBandService.getUnitTextForAssociatedService(bundleService.getAssociatedService());
+				priceBasis = tmpSolutionPriceBandService.getPriceBasisForAssociatedService(bundleService.getAssociatedService());
+				bandingUnit = tmpSolutionPriceBandService.getBandingUnitForAssociatedService(bundleService.getAssociatedService());
+			} else 
+			if (iServiceType == ServiceType.ADDITIONAL_SERVICE && bundleService.getId() != 0) {
+				rowDetail.unitTypeName = tmpSolutionPriceBandService.getUnitTextForAdditionalService(bundleService.getAdditionalService());
+				priceBasis = tmpSolutionPriceBandService.getPriceBasisForAdditionalService(bundleService.getAdditionalService());
+				bandingUnit = tmpSolutionPriceBandService.getBandingUnitForAdditionalService(bundleService.getAdditionalService());
+			}
+				
+			if (priceBasis != null) {
+				TmpUnitType priceBasisUnit1 = priceBasis.getUnit1();
+				TmpUnitType priceBasisUnit2 = priceBasis.getUnit2();
+				long unit1Id = 0;
+	    		if (priceBasisUnit1 != null) {
+	    			unit1Id = priceBasisUnit1.getId();
+	    		}
+				rowDetail.readonly = priceBasisUnit2 == null 
+					&& (unit1Id == 0 || unit1Id == TmpUnitType.PATIENT || unit1Id == TmpUnitType.SERVICE_RECIPIENT);
+				if (unit1Id == TmpUnitType.PATIENT) {
+					rowDetail.priceUnits = sr.getPatientCount();
+				} else
+				if (unit1Id == TmpUnitType.SERVICE_RECIPIENT) {
+					rowDetail.priceUnits = serviceRecipientCount;
+				}
+			} else {
+				rowDetail.unitTypeName = "";
+				rowDetail.readonly = false;
+			}
+			
+			
+			if (bandingUnit != null) {
+				long iBandingUnitType = bandingUnit.getId();
+				if (iBandingUnitType == TmpUnitType.PATIENT) {
+					rowDetail.bandingUnits = sr.getPatientCount();
+				} else
+				if (iBandingUnitType == TmpUnitType.SERVICE_RECIPIENT) {
+					rowDetail.bandingUnits = serviceRecipientCount;
+				}
+			}
+			
+			if (iServiceType == ServiceType.BASE_SOLUTION) {
+				rowDetail.unitPrice = initiateModel.getUnitPriceForBundle(rowDetail.bundleId, rowDetail.bandingUnits==null?0:rowDetail.bandingUnits);
+				rowDetail.price = initiateModel.getPriceForBundle(rowDetail.bundleId, 
+						rowDetail.bandingUnits==null?0:rowDetail.bandingUnits, 
+						rowDetail.priceUnits==null?0:rowDetail.priceUnits);
+				rowDetail.priceOverTerm = initiateModel.getPriceOverTermForBundle(rowDetail.bundleId, 
+						rowDetail.bandingUnits==null?0:rowDetail.bandingUnits, 
+						rowDetail.priceUnits==null?0:rowDetail.priceUnits, 
+						sr.getTerm()==null?12:sr.getTerm());
+			} else 
+			if ((iServiceType == ServiceType.ASSOCIATED_SERVICE || iServiceType == ServiceType.ASSOCIATED_SERVICE_OF_ADDITIONAL_SERVICE) && bundleService.getId() != 0) {
+				rowDetail.unitPrice = tmpSolutionPriceBandService.getUnitPriceForAssociatedService(bundleService.getAssociatedService(), rowDetail.bandingUnits==null?0:rowDetail.bandingUnits);
+				rowDetail.price = tmpSolutionPriceBandService.getPriceForAssociatedService(bundleService.getAssociatedService(), 
+						rowDetail.bandingUnits==null?0:rowDetail.bandingUnits, 
+						rowDetail.priceUnits==null?0:rowDetail.priceUnits);
+				rowDetail.priceOverTerm = tmpSolutionPriceBandService.getPriceOverTermForAssociatedService(bundleService.getAssociatedService(), 
+						rowDetail.bandingUnits==null?0:rowDetail.bandingUnits, 
+						rowDetail.priceUnits==null?0:rowDetail.priceUnits, 
+						sr.getTerm()==null?12:sr.getTerm());
+				rowDetail.associatedService = bundleService.getAssociatedService();
+				if (iServiceType == ServiceType.ASSOCIATED_SERVICE_OF_ADDITIONAL_SERVICE) {
+					rowDetail.additionalService = bundleService.getAdditionalService();
+				}
+			} else 
+			if (iServiceType == ServiceType.ADDITIONAL_SERVICE && bundleService.getId() != 0) {
+				rowDetail.unitPrice = tmpSolutionPriceBandService.getUnitPriceForAdditionalService(bundleService.getAdditionalService(), rowDetail.bandingUnits==null?0:rowDetail.bandingUnits);
+				rowDetail.price = tmpSolutionPriceBandService.getPriceForAdditionalService(bundleService.getAdditionalService(), 
+						rowDetail.bandingUnits==null?0:rowDetail.bandingUnits, 
+						rowDetail.priceUnits==null?0:rowDetail.priceUnits);
+				rowDetail.priceOverTerm = tmpSolutionPriceBandService.getPriceOverTermForAdditionalService(bundleService.getAdditionalService(), 
+						rowDetail.bandingUnits==null?0:rowDetail.bandingUnits, 
+						rowDetail.priceUnits==null?0:rowDetail.priceUnits, 
+						sr.getTerm()==null?12:sr.getTerm());
+				rowDetail.additionalService = bundleService.getAdditionalService();
+			}
+			
+			rowDetails.add(rowDetail);
+		}
+			
+		return rowDetails;
+	}
+	
+	private ProcBundleSrService getBundleServiceForServiceType(ProcSrvRecipient sr, long iServiceType, List<ProcBundleSrService> bundleServices) {
+		for (var bundleService : bundleServices) {
+			if (bundleService.getServiceType().getId() == iServiceType 
+			 && bundleService.getServiceRecipient().getId() == sr.getId()) {
+				return bundleService;
+			}
+		}
+		return null;
+	}
+	
+	private List<ProcBundleSrService> getBundleServicesForServiceType(ProcSolutionBundle bundle, ProcSrvRecipient sr, long iServiceType, List<ProcBundleSrService> bundleServices) {
+		List <ProcBundleSrService> list = new ArrayList<>();
+		for (var bundleService : bundleServices) {
+			if (bundleService.getServiceType().getId() == iServiceType 
+			 && bundleService.getBundle().getId() == bundle.getId()
+			 && bundleService.getServiceRecipient().getId() == sr.getId()) {
+				list.add(bundleService);
+			}
+		}
+		if (iServiceType == ServiceType.ASSOCIATED_SERVICE) {
+			list.sort((object1, object2) -> (object1.getAssociatedService()).compareToIgnoreCase(object2.getAssociatedService()));
+		} else
+		if (iServiceType == ServiceType.ADDITIONAL_SERVICE) {
+			list.sort((object1, object2) -> (object1.getAdditionalService()).compareToIgnoreCase(object2.getAdditionalService()));
+		}
+		return list;
+	}
+	
+	private List<ProcBundleSrService> getBundleAssocatedServicesForAdditionalService(ProcSolutionBundle bundle, ProcSrvRecipient sr, String additionalService, List<ProcBundleSrService> bundleServices) {
+		List <ProcBundleSrService> list = new ArrayList<>();
+		for (var bundleService : bundleServices) {
+			if (bundleService.getServiceType().getId() == ServiceType.ASSOCIATED_SERVICE_OF_ADDITIONAL_SERVICE 
+			 && bundleService.getBundle().getId() == bundle.getId()
+			 && bundleService.getServiceRecipient().getId() == sr.getId()
+			 && bundleService.getAdditionalService().equals(additionalService)) {
+				list.add(bundleService);
+			}
+		}
+		list.sort((object1, object2) -> (object1.getAssociatedService()).compareToIgnoreCase(object2.getAssociatedService()));
+		return list;
 	}
 }

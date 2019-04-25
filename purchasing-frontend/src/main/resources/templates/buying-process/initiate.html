@@ -82,19 +82,19 @@
 								<div class="base-system-name">Base system</div>
 							</div>
 							<div class="col-md-1 unit-text"></div>
-							<div class="col-md-1 unit-text" th:text="${'£' + initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].unitPrice}">£??.??</div>
-							<div class="col-md-2 unit-text" th:text="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].unitTypeName}">/ thingy / week</div>
+							<div class="col-md-1 unit-text" th:text="${'£' + initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+							<div class="col-md-2 unit-text" th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].unitTypeName}">/ thingy / week</div>
 							<div class="col-md-1 unit-text"></div>
 							<div class="col-md-2">
 								<div class="input-group unit-numbers">
-								    <input th:if="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == false}" class="form-control" size="6" 
-								    	th:value="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}" />
-								    <div   th:if="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == true}" class="unit-numbers"
-								    	th:text="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}"></div>
+								    <input th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == false}" class="form-control" size="6" 
+								    	th:value="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}" />
+								    <div   th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == true}" class="unit-numbers"
+								    	th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}"></div>
 					            </div>
 				            </div>
-							<div class="col-md-1 money-value" th:text="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].price}">.</div>
-							<div class="col-md-1 money-value" th:text="${initiateModel.bundleInfoForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceOverTerm}">.</div>
+							<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].price}">.</div>
+							<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceOverTerm}">.</div>
 						</div>
 						
 						<!-- Associated Services -->
@@ -103,30 +103,65 @@
 						        <div class="service-header">Associated Services</div>
 								<div class="row"></div>
 		         
-								<div class="row service-row">
+								<div class="row service-row" th:each="svc, infoSvc : ${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__]}">
 									<div class="col-md-3 control-label" style="padding-right: 0px">
 										<div class="input-group">
-										    <select class="form-control contract-term-months" th:field="*{contractTermMonths[__${infoSR.index}__]}">
+										    <select class="form-control associated-service" th:field="*{assocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" >
 										    <option value=""></option>
-										    <option th:each="assocSrv : ${initiateModel.possibleBundleAssociatedServices.get(bundle.id)}" th:value="${assocSrv.id}" th:text="${assocSrv.name}"></option>
+										    <option th:each="assocSrv : ${initiateModel.possibleBundleAssociatedServices.get(bundle.id)}" th:value="${assocSrv.associatedServiceId}" th:text="${assocSrv.name}"></option>
 										    </select>
 							                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
 										</div>
 									</div>
 									<div class="col-md-1 unit-text"></div>
-									<div class="col-md-1 unit-text">£??.??</div>
-									<div class="col-md-2 unit-text">/ widget / year</div>
+									<div class="col-md-1 unit-text" th:text="${'£' + initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+									<div class="col-md-2 unit-text" th:text="${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].unitTypeName}">/ thingy / week</div>
 									<div class="col-md-1 unit-text"></div>
 									<div class="col-md-2">
 										<div class="input-group unit-numbers">
-										    <input class="form-control" size="6">
+										    <input th:if="${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].readonly == false}" class="form-control" size="6" 
+										    	th:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+										    <div   th:if="${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].readonly == true}" class="unit-numbers"
+										    	th:text="${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].priceUnits}"></div>
 							            </div>
 						            </div>
-									<div class="col-md-1 money-value">.</div>
-									<div class="col-md-1 money-value">.</div>
+									<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].price}">.</div>
+									<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].priceOverTerm}">.</div>
 								</div>
+						    </div>
+						</div>						
+						
+						<!-- Additional Services -->
+						<div class="panel panel-default service-panel">
+						    <div class="panel-body">
+						        <div class="service-header">Additional Services</div>
+								<div class="row"></div>
 		         
-         
+								<div class="row service-row" th:each="svc, infoSvc : ${initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__]}">
+									<div class="col-md-3 control-label" style="padding-right: 0px">
+										<div class="input-group">
+										    <select class="form-control additional-service" th:field="*{additSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" >
+										    <option value=""></option>
+										    <option th:each="additSrv : ${initiateModel.possibleBundleAdditionalServices.get(bundle.id)}" th:value="${additSrv.additionalServiceId}" th:text="${additSrv.name}"></option>
+										    </select>
+							                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
+										</div>
+									</div>
+									<div class="col-md-1 unit-text"></div>
+									<div class="col-md-1 unit-text" th:text="${'£' + initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+									<div class="col-md-2 unit-text" th:text="${initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].unitTypeName}">/ thingy / week</div>
+									<div class="col-md-1 unit-text"></div>
+									<div class="col-md-2">
+										<div class="input-group unit-numbers">
+										    <input th:if="${initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].readonly == false}" class="form-control" size="6" 
+										    	th:field="*{additSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+										    <div   th:if="${initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].readonly == true}" class="unit-numbers"
+										    	th:text="${initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].priceUnits}"></div>
+							            </div>
+						            </div>
+									<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].price}">.</div>
+									<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__].priceOverTerm}">.</div>
+								</div>
 						    </div>
 						</div>						
 						

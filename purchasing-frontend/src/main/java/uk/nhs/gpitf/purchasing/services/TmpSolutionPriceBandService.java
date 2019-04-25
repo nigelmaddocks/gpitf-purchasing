@@ -219,7 +219,7 @@ public class TmpSolutionPriceBandService {
 			}
     	}
         
-        return price;
+        return price.setScale(2, RoundingMode.HALF_UP);
     }    
     
     private BigDecimal getUnitPrice(List<TmpSolutionPriceBand> coll, int numberOf) {
@@ -270,7 +270,10 @@ public class TmpSolutionPriceBandService {
     private String getUnitText(List<TmpSolutionPriceBand> coll) {
     	TmpPriceBasis priceBasis = getPriceBasis(coll);
     	if (priceBasis != null) {
-    		long unit1Id = priceBasis.getUnit1().getId();
+    		long unit1Id = 0;
+    		if (priceBasis.getUnit1() != null) {
+    			unit1Id = priceBasis.getUnit1().getId();
+    		}
     		if (unit1Id == TmpUnitType.PATIENT || unit1Id == TmpUnitType.SERVICE_RECIPIENT) {
     			return priceBasis.getName();
     		} else {
