@@ -33,8 +33,8 @@ public class Phase1ProcurementMenusController {
 
     protected static final String ATTRIBUTE_PAGE_MODEL = "pageModel";
 
-    protected static final String PAGE_PRICE_DECLARATION = "priceDeclaration";
-    protected static final String PAGE_SOLUTION_SET = "SolutionSet";
+    protected static final String PAGE_PRICE_DECLARATION = "choosePriceDeclaration";
+    protected static final String PAGE_SOLUTION_SET = "chooseSolutionSet";
 
 	@Autowired
 	ProcurementService procurementService;
