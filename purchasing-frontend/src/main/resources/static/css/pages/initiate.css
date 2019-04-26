@@ -101,7 +101,8 @@
 }
 
 .addit-associated-service-panel {
-	margin-top: -0.5rem;
+	margin-top: 1.2rem;
+	margin-bottom: 1.5rem;
 	background-colorXX: transparent;
 	background-color: #FBFFFA;
 	padding-left: 0.0rem;
@@ -117,8 +118,9 @@
 }
 
 .service-header {
-	position: relative;
-	top: -1.8rem;
+	margin-top: -1.8rem;
+	positionXX: relative;
+	topXX: -1.8rem;
 	left: 0.0rem;
 	float: left;
 	padding-left: 0.5rem;
@@ -138,9 +140,10 @@
 	background-color: #FFFAFA;
 }
 
-.service-row {
-	position: relative;
-	top: -1.8rem;
+.associated-service-row {
+	margin-top: 0.0rem;
+	positionXX: relative;
+	topXX: -1.8rem;
 	padding-left: 0.0rem;
 	padding-right: 0.0rem;
 	margin-left: 0.0rem;
@@ -148,8 +151,19 @@
 }
 
 .additional-service-row {
-	position: relative;
-	top: -1.4rem;
+	margin-top: -1.5rem;
+	positionXX: relative;
+	topXX: -1.4rem;
+	padding-left: 0.0rem;
+	padding-right: 0.0rem;
+	margin-left: 0.0rem;
+	margin-right: 0.0rem;
+}
+
+.addit-associated-service-row {
+	margin-top: 0.0rem;
+	positionXX: relative;
+	topXX: -1.8rem;
 	padding-left: 0.0rem;
 	padding-right: 0.0rem;
 	margin-left: 0.0rem;

@@ -103,7 +103,7 @@
 						        <div class="service-header associated-service-header">Associated Services</div>
 								<div class="row"></div>
 		         
-								<div class="row service-row" th:each="svc, infoSvc : ${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__]}">
+								<div class="row associated-service-row" th:each="svc, infoSvc : ${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__]}">
 									<div class="col-md-3 control-label" style="padding-right: 0px">
 										<div class="input-group">
 										    <select class="form-control associated-service" th:field="*{assocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" >
@@ -149,7 +149,7 @@
 											</div>
 										</div>
 										<div class="col-md-1 unit-text"></div>
-										<div class="col-md-1 unit-text" th:text="${'£' + svc.unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+										<div class="col-md-1 unit-text" th:text="${svc.unitPrice==null?'':'£' + svc.unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
 										<div class="col-md-2 unit-text" th:text="${svc.unitTypeName}">/ thingy / week</div>
 										<div class="col-md-1 unit-text"></div>
 										<div class="col-md-2">
@@ -171,7 +171,7 @@
 									        <div class="service-header associated-service-header">Associated Services <small>(for Additional Service)</small></div>
 											<div class="row"></div>
 					         
-											<div class="row service-row" th:each="adas, infoAdas : ${svc.additAssociatedServices}">
+											<div class="row addit-associated-service-row" th:each="adas, infoAdas : ${svc.additAssociatedServices}">
 												<div class="col-md-3 control-label" style="padding-right: 0px">
 													<div class="input-group">
 													    <select class="form-control associated-service" th:field="*{additAssocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" >
@@ -181,7 +181,7 @@
 													</div>
 												</div>
 												<div class="col-md-1 unit-text"></div>
-												<div class="col-md-1 unit-text" th:text="${'£' + adas.unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+												<div class="col-md-1 unit-text" th:text="${adas.unitPrice==null?'':'£' + adas.unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
 												<div class="col-md-2 unit-text" th:text="${adas.unitTypeName}">/ thingy / week</div>
 												<div class="col-md-1 unit-text"></div>
 												<div class="col-md-2">
@@ -245,6 +245,7 @@
 <script th:inline="javascript">
 
 function reduceServicePanelHeights() {
+/*	
 	$(".associated-service-panel").each( function() {
 		if ($(this).height() > 5 && typeof($(this).attr("heightset")) == "undefined") {
 			$(this).height($(this).height() - 35);
@@ -263,6 +264,7 @@ function reduceServicePanelHeights() {
 			$(this).attr("heightset", "true");
 		}
 	});
+*/	
 }
 
 // Default the Term value from the 1st Service Recipient into the Term for the other Service Recipients (if they don't already contain a value)
@@ -299,7 +301,7 @@ $("form").on("change", ":input.patient-count", function(event) {
 	});
 
 });
-
+/*
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 	reduceServicePanelHeights();
 });
@@ -307,7 +309,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 $( document ).ready(function() {
 	reduceServicePanelHeights();
 });
-
+*/
 </script>
 </body>
 </html>

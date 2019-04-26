@@ -45,10 +45,27 @@ CREATE TABLE purchasing.proc_bundle_sr_service (
 ALTER TABLE purchasing.proc_solution_bundle  DROP COLUMN IF EXISTS number_of_units;  
 ALTER TABLE purchasing.proc_solution_bundle  DROP COLUMN IF EXISTS price;
 
+UPDATE purchasing.tmp_solution_price_band
+set price_basis=9
+WHERE price_basis=2 AND price=650.00;
+
+/* Some optional test data */
+INSERT INTO purchasing.proc_bundle_sr_service (id, service_recipient, bundle, service_type, associated_service, additional_service, number_of_units, patient_count_based)
+	VALUES(1, 1, 90, 1, NULL, NULL, 6, false);
+INSERT INTO purchasing.proc_bundle_sr_service (id, service_recipient, bundle, service_type, associated_service, additional_service, number_of_units, patient_count_based)
+	VALUES(2, 1, 87, 2, '2bc6792b-da3c-4279-a324-9664b3a97699', NULL, 1, false);
+INSERT INTO purchasing.proc_bundle_sr_service (id, service_recipient, bundle, service_type, associated_service, additional_service, number_of_units, patient_count_based)
+	VALUES(3, 1, 87, 3, NULL, 'fdbaae13-12c1-4ef1-91f8-37564772503a', NULL, false);
+INSERT INTO purchasing.proc_bundle_sr_service (id, service_recipient, bundle, service_type, associated_service, additional_service, number_of_units, patient_count_based)
+	VALUES(4, 1, 87, 3, NULL, 'bdaad54f-f64b-47ee-81bf-1b27c6fa8fec', NULL, false);
+INSERT INTO purchasing.proc_bundle_sr_service (id, service_recipient, bundle, service_type, associated_service, additional_service, number_of_units, patient_count_based)
+	VALUES(5, 1, 87, 4, 'e1931301-5ea3-40be-b1c4-4debd480ae34', 'bdaad54f-f64b-47ee-81bf-1b27c6fa8fec', NULL, false);
+INSERT INTO purchasing.proc_bundle_sr_service (id, service_recipient, bundle, service_type, associated_service, additional_service, number_of_units, patient_count_based)
+	VALUES(6, 1, 87, 4, 'f6b73a95-dca2-4f7d-93bb-25f207f4ca93', 'bdaad54f-f64b-47ee-81bf-1b27c6fa8fec', NULL, false);
+
 /*
 Reversal:
-
-  
+ 
 ALTER TABLE purchasing.proc_solution_bundle  ADD COLUMN number_of_units INT NULL;  
 ALTER TABLE purchasing.proc_solution_bundle  ADD COLUMN price NUMERIC(12,4) NULL;
 drop table purchasing.proc_bundle_sr_service;

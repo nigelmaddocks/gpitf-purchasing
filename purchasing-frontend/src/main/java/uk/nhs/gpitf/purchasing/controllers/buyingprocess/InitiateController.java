@@ -474,18 +474,22 @@ public class InitiateController {
 	}
 	
 	private void addEmptyRowToCollections(InitiateModel initiateModel) {
-		RowDetail[][][] rd = initiateModel.getRowDetailForAssocSrvPerBundleAndSR();
+		RowDetail[][][] assocSrvs = initiateModel.getRowDetailForAssocSrvPerBundleAndSR();
 		String[][][] assocSrv = initiateModel.getAssocSrv() ;
 		Integer[][][] assocSrvUnits = initiateModel.getAssocSrvUnits() ;
+		RowDetail[][][] additSrvs = initiateModel.getRowDetailForAdditSrvPerBundleAndSR();
+		String[][][] additSrv = initiateModel.getAdditSrv() ;
+		Integer[][][] additSrvUnits = initiateModel.getAdditSrvUnits() ;
 
-		for (int idxBundle=0; idxBundle<rd.length; idxBundle++) {
-			for (int idxSR=0; idxSR<rd[idxBundle].length; idxSR++) {
-				List<RowDetail> list = new ArrayList(List.of(rd[idxBundle][idxSR]));
+		for (int idxBundle=0; idxBundle<assocSrvs.length; idxBundle++) {
+			for (int idxSR=0; idxSR<assocSrvs[idxBundle].length; idxSR++) {
+				// Associated Services
+				List<RowDetail> list = new ArrayList(List.of(assocSrvs[idxBundle][idxSR]));
 				RowDetail rdElement = new RowDetail();
 				rdElement.bundleId = initiateModel.getDbBundles().get(idxBundle).getId();
 				rdElement.readonly = true;
 				list.add(rdElement);
-				rd[idxBundle][idxSR] = list.toArray(new RowDetail[] {});
+				assocSrvs[idxBundle][idxSR] = list.toArray(new RowDetail[] {});
 				
 				List<String> lstAssocSrv = new ArrayList(List.of(assocSrv[idxBundle][idxSR]));
 				lstAssocSrv.add("");
@@ -494,6 +498,22 @@ public class InitiateController {
 				List<Integer> lstAssocSrvUnits = new ArrayList(List.of(assocSrvUnits[idxBundle][idxSR]));
 				lstAssocSrvUnits.add(null);
 				assocSrvUnits[idxBundle][idxSR] = lstAssocSrvUnits.toArray(new Integer[] {});
+				
+				// Additional Service
+				list = new ArrayList(List.of(additSrvs[idxBundle][idxSR]));
+				rdElement = new RowDetail();
+				rdElement.bundleId = initiateModel.getDbBundles().get(idxBundle).getId();
+				rdElement.readonly = true;
+				list.add(rdElement);
+				additSrvs[idxBundle][idxSR] = list.toArray(new RowDetail[] {});
+				
+				List<String> lstAdditSrv = new ArrayList(List.of(additSrv[idxBundle][idxSR]));
+				lstAdditSrv.add("");
+				additSrv[idxBundle][idxSR] = lstAdditSrv.toArray(new String[] {});
+				
+				List<Integer> lstAdditSrvUnits = new ArrayList(List.of(additSrvUnits[idxBundle][idxSR]));
+				lstAdditSrvUnits.add(null);
+				additSrvUnits[idxBundle][idxSR] = lstAdditSrvUnits.toArray(new Integer[] {});
 			}
 		}
 	}
