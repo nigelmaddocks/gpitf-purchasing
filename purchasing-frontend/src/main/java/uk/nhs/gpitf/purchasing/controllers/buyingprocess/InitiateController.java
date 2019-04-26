@@ -480,6 +480,8 @@ public class InitiateController {
 		RowDetail[][][] additSrvs = initiateModel.getRowDetailForAdditSrvPerBundleAndSR();
 		String[][][] additSrv = initiateModel.getAdditSrv() ;
 		Integer[][][] additSrvUnits = initiateModel.getAdditSrvUnits() ;
+		String[][][][] additAssocSrv = initiateModel.getAdditAssocSrv() ;
+		Integer[][][][] additAssocSrvUnits = initiateModel.getAdditAssocSrvUnits() ;
 
 		for (int idxBundle=0; idxBundle<assocSrvs.length; idxBundle++) {
 			for (int idxSR=0; idxSR<assocSrvs[idxBundle].length; idxSR++) {
@@ -499,9 +501,13 @@ public class InitiateController {
 				lstAssocSrvUnits.add(null);
 				assocSrvUnits[idxBundle][idxSR] = lstAssocSrvUnits.toArray(new Integer[] {});
 				
+			}
+		}
+		for (int idxBundle=0; idxBundle<additSrvs.length; idxBundle++) {
+			for (int idxSR=0; idxSR<additSrvs[idxBundle].length; idxSR++) {
 				// Additional Service
-				list = new ArrayList(List.of(additSrvs[idxBundle][idxSR]));
-				rdElement = new RowDetail();
+				List<RowDetail> list = new ArrayList(List.of(additSrvs[idxBundle][idxSR]));
+				RowDetail rdElement = new RowDetail();
 				rdElement.bundleId = initiateModel.getDbBundles().get(idxBundle).getId();
 				rdElement.readonly = true;
 				list.add(rdElement);
@@ -514,6 +520,26 @@ public class InitiateController {
 				List<Integer> lstAdditSrvUnits = new ArrayList(List.of(additSrvUnits[idxBundle][idxSR]));
 				lstAdditSrvUnits.add(null);
 				additSrvUnits[idxBundle][idxSR] = lstAdditSrvUnits.toArray(new Integer[] {});
+				
+				// Additional Service's Associated Services
+				for (int idxAddit=0; idxAddit<additAssocSrv[idxBundle][idxSR].length; idxAddit++) {
+					List<String> lstAssocSrv = new ArrayList(List.of(additAssocSrv[idxBundle][idxSR][idxAddit]));
+					lstAssocSrv.add("");
+					additAssocSrv[idxBundle][idxSR][idxAddit] = lstAssocSrv.toArray(new String[] {});
+
+					List<Integer> lstAssocSrvUnits = new ArrayList(List.of(additAssocSrvUnits[idxBundle][idxSR][idxAddit]));
+					lstAssocSrvUnits.add(null);
+					additAssocSrvUnits[idxBundle][idxSR][idxAddit] = lstAssocSrvUnits.toArray(new Integer[] {});
+					
+					if (lstAssocSrv.size() > 1) {
+						list = new ArrayList(List.of(initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR][idxAddit].additAssociatedServices));
+						rdElement = new RowDetail();
+						rdElement.bundleId = initiateModel.getDbBundles().get(idxBundle).getId();
+						rdElement.readonly = true;
+						list.add(rdElement);
+						initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR][idxAddit].additAssociatedServices = list.toArray(new RowDetail[] {});
+					}
+				}
 			}
 		}
 	}
