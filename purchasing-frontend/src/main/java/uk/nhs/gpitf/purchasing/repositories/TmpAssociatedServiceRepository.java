@@ -7,4 +7,5 @@ import uk.nhs.gpitf.purchasing.entities.TmpAssociatedService;
 @Repository
 public interface TmpAssociatedServiceRepository extends CrudRepository<TmpAssociatedService, Long> {
 	Iterable<TmpAssociatedService> findAllBySolutionIdOrderByName(String solutionId);
+	Iterable<TmpAssociatedService> findAllByAdditionalServiceOrderByName(String solutionId);
 }

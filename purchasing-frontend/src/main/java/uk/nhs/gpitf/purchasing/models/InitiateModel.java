@@ -37,11 +37,15 @@ public class InitiateModel {
 	public Integer[] patientCount = new Integer[] {}; // One element per Service Recipient
 	public RowDetail[][] rowDetailForBaseSystemPerBundleAndSR = new RowDetail[][] {};
 	public RowDetail[][][] rowDetailForAssocSrvPerBundleAndSR = new RowDetail[][][] {};
+	public RowDetail[][][] rowDetailForAdditSrvPerBundleAndSR = new RowDetail[][][] {};
+	
 	public String[][][] assocSrv = new String[][][] {};
 	public Integer[][][] assocSrvUnits = new Integer[][][] {};
-	public RowDetail[][][] rowDetailForAdditSrvPerBundleAndSR = new RowDetail[][][] {};
 	public String[][][] additSrv = new String[][][] {};
 	public Integer[][][] additSrvUnits = new Integer[][][] {};
+	public String[][][][] additAssocSrv = new String[][][][] {};
+	public Integer[][][][] additAssocSrvUnits = new Integer[][][][] {};
+	
 	public String removeSolutionId = null;
 	public Long removalReasonId = null;
 	@Size(max = 255)
@@ -51,6 +55,7 @@ public class InitiateModel {
 	private int[] possibleContractTermMonths = new int[] {}; 
 	private Hashtable<Long, List<TmpAssociatedService>> possibleBundleAssociatedServices = new Hashtable<>();
 	private Hashtable<Long, List<TmpAdditionalService>> possibleBundleAdditionalServices = new Hashtable<>();
+	private Hashtable<String, List<TmpAssociatedService>>PossibleAdditAssociatedServices = new Hashtable<>();
 	
 	
 	public BigDecimal getUnitPriceForBundle(long bundleId, int bandingUnits) {
@@ -137,6 +142,7 @@ public class InitiateModel {
 		public String solutionId;
 		public String associatedService;
 		public String additionalService;
+		public RowDetail[] additAssociatedServices = new RowDetail[] {};
 		public String name;
 		public String unitTypeName;
 		public BigDecimal unitPrice;

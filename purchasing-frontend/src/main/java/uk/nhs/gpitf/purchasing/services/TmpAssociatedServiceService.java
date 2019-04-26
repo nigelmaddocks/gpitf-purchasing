@@ -21,4 +21,10 @@ public class TmpAssociatedServiceService {
         return coll;
     }    
 
+    public List<TmpAssociatedService> getAllByAdditionalServiceOrderByName(String solutionId) {
+        List<TmpAssociatedService> coll = new ArrayList<>();
+        thisRepository.findAllByAdditionalServiceOrderByName(solutionId).forEach(coll::add);
+        return coll;
+    }    
+
 }

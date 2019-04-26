@@ -35,6 +35,11 @@ public class ProcSolutionBundleService {
     	return associatedServices;
     }
 
+    public List<TmpAssociatedService>getAssociatedServicesForAdditionalService(String additionalService) {
+    	List<TmpAssociatedService> associatedServices = associatedServiceService.getAllByAdditionalServiceOrderByName(additionalService);
+    	return associatedServices;
+    }
+
     public List<TmpAdditionalService>getAdditionalServicesForBundle(ProcSolutionBundle bundle) {
     	List<TmpAdditionalService> additionalServices = new ArrayList<>();
     	for (ProcSolutionBundleItem item : bundle.getBundleItems()) {

@@ -17,7 +17,7 @@ public class ProcBundleSrServiceService {
 
     public List<ProcBundleSrService>getAllForBundle(ProcSolutionBundle bundle) {
         List<ProcBundleSrService> coll = new ArrayList<>();
-        thisRepository.findAll().forEach(coll::add);
+        thisRepository.findAllByBundle(bundle).forEach(coll::add);
         return coll;
     }
     

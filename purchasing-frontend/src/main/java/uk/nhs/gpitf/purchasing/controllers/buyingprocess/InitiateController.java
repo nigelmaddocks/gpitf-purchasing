@@ -366,23 +366,25 @@ public class InitiateController {
 		initiateModel.getSrvRecipients().clear();
 		initiateModel.getSrvRecipients().addAll(srvRecipients);
 		
-		initiateModel.setRowDetailForBaseSystemPerBundleAndSR(new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()]);
-		initiateModel.setRowDetailForAssocSrvPerBundleAndSR(  new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setRowDetailForAdditSrvPerBundleAndSR(  new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAssocSrv(  						  new String[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAssocSrvUnits(						  new Integer[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAdditSrv(  						  new String[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAdditSrvUnits(						  new Integer[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setRowDetailForBaseSystemPerBundleAndSR(	new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()]);
+		initiateModel.setRowDetailForAssocSrvPerBundleAndSR(  	new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setRowDetailForAdditSrvPerBundleAndSR(  	new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAssocSrv(  						  	new String[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAssocSrvUnits(						  	new Integer[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAdditSrv(  						  	new String[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAdditSrvUnits(						  	new Integer[bundles.size()][srvRecipients.size()][0]);
+		initiateModel.setAdditAssocSrv(  					  	new String[bundles.size()][srvRecipients.size()][0][0]);
+		initiateModel.setAdditAssocSrvUnits(					new Integer[bundles.size()][srvRecipients.size()][0][0]);
 		int idxBundle = 0;
 		for (var bundle : bundles) {
 			List<ProcBundleSrService> bundleServices = procBundleSrServiceService.getAllForBundle(bundle);
 
 			int idxSR = 0;
 			for (var sr : srvRecipients) {
-				InitiateModel.RowDetail rowDetail = setupRowDetails(bundle, sr, srvRecipients.size(), initiateModel, ServiceType.BASE_SOLUTION, bundleServices).get(0);				
+				InitiateModel.RowDetail rowDetail = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.BASE_SOLUTION, bundleServices).get(0);				
 				initiateModel.getRowDetailForBaseSystemPerBundleAndSR()[idxBundle][idxSR] = rowDetail;
 				
-				InitiateModel.RowDetail[] rowDetails = setupRowDetails(bundle, sr, srvRecipients.size(), initiateModel, ServiceType.ASSOCIATED_SERVICE, bundleServices)
+				InitiateModel.RowDetail[] rowDetails = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.ASSOCIATED_SERVICE, bundleServices)
 						.toArray(new InitiateModel.RowDetail[] {});
 				initiateModel.getRowDetailForAssocSrvPerBundleAndSR()[idxBundle][idxSR] = rowDetails;
 				List<String> lstAssocSrv = new ArrayList<>();
@@ -394,7 +396,7 @@ public class InitiateController {
 				initiateModel.getAssocSrv()[idxBundle][idxSR] = lstAssocSrv.toArray(new String[] {});
 				initiateModel.getAssocSrvUnits()[idxBundle][idxSR] = lstAssocSrvUnits.toArray(new Integer[] {});
 
-				rowDetails = setupRowDetails(bundle, sr, srvRecipients.size(), initiateModel, ServiceType.ADDITIONAL_SERVICE, bundleServices)
+				rowDetails = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.ADDITIONAL_SERVICE, bundleServices)
 						.toArray(new InitiateModel.RowDetail[] {});
 				initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR] = rowDetails;
 				List<String> lstAdditSrv = new ArrayList<>();
@@ -405,6 +407,19 @@ public class InitiateController {
 				}
 				initiateModel.getAdditSrv()[idxBundle][idxSR] = lstAdditSrv.toArray(new String[] {});
 				initiateModel.getAdditSrvUnits()[idxBundle][idxSR] = lstAdditSrvUnits.toArray(new Integer[] {});
+			
+				initiateModel.getAdditAssocSrv()[idxBundle][idxSR] = new String[lstAdditSrv.size()][0];				
+				initiateModel.getAdditAssocSrvUnits()[idxBundle][idxSR] = new Integer[lstAdditSrvUnits.size()][0];				
+				for (int idxAdditSvc=0; idxAdditSvc<lstAdditSrv.size(); idxAdditSvc++) {
+					lstAssocSrv = new ArrayList<>();
+					lstAssocSrvUnits = new ArrayList<>();
+					for (var rd : initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR][idxAdditSvc].additAssociatedServices) {
+						lstAssocSrv.add(rd.associatedService);
+						lstAssocSrvUnits.add(rd.priceUnits);
+					}
+					initiateModel.getAdditAssocSrv()[idxBundle][idxSR][idxAdditSvc] = lstAssocSrv.toArray(new String[] {});
+					initiateModel.getAdditAssocSrvUnits()[idxBundle][idxSR][idxAdditSvc] = lstAssocSrvUnits.toArray(new Integer[] {});
+				}
 				
 				idxSR++;
 			}
@@ -431,20 +446,55 @@ public class InitiateController {
 		}
 		
 		// Add each bundle's possible Associated Services into their key value
+		initiateModel.getPossibleBundleAssociatedServices().clear();
 		for (ProcSolutionBundle bundle : bundles) {
 			List<TmpAssociatedService> bundleAssociatedServices = procSolutionBundleService.getAssociatedServicesForBundle(bundle);
 			initiateModel.getPossibleBundleAssociatedServices().put(bundle.getId(), bundleAssociatedServices);
 		}
 		
 		// Add each bundle's possible Additional Services into their key value
+		initiateModel.getPossibleBundleAdditionalServices().clear();
 		for (ProcSolutionBundle bundle : bundles) {
 			List<TmpAdditionalService> bundleAdditionalServices = procSolutionBundleService.getAdditionalServicesForBundle(bundle);
 			initiateModel.getPossibleBundleAdditionalServices().put(bundle.getId(), bundleAdditionalServices);
 		}
 		
-		// 
-		for (ProcSolutionBundle bundle : bundles) {
-			List<ProcBundleSrService> lstBundleServices = procBundleSrServiceService.getAllForBundle(bundle);
+		// Add each Additional Service's possible Additional Services into their key value
+		initiateModel.getPossibleAdditAssociatedServices().clear();
+		for (List<TmpAdditionalService> lstAddSvc : initiateModel.getPossibleBundleAdditionalServices().values()) {
+			for (TmpAdditionalService addSvc : lstAddSvc) {
+				if (!initiateModel.getPossibleAdditAssociatedServices().containsKey(addSvc.getAdditionalServiceId())) {
+					List<TmpAssociatedService> assocSvc = procSolutionBundleService.getAssociatedServicesForAdditionalService(addSvc.getAdditionalServiceId());
+					initiateModel.getPossibleAdditAssociatedServices().put(addSvc.getAdditionalServiceId(), assocSvc);
+				}
+			}
+		}
+		
+		addEmptyRowToCollections(initiateModel);
+	}
+	
+	private void addEmptyRowToCollections(InitiateModel initiateModel) {
+		RowDetail[][][] rd = initiateModel.getRowDetailForAssocSrvPerBundleAndSR();
+		String[][][] assocSrv = initiateModel.getAssocSrv() ;
+		Integer[][][] assocSrvUnits = initiateModel.getAssocSrvUnits() ;
+
+		for (int idxBundle=0; idxBundle<rd.length; idxBundle++) {
+			for (int idxSR=0; idxSR<rd[idxBundle].length; idxSR++) {
+				List<RowDetail> list = new ArrayList(List.of(rd[idxBundle][idxSR]));
+				RowDetail rdElement = new RowDetail();
+				rdElement.bundleId = initiateModel.getDbBundles().get(idxBundle).getId();
+				rdElement.readonly = true;
+				list.add(rdElement);
+				rd[idxBundle][idxSR] = list.toArray(new RowDetail[] {});
+				
+				List<String> lstAssocSrv = new ArrayList(List.of(assocSrv[idxBundle][idxSR]));
+				lstAssocSrv.add("");
+				assocSrv[idxBundle][idxSR] = lstAssocSrv.toArray(new String[] {});
+				
+				List<Integer> lstAssocSrvUnits = new ArrayList(List.of(assocSrvUnits[idxBundle][idxSR]));
+				lstAssocSrvUnits.add(null);
+				assocSrvUnits[idxBundle][idxSR] = lstAssocSrvUnits.toArray(new Integer[] {});
+			}
 		}
 	}
 	
@@ -487,12 +537,18 @@ public class InitiateController {
 		
 	}
 	
-	private List<InitiateModel.RowDetail> setupRowDetails(ProcSolutionBundle bundle, ProcSrvRecipient sr, int serviceRecipientCount, InitiateModel initiateModel, 
+	private List<InitiateModel.RowDetail> setupRowDetails(ProcSolutionBundle bundle, ProcSrvRecipient sr, String additionalService, int serviceRecipientCount, InitiateModel initiateModel, 
 			long iServiceType, List<ProcBundleSrService> allBundleServices) {
 
 		List<InitiateModel.RowDetail> rowDetails = new ArrayList<>();
 		
-		List<ProcBundleSrService> bundleServices = getBundleServicesForServiceType(bundle, sr, iServiceType, allBundleServices);
+		List<ProcBundleSrService> bundleServices = null;
+		if (iServiceType != ServiceType.ASSOCIATED_SERVICE_OF_ADDITIONAL_SERVICE) {
+			bundleServices = getBundleServicesForServiceType(bundle, sr, iServiceType, allBundleServices);
+		} else {
+			bundleServices = getBundleAssocatedServicesForAdditionalService(bundle, sr, additionalService, allBundleServices);
+		}
+		
 		if (bundleServices.size() == 0 && iServiceType == ServiceType.BASE_SOLUTION) {
 			bundleServices.add(new ProcBundleSrService());
 		}
@@ -592,6 +648,12 @@ public class InitiateController {
 						rowDetail.priceUnits==null?0:rowDetail.priceUnits, 
 						sr.getTerm()==null?12:sr.getTerm());
 				rowDetail.additionalService = bundleService.getAdditionalService();
+			}
+			
+			if (iServiceType == ServiceType.ADDITIONAL_SERVICE) {
+				InitiateModel.RowDetail[] rowDetailsOfAdditAssociatedServices = setupRowDetails(bundle, sr, rowDetail.additionalService, serviceRecipientCount, initiateModel, ServiceType.ASSOCIATED_SERVICE_OF_ADDITIONAL_SERVICE, allBundleServices)
+						.toArray(new InitiateModel.RowDetail[] {});
+				rowDetail.additAssociatedServices = rowDetailsOfAdditAssociatedServices;
 			}
 			
 			rowDetails.add(rowDetail);
