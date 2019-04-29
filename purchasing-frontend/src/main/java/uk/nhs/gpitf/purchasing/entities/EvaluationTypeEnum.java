@@ -15,11 +15,11 @@ public enum EvaluationTypeEnum {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final Long id;
+  private final long id;
   private final String name;
 
   private EvaluationTypeEnum(int id, String name) {
-    this.id = (long) id;
+    this.id = id;
     this.name = name;
   }
 

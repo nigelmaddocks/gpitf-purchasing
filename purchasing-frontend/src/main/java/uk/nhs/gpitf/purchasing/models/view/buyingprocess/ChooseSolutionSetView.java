@@ -6,6 +6,6 @@ import lombok.Data;
 public class ChooseSolutionSetView {
 
   private Long id;
-  private Integer selectedOption;
+  private Long selectedOption;
 
 }

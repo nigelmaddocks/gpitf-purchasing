@@ -157,9 +157,10 @@ public class Phase1ProcurementMenusController {
 
 	@GetMapping("/buyingprocess/choose-price-declaration")
     public String choosePriceDeclaration(Model model, HttpServletRequest request) {
+	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 	    HttpSession session = request.getSession();
 
-	    Procurement.PrimitiveProcurement procurement = getProcurementFromSession(session);
+	    Procurement.PrimitiveProcurement procurement = procurementService.getPrimitiveProcurement(session, secInfo);
 	    Optional<EvaluationTypeEnum> evaluationType = Optional.ofNullable(procurement.getEvaluationType());
 
 	    var pageModel = new ChoosePriceDeclarationView();
@@ -177,9 +178,9 @@ public class Phase1ProcurementMenusController {
 	    HttpSession session = request.getSession();
 	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
-	    Procurement.PrimitiveProcurement prim = procurementService.createAndPersistNewPrimitiveProcurement(session, secInfo);
-	    prim.setEvaluationType(EvaluationTypeEnum.getById(pageModel.getSelectedOption()));
-	    session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
+	    Procurement.PrimitiveProcurement procurement = procurementService.getPrimitiveProcurement(session, secInfo);
+	    procurement.setEvaluationType(EvaluationTypeEnum.getById(pageModel.getSelectedOption()));
+	    procurementService.setPrimitiveProcurement(session, procurement);
 
 	    // TODO change to correct view when known
         return BuyingProcessController.PATH + BuyingProcessController.PAGE_PROCUREMENT;
@@ -190,6 +191,7 @@ public class Phase1ProcurementMenusController {
 	              "/buyingprocess/{procurementId}/choose-solution-set"
 	          })
 	public String chooseSolutionSet(@PathVariable Optional<Long> procurementId, Model model, HttpServletRequest request) throws ProcurementNotFoundException {
+	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 	    HttpSession session = request.getSession();
 
 	    Optional<SolutionSetEnum> solutionSet;
@@ -197,7 +199,7 @@ public class Phase1ProcurementMenusController {
 	      Procurement procurement = procurementService.findById(procurementId.get());
 	      solutionSet = Optional.ofNullable(foundationBooleanToSolutionSet(procurement.getFoundation()));
 	    } else {
-	      Procurement.PrimitiveProcurement procurement = getProcurementFromSession(session);
+	      Procurement.PrimitiveProcurement procurement = procurementService.getPrimitiveProcurement(session, secInfo);
 	      solutionSet = Optional.ofNullable(foundationBooleanToSolutionSet(procurement.getFoundation()));
 	    }
 
@@ -212,23 +214,25 @@ public class Phase1ProcurementMenusController {
 	}
 
 	@PostMapping("/buyingprocess/choose-solution-set")
-    public String chooseSolutionSetPost(ChooseSolutionSetView pageModel, HttpServletRequest request) {
-     HttpSession session = request.getSession();
+    public String chooseSolutionSetPost(ChooseSolutionSetView pageModel, HttpServletRequest request) throws ProcurementNotFoundException {
+  	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+  	    HttpSession session = request.getSession();
 
-//     ViewChooseSolutionSet solution;
-//     if (procurementId.isPresent()) {
-//       Procurement procurement = procurementService.findById(procurementId.get());
-//       solution = new ViewChooseSolutionSet(procurement.getId(), procurement.getFoundation());
-//     } else {
-//       Procurement.PrimitiveProcurement procurement = getProcurementFromSession(session);
-//       solution = new ViewChooseSolutionSet(null, procurement.getFoundation());
-//     }
-//
-//     model.addAttribute("solution", solution);
-    //model.addAttribute("evaluationTypes", Arrays.asList(EvaluationTypeEnum.values()));
-    //TODO change to correct view when known
-    return BuyingProcessController.PATH + BuyingProcessController.PAGE_PROCUREMENT;
-}
+  	    Optional<Long> procurementId = Optional.ofNullable(pageModel.getId());
+  	    SolutionSetEnum solution = SolutionSetEnum.getById(pageModel.getSelectedOption());
+        if (procurementId.isPresent()) {
+          Procurement procurement = procurementService.findById(procurementId.get());
+          procurement.setFoundation(solutionSetToFoundationBoolean(solution));
+          procurementService.save(procurement);
+        } else {
+          Procurement.PrimitiveProcurement procurement = procurementService.getPrimitiveProcurement(session, secInfo);
+          procurement.setFoundation(solutionSetToFoundationBoolean(solution));
+          procurementService.setPrimitiveProcurement(session, procurement);
+        }
+
+        //TODO change to correct view when known
+        return BuyingProcessController.PATH + BuyingProcessController.PAGE_PROCUREMENT;
+	}
 
 	// Temporary page to kick off a procurement
 	@GetMapping(value = {"/buyingprocess/tmpBuyingStart"})
@@ -241,22 +245,15 @@ public class Phase1ProcurementMenusController {
 	public String tmpBuyingStartPOST(Model model, TmpBuyingStartModel tmpBuyingStartModel, RedirectAttributes attr, HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
-		Procurement.PrimitiveProcurement prim = procurementService.createAndPersistNewPrimitiveProcurement(session, secInfo);
+
+		Procurement.PrimitiveProcurement prim = procurementService.getPrimitiveProcurement(session, secInfo);
 
 		prim.setEvaluationType(tmpBuyingStartModel.getEvaluationType());
 		prim.setFoundation(tmpBuyingStartModel.getFoundation() == 1L);
 
-		session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
+		procurementService.setPrimitiveProcurement(session, prim);
 
 		return "redirect:/buyingprocess/solutionByCapability";
-	}
-
-	private Procurement.PrimitiveProcurement getProcurementFromSession(HttpSession session) {
-	  Procurement.PrimitiveProcurement procurement = (Procurement.PrimitiveProcurement) session.getAttribute(Procurement.SESSION_ATTR_NAME);
-	  if (procurement == null) {
-	    procurement = new Procurement.PrimitiveProcurement();
-	  }
-	  return procurement;
 	}
 
     private static SolutionSetEnum foundationBooleanToSolutionSet(Boolean foundation) {

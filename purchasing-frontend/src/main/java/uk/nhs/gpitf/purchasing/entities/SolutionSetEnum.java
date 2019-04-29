@@ -14,7 +14,7 @@ public enum SolutionSetEnum {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final Integer id;
+  private final long id;
   private final String name;
 
   private SolutionSetEnum(int id, String name) {
@@ -22,8 +22,8 @@ public enum SolutionSetEnum {
     this.name = name;
   }
 
-  public static EvaluationTypeEnum getById(Long id) {
-    return Stream.of(EvaluationTypeEnum.values())
+  public static SolutionSetEnum getById(Long id) {
+    return Stream.of(SolutionSetEnum.values())
               .filter(e -> e.getId() == id)
               .findFirst()
               .orElseThrow(() -> {
