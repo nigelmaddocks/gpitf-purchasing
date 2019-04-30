@@ -14,6 +14,7 @@
         <form class="form-horizontal" th:object="${initiateModel}" th:action="@{/buyingprocess/initiate}" method="post">
             <input type="hidden" th:field="*{aaarrayDimensions}" />
             <input type="hidden" th:field="*{procurementId}" />
+            <input type="hidden" th:field="*{procurementName}" />
             <input type="hidden" th:field="*{numberOfPractices}" />
             <input type="hidden" th:field="*{directAwardBundleId}" />
 

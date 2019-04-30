@@ -256,7 +256,7 @@ public class InitiateController {
 
 	@GetMapping(value = {"/buyingprocess/initiate/{procurementId}"})
 	public String initiate(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
-		Breadcrumbs.register("Shortlist", request);
+		Breadcrumbs.register("Initiate", request);
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
