@@ -6,19 +6,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.persistence.Transient;
 import javax.servlet.http.HttpSession;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import uk.nhs.gpitf.purchasing.entities.EvaluationType;
+import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
@@ -36,7 +30,7 @@ public class ProcurementService {
 
     @Autowired
     private ProcurementRepository thisRepository;
-    
+
     @Autowired
 	OrgContactRepository orgContactRepository;
 
@@ -73,54 +67,48 @@ public class ProcurementService {
        return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
-    public Procurement saveCurrentPosition(long procurementId, long orgContactId, 
-    		Optional<String> searchKeyword, Optional<String> csvCapabilities, Optional<String> csvInteroperables, 
-    		Optional<Long> evaluationTypeId, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
-    	Procurement procurement = null;
+    public Procurement saveCurrentPosition(
+                          long procurementId,
+                          long orgContactId,
+                          Optional<String> searchKeyword,
+                          Optional<String> csvCapabilities,
+                          Optional<String> csvInteroperables,
+                          Optional<EvaluationTypeEnum> evaluationType,
+                          Optional<Boolean> foundation,
+                          Optional<String> csvPractices) throws Exception {
+    	final Procurement procurement;
     	if (procurementId == 0) {
     		procurement = createNewProcurement(orgContactId);
     	} else {
     		procurement = findById(procurementId);
     	}
 
-
-    	if (searchKeyword.isPresent()) {
-    		procurement.setSearchKeyword(searchKeyword.get());
-    	}
-    	if (csvCapabilities.isPresent()) {
-    		procurement.setCsvCapabilities(csvCapabilities.get());
-    	}
-    	if (csvInteroperables.isPresent()) {
-    		procurement.setCsvInteroperables(csvInteroperables.get());
-    	}
-    	if (evaluationTypeId.isPresent()) {
-    		procurement.setEvaluationType((EvaluationType) GUtils.makeObjectForId(EvaluationType.class, evaluationTypeId.get()));
-    	}
-    	if (foundation.isPresent()) {
-    		procurement.setFoundation(foundation.get());
-    	}
-    	if (csvPractices.isPresent()) {
-    		String sCsvPractices = GUtils.trimCommas(csvPractices.get());
-    		procurement.setCsvPractices(sCsvPractices);
-    	}
+    	searchKeyword.ifPresent(procurement::setSearchKeyword);
+    	csvCapabilities.ifPresent(procurement::setCsvCapabilities);
+    	csvInteroperables.ifPresent(procurement::setCsvInteroperables);
+    	evaluationType.ifPresent(procurement::setEvaluationType);
+    	foundation.ifPresent(procurement::setFoundation);
+    	csvPractices.ifPresent(practices -> procurement.setCsvPractices(GUtils.trimCommas(practices)));
     	procurement.setLastUpdated(LocalDateTime.now());
-    	procurement = save(procurement);
 
-    	return procurement;
+    	return save(procurement);
     }
 
     public Procurement saveCurrentPosition(Procurement.PrimitiveProcurement prim) throws Exception {
     	Procurement procurement = null;
-    	procurement = saveCurrentPosition(0, prim.getOrgContactId(), Optional.empty(), 
-			prim.getCsvCapabilities()==null		?Optional.empty():Optional.of(prim.getCsvCapabilities()), 
-			prim.getCsvInteroperables()==null	?Optional.empty():Optional.of(prim.getCsvInteroperables()), 
-			prim.getEvaluationType()==0			?Optional.empty():Optional.of(prim.getEvaluationType()),
-			prim.getFoundation()==null			?Optional.empty():Optional.of(prim.getFoundation()), 
-			prim.getCsvPractices()==null		?Optional.empty():Optional.of(GUtils.trimCommas(prim.getCsvPractices()))
+    	procurement = saveCurrentPosition(
+    	    0,
+    	    prim.getOrgContactId(),
+    	    Optional.empty(),
+			prim.getCsvCapabilities() == null ? Optional.empty() : Optional.of(prim.getCsvCapabilities()),
+			prim.getCsvInteroperables() == null ? Optional.empty() : Optional.of(prim.getCsvInteroperables()),
+			prim.getEvaluationType() == null ? Optional.empty() : Optional.of(prim.getEvaluationType()),
+			prim.getFoundation() == null ? Optional.empty() : Optional.of(prim.getFoundation()),
+			prim.getCsvPractices() == null ? Optional.empty() : Optional.of(GUtils.trimCommas(prim.getCsvPractices()))
 		);
     	return procurement;
-    }    
-    
+    }
+
     public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
@@ -176,7 +164,7 @@ public class ProcurementService {
 		BeanUtils.copyProperties(procurement, prim);
 		session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
 	}
-	
+
 	/** Restores a procurement that is in its early stages and hasn't yet been saved to the database, from the session */
 	public Procurement restoreFromSession(HttpSession session) {
 		PrimitiveProcurement prim = (PrimitiveProcurement) session.getAttribute(Procurement.SESSION_ATTR_NAME);
@@ -190,10 +178,10 @@ public class ProcurementService {
 			if (prim.getOrgContactId() != 0) {
 				orgContact = orgContactRepository.findById(prim.getOrgContactId()).get();
 			}
-			
+
 			proc.setStatus((ProcStatus)GUtils.makeObjectForId(ProcStatus.class, ProcStatus.DRAFT));
-			if (prim.getEvaluationType() != 0) {
-				proc.setEvaluationType((EvaluationType)GUtils.makeObjectForId(EvaluationType.class, prim.getEvaluationType()));
+			if (prim.getEvaluationType() != null) {
+			  proc.setEvaluationType(prim.getEvaluationType());
 			}
 
 			proc.setOrgContact(orgContact);
@@ -206,7 +194,7 @@ public class ProcurementService {
     public Procurement.PrimitiveProcurement createNewPrimitiveProcurement(SecurityInfo secInfo) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMMyyyy");
     	LocalDateTime now = LocalDateTime.now();
-    	
+
     	Procurement.PrimitiveProcurement prim = new Procurement.PrimitiveProcurement();
 		prim.setName("Procurement-for-" + secInfo.getOrgContactId() + "-" + now.format(formatter));
 		prim.setOrgContactId(secInfo.getOrgContactId());

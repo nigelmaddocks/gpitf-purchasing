@@ -6,6 +6,9 @@ spring:
     username: postgres
     password: 
     driver-class-name: org.postgresql.Driver
+  messages:
+    basename: messages/web
+    encoding: UTF-8
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQL95Dialect
     properties:

@@ -49,7 +49,7 @@ h5 {
     padding-top: 0rem; !important;
 }
 
-a.button:link, a.button:hover, a.button:visited {
+a.button:link, a.button:hover, a.button:visited, .btn:focus {
 	color: #fff;
 }
 
@@ -83,20 +83,4 @@ input[type='text'], input[type='email'], input[type='tel'], textarea {
 
 .breadcrumb > li + li:before {  /* remove this to revert back to slash */
     content: "> ";
-}
-
-/**
-/* Other Styles
-*/
-
-a.minor-link, a.minor-link:link, a.minor-link:hover, a.minor-link:visited {
-	font-size: 0.8em;
-}
-a.minor-link::before {
-	color: #425563;
-	content: "["
-}
-a.minor-link::after {
-	color: #425563;
-	content: "]"
 }
