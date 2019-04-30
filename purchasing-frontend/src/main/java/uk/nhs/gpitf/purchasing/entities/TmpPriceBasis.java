@@ -49,4 +49,7 @@ public class TmpPriceBasis {
     	return compactCalc.contains("*{YEARS}")  || compactCalc.contains("{YEARS}*");
     }
 
+    public boolean isFixedPrice() {
+    	return !isDependentOnUnits() && !isDependentOnTerm();
+    }
 }

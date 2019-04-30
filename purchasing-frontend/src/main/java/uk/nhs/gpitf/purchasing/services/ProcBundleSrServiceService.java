@@ -15,9 +15,9 @@ public class ProcBundleSrServiceService {
     @Autowired
     private ProcBundleSrServiceRepository thisRepository;
 
-    public List<ProcBundleSrService>getAllForBundle(ProcSolutionBundle bundle) {
+    public List<ProcBundleSrService>getAllForBundleOrderById(ProcSolutionBundle bundle) {
         List<ProcBundleSrService> coll = new ArrayList<>();
-        thisRepository.findAllByBundle(bundle).forEach(coll::add);
+        thisRepository.findAllByBundleOrderById(bundle).forEach(coll::add);
         return coll;
     }
     

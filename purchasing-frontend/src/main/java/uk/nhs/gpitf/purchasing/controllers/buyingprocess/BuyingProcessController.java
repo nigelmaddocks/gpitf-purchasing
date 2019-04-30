@@ -94,7 +94,7 @@ public class BuyingProcessController {
 			//}
 		} else
 		if (procurementStatusId == ProcStatus.INITIATE) {
-			return "redirect:/buyingprocess/shortlist/" + procurementId;
+			return "redirect:/buyingprocess/initiate/" + procurementId;
 		}
 
     	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();

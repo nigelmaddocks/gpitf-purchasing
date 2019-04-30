@@ -63,6 +63,7 @@ INSERT INTO purchasing.proc_bundle_sr_service (id, service_recipient, bundle, se
 INSERT INTO purchasing.proc_bundle_sr_service (id, service_recipient, bundle, service_type, associated_service, additional_service, number_of_units, patient_count_based)
 	VALUES(6, 1, 87, 4, 'f6b73a95-dca2-4f7d-93bb-25f207f4ca93', 'bdaad54f-f64b-47ee-81bf-1b27c6fa8fec', NULL, false);
 
+ALTER SEQUENCE purchasing.proc_bundle_sr_service_id_seq RESTART WITH 7;
 /*
 Reversal:
  

@@ -9,7 +9,6 @@ import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
 
 @Repository
 public interface ProcBundleSrServiceRepository extends CrudRepository<ProcBundleSrService, Long> {
-	//Iterable<ProcBundleSrService> findAllByBundleOrderByServiceTypeIdAscAdditionalServiceAscAssociatedServiceAsc(ProcSolutionBundle bundle);
-	Iterable<ProcBundleSrService> findAllByBundle(ProcSolutionBundle bundle);
+	Iterable<ProcBundleSrService> findAllByBundleOrderById(ProcSolutionBundle bundle);
 
 }

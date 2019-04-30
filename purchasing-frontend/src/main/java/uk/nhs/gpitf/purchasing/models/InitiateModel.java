@@ -12,7 +12,9 @@ import javax.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import io.micrometer.core.instrument.util.StringUtils;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
 import uk.nhs.gpitf.purchasing.entities.ProcSrvRecipient;
@@ -26,6 +28,28 @@ public class InitiateModel {
 	TmpSolutionPriceBandService tmpSolutionPriceBandService;
 	
 	private long procurementId;
+	
+	// Multi-Dimensional array dimension information. This is posted back first because of its name
+	// and is therefore able to set up the multi-dimensional arrays' dimensions
+	@Setter(AccessLevel.NONE)
+	private String aaarrayDimensions;
+	public void setAaarrayDimensions(String value) {
+		this.aaarrayDimensions = value;
+		if (assocSrv.length == 0) {
+			String[] arrDims = value.split(",");
+			int dim0 = Integer.valueOf(arrDims[0]);
+			int dim1 = Integer.valueOf(arrDims[1]);
+			int dim2 = Integer.valueOf(arrDims[2]);
+			int dim3 = Integer.valueOf(arrDims[3]);
+			assocSrv = new String[dim0][dim1][dim2];
+			assocSrvUnits = new Integer[dim0][dim1][dim2];
+			additSrv = new String[dim0][dim1][dim2];
+			additSrvUnits = new Integer[dim0][dim1][dim2];
+			additAssocSrv = new String[dim0][dim1][dim2][dim3];
+			additAssocSrvUnits = new Integer[dim0][dim1][dim2][dim3];
+		}
+	}
+	
 	//private List<SolutionEx2> solutions = new ArrayList<>();
 	private List<ProcSolutionBundle> dbBundles = new ArrayList<>();
 	private List<ProcSrvRecipient> srvRecipients = new ArrayList<>();

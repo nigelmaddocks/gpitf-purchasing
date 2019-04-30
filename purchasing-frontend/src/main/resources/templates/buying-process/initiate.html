@@ -12,6 +12,7 @@
 
 		
         <form class="form-horizontal" th:object="${initiateModel}" th:action="@{/buyingprocess/initiate}" method="post">
+            <input type="hidden" th:field="*{aaarrayDimensions}" />
             <input type="hidden" th:field="*{procurementId}" />
             <input type="hidden" th:field="*{numberOfPractices}" />
             <input type="hidden" th:field="*{directAwardBundleId}" />
@@ -122,7 +123,9 @@
 										    <input th:if="${svc.readonly == false}" class="form-control" size="6" 
 										    	th:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
 										    <div   th:if="${svc.readonly == true}" class="unit-numbers"
-										    	th:text="${svc.priceUnits}"></div>
+										    	th:text="${svc.priceUnits}">
+										    	 <input type="hidden" th:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+										    </div>
 							            </div>
 						            </div>
 									<div class="col-md-1 money-value" th:text="${svc.price}">.</div>
@@ -157,7 +160,9 @@
 											    <input th:if="${svc.readonly == false}" class="form-control" size="6" 
 											    	th:field="*{additSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
 											    <div   th:if="${svc.readonly == true}" class="unit-numbers"
-											    	th:text="${svc.priceUnits}"></div>
+											    	th:text="${svc.priceUnits}">
+											    	<input type="hidden" th:field="*{additSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+											    </div>
 								            </div>
 							            </div>
 										<div class="col-md-1 money-value" th:text="${svc.price}">.</div>
@@ -187,9 +192,11 @@
 												<div class="col-md-2">
 													<div class="input-group unit-numbers">
 													    <input th:if="${adas.readonly == false}" class="form-control" size="6" 
-													    	thXX:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+													    	th:field="*{additAssocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" />
 													    <div   th:if="${adas.readonly == true}" class="unit-numbers"
-													    	th:text="${adas.priceUnits}"></div>
+													    	th:text="${adas.priceUnits}">
+													    	<input type="hidden" th:field="*{additAssocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" />
+													    </div>
 										            </div>
 									            </div>
 												<div class="col-md-1 inner-money-value" th:text="${adas.price}">.</div>

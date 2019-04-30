@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -30,7 +29,6 @@ import uk.nhs.gpitf.purchasing.entities.Framework;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.ProcBundleSrService;
 import uk.nhs.gpitf.purchasing.entities.ProcShortlist;
-import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundleItem;
 import uk.nhs.gpitf.purchasing.entities.ProcSrvRecipient;
@@ -44,6 +42,7 @@ import uk.nhs.gpitf.purchasing.entities.TmpUnitType;
 import uk.nhs.gpitf.purchasing.models.InitiateModel;
 import uk.nhs.gpitf.purchasing.models.InitiateModel.RowDetail;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
+import uk.nhs.gpitf.purchasing.repositories.ProcBundleSrServiceRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcShortlistRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleItemRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleRepository;
@@ -57,7 +56,6 @@ import uk.nhs.gpitf.purchasing.services.ProcBundleSrServiceService;
 import uk.nhs.gpitf.purchasing.services.ProcShortlistRemovalReasonService;
 import uk.nhs.gpitf.purchasing.services.ProcSolutionBundleService;
 import uk.nhs.gpitf.purchasing.services.ProcSrvRecipientService;
-import uk.nhs.gpitf.purchasing.services.TmpAssociatedServiceService;
 import uk.nhs.gpitf.purchasing.services.TmpSolutionPriceBandService;
 import uk.nhs.gpitf.purchasing.services.OnboardingService.RankedBundle;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
@@ -109,6 +107,9 @@ public class InitiateController {
 	@Autowired
 	TmpSolutionPriceBandService tmpSolutionPriceBandService;
 
+	@Autowired
+	ProcBundleSrServiceRepository procBundleSrServiceRepository;
+	
 	@Autowired
 	ProcBundleSrServiceService procBundleSrServiceService;
 	
@@ -246,7 +247,7 @@ public class InitiateController {
 			e.printStackTrace();
 		}
 		
-		setupModel(secInfo, procurement, model, HttpMethod.GET);
+		setupModel(secInfo, procurement, model, true);
 		
 		return "buying-process/initiate";
 
@@ -265,7 +266,7 @@ public class InitiateController {
 		}
 		Procurement procurement = (Procurement)rtnObject;
 		
-		setupModel(secInfo, procurement, model, HttpMethod.GET);
+		setupModel(secInfo, procurement, model, true);
 		
 		return "buying-process/initiate";
 	}
@@ -285,7 +286,7 @@ public class InitiateController {
 		Procurement procurement = (Procurement)rtnObject;
 		
 		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
-		setupModelCollections(initiateModel, procurement, HttpMethod.POST);
+		setupModelCollections(initiateModel, procurement, false);
 		
 		// Validate that if a direct award is being made for a solution, that the value is less than the threshold
 		if (!bindingResult.hasErrors()) {	
@@ -323,6 +324,71 @@ public class InitiateController {
 			}
 		}
 		
+		// Store Associated & Additional Services
+		List<ProcSolutionBundle> bundles = procurement.getBundles();
+		List<ProcSrvRecipient> srvRecipients = procSrvRecipientService.getAllByProcurementOrderByOrganisationName(procurement);
+		int idxBundle = 0;
+		for (var bundle : bundles) {
+			List<ProcBundleSrService> allBundleServices = procBundleSrServiceService.getAllForBundleOrderById(bundle);
+
+			int idxSR = 0;
+			for (var sr : srvRecipients) {
+				InitiateModel.RowDetail rowDetail = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.BASE_SOLUTION, allBundleServices).get(0);
+				InitiateModel.RowDetail[] rowDetails = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.ASSOCIATED_SERVICE, allBundleServices)
+						.toArray(new InitiateModel.RowDetail[] {});
+				
+				// Store Associated Services
+				List<ProcBundleSrService> bundleServices = getBundleServicesForServiceType(bundle, sr, ServiceType.ASSOCIATED_SERVICE, allBundleServices);
+				List<ProcBundleSrService> toRemoveBundleServices = new ArrayList<>();
+				// . add/amend
+				for (int idxPostedAssociatedService=0; idxPostedAssociatedService<initiateModel.assocSrv[idxBundle][idxSR].length; idxPostedAssociatedService++) {
+					if (StringUtils.isNotEmpty(initiateModel.assocSrv[idxBundle][idxSR][idxPostedAssociatedService])) {
+						try {
+							String postedAssociatedService = initiateModel.assocSrv[idxBundle][idxSR][idxPostedAssociatedService];
+							Optional<ProcBundleSrService> optPbss = bundleServices.stream().filter(s -> s.getAssociatedService().equals(postedAssociatedService)).findFirst();
+							ProcBundleSrService pbss = null;
+							if (optPbss.isEmpty()) {
+								pbss = new ProcBundleSrService();
+								pbss.setBundle(bundle);
+								pbss.setServiceRecipient(sr);
+								pbss.setServiceType((ServiceType) GUtils.makeObjectForId(ServiceType.class, ServiceType.ASSOCIATED_SERVICE));
+								pbss.setAssociatedService(initiateModel.assocSrv[idxBundle][idxSR][idxPostedAssociatedService]);
+							} else {
+								pbss = optPbss.get();
+							}
+							Integer postedUnits = initiateModel.assocSrvUnits[idxBundle][idxSR][idxPostedAssociatedService];
+							if (postedUnits == null && pbss.getNumberOfUnits() != null || postedUnits != null && pbss.getNumberOfUnits() == null
+							 || (postedUnits != null && pbss.getNumberOfUnits() != null && postedUnits.intValue() != pbss.getNumberOfUnits().intValue())
+							 || optPbss.isEmpty()) {
+								pbss.setNumberOfUnits(initiateModel.assocSrvUnits[idxBundle][idxSR][idxPostedAssociatedService]);
+								procBundleSrServiceRepository.save(pbss);
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				// . delete (for each database record, if it's not in the posted set then delete it)
+				for (ProcBundleSrService pbss : bundleServices) {
+					boolean exists = false;
+					for (String assocService : initiateModel.assocSrv[idxBundle][idxSR]) {
+						if (assocService.equals(pbss.getAssociatedService())) {
+							exists = true;
+							break;
+						}
+					}
+					if (!exists) {
+						toRemoveBundleServices.add(pbss);
+					}
+				}
+				procBundleSrServiceRepository.deleteAll(toRemoveBundleServices);
+				
+				
+				idxSR++;
+			}
+			idxBundle++;
+		}
+		
 		// Reset any fields that lead to actions
 		if (!bindingResult.hasErrors()) {
 			initiateModel.setRemoveSolutionId("");
@@ -331,12 +397,12 @@ public class InitiateController {
 			initiateModel.setDirectAwardBundleId(null);
 		}		
 
-		setupModelCollections(initiateModel, procurement, HttpMethod.POST); // again
+		setupModelCollections(initiateModel, procurement, true); // again
 		
 		return "buying-process/initiate";	
 	}
 	
-	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model, HttpMethod method) {
+	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model, boolean bIncludePostableData) {
 		
 		InitiateModel initiateModel = new InitiateModel();
 		initiateModel.setTmpSolutionPriceBandService(this.tmpSolutionPriceBandService);
@@ -345,7 +411,7 @@ public class InitiateController {
 		
 		initiateModel.setProcurementId(procurement.getId());
 		
-		setupModelCollections(initiateModel, procurement, method);
+		setupModelCollections(initiateModel, procurement, bIncludePostableData);
 		
 		initiateModel.setNumberOfPractices(procurement.getCsvPractices().split(",").length);
 		initiateModel.setNumberOfPatients(procurement.getPatientCount() == null ? procurement.getInitialPatientCount() : procurement.getPatientCount());
@@ -356,7 +422,7 @@ public class InitiateController {
 		return model;
 	}
 	
-	private void setupModelCollections(InitiateModel initiateModel, Procurement procurement, HttpMethod method) {		
+	private void setupModelCollections(InitiateModel initiateModel, Procurement procurement, boolean bIncludePostableData) {		
 		List<ProcSolutionBundle> bundles = procurement.getBundles();
 		// The bundles should be in bundle.id sequence as specified by the @OrderBy directive on the Procurement entity
 		initiateModel.getDbBundles().clear();
@@ -369,61 +435,64 @@ public class InitiateController {
 		initiateModel.setRowDetailForBaseSystemPerBundleAndSR(	new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()]);
 		initiateModel.setRowDetailForAssocSrvPerBundleAndSR(  	new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
 		initiateModel.setRowDetailForAdditSrvPerBundleAndSR(  	new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAssocSrv(  						  	new String[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAssocSrvUnits(						  	new Integer[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAdditSrv(  						  	new String[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAdditSrvUnits(						  	new Integer[bundles.size()][srvRecipients.size()][0]);
-		initiateModel.setAdditAssocSrv(  					  	new String[bundles.size()][srvRecipients.size()][0][0]);
-		initiateModel.setAdditAssocSrvUnits(					new Integer[bundles.size()][srvRecipients.size()][0][0]);
-		int idxBundle = 0;
-		for (var bundle : bundles) {
-			List<ProcBundleSrService> bundleServices = procBundleSrServiceService.getAllForBundle(bundle);
-
-			int idxSR = 0;
-			for (var sr : srvRecipients) {
-				InitiateModel.RowDetail rowDetail = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.BASE_SOLUTION, bundleServices).get(0);				
-				initiateModel.getRowDetailForBaseSystemPerBundleAndSR()[idxBundle][idxSR] = rowDetail;
-				
-				InitiateModel.RowDetail[] rowDetails = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.ASSOCIATED_SERVICE, bundleServices)
-						.toArray(new InitiateModel.RowDetail[] {});
-				initiateModel.getRowDetailForAssocSrvPerBundleAndSR()[idxBundle][idxSR] = rowDetails;
-				List<String> lstAssocSrv = new ArrayList<>();
-				List<Integer> lstAssocSrvUnits = new ArrayList<>();
-				for (var rd : rowDetails) {
-					lstAssocSrv.add(rd.associatedService);
-					lstAssocSrvUnits.add(rd.priceUnits);
-				}
-				initiateModel.getAssocSrv()[idxBundle][idxSR] = lstAssocSrv.toArray(new String[] {});
-				initiateModel.getAssocSrvUnits()[idxBundle][idxSR] = lstAssocSrvUnits.toArray(new Integer[] {});
-
-				rowDetails = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.ADDITIONAL_SERVICE, bundleServices)
-						.toArray(new InitiateModel.RowDetail[] {});
-				initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR] = rowDetails;
-				List<String> lstAdditSrv = new ArrayList<>();
-				List<Integer> lstAdditSrvUnits = new ArrayList<>();
-				for (var rd : rowDetails) {
-					lstAdditSrv.add(rd.additionalService);
-					lstAdditSrvUnits.add(rd.priceUnits);
-				}
-				initiateModel.getAdditSrv()[idxBundle][idxSR] = lstAdditSrv.toArray(new String[] {});
-				initiateModel.getAdditSrvUnits()[idxBundle][idxSR] = lstAdditSrvUnits.toArray(new Integer[] {});
-			
-				initiateModel.getAdditAssocSrv()[idxBundle][idxSR] = new String[lstAdditSrv.size()][0];				
-				initiateModel.getAdditAssocSrvUnits()[idxBundle][idxSR] = new Integer[lstAdditSrvUnits.size()][0];				
-				for (int idxAdditSvc=0; idxAdditSvc<lstAdditSrv.size(); idxAdditSvc++) {
-					lstAssocSrv = new ArrayList<>();
-					lstAssocSrvUnits = new ArrayList<>();
-					for (var rd : initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR][idxAdditSvc].additAssociatedServices) {
+		
+		if (bIncludePostableData) {
+			initiateModel.setAssocSrv(  						  	new String[bundles.size()][srvRecipients.size()][0]);
+			initiateModel.setAssocSrvUnits(						  	new Integer[bundles.size()][srvRecipients.size()][0]);
+			initiateModel.setAdditSrv(  						  	new String[bundles.size()][srvRecipients.size()][0]);
+			initiateModel.setAdditSrvUnits(						  	new Integer[bundles.size()][srvRecipients.size()][0]);
+			initiateModel.setAdditAssocSrv(  					  	new String[bundles.size()][srvRecipients.size()][0][0]);
+			initiateModel.setAdditAssocSrvUnits(					new Integer[bundles.size()][srvRecipients.size()][0][0]);
+			int idxBundle = 0;
+			for (var bundle : bundles) {
+				List<ProcBundleSrService> bundleServices = procBundleSrServiceService.getAllForBundleOrderById(bundle);
+	
+				int idxSR = 0;
+				for (var sr : srvRecipients) {
+					InitiateModel.RowDetail rowDetail = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.BASE_SOLUTION, bundleServices).get(0);				
+					initiateModel.getRowDetailForBaseSystemPerBundleAndSR()[idxBundle][idxSR] = rowDetail;
+					
+					InitiateModel.RowDetail[] rowDetails = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.ASSOCIATED_SERVICE, bundleServices)
+							.toArray(new InitiateModel.RowDetail[] {});
+					initiateModel.getRowDetailForAssocSrvPerBundleAndSR()[idxBundle][idxSR] = rowDetails;
+					List<String> lstAssocSrv = new ArrayList<>();
+					List<Integer> lstAssocSrvUnits = new ArrayList<>();
+					for (var rd : rowDetails) {
 						lstAssocSrv.add(rd.associatedService);
 						lstAssocSrvUnits.add(rd.priceUnits);
 					}
-					initiateModel.getAdditAssocSrv()[idxBundle][idxSR][idxAdditSvc] = lstAssocSrv.toArray(new String[] {});
-					initiateModel.getAdditAssocSrvUnits()[idxBundle][idxSR][idxAdditSvc] = lstAssocSrvUnits.toArray(new Integer[] {});
-				}
+					initiateModel.getAssocSrv()[idxBundle][idxSR] = lstAssocSrv.toArray(new String[] {});
+					initiateModel.getAssocSrvUnits()[idxBundle][idxSR] = lstAssocSrvUnits.toArray(new Integer[] {});
+	
+					rowDetails = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.ADDITIONAL_SERVICE, bundleServices)
+							.toArray(new InitiateModel.RowDetail[] {});
+					initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR] = rowDetails;
+					List<String> lstAdditSrv = new ArrayList<>();
+					List<Integer> lstAdditSrvUnits = new ArrayList<>();
+					for (var rd : rowDetails) {
+						lstAdditSrv.add(rd.additionalService);
+						lstAdditSrvUnits.add(rd.priceUnits);
+					}
+					initiateModel.getAdditSrv()[idxBundle][idxSR] = lstAdditSrv.toArray(new String[] {});
+					initiateModel.getAdditSrvUnits()[idxBundle][idxSR] = lstAdditSrvUnits.toArray(new Integer[] {});
 				
-				idxSR++;
+					initiateModel.getAdditAssocSrv()[idxBundle][idxSR] = new String[lstAdditSrv.size()][0];				
+					initiateModel.getAdditAssocSrvUnits()[idxBundle][idxSR] = new Integer[lstAdditSrvUnits.size()][0];				
+					for (int idxAdditSvc=0; idxAdditSvc<lstAdditSrv.size(); idxAdditSvc++) {
+						lstAssocSrv = new ArrayList<>();
+						lstAssocSrvUnits = new ArrayList<>();
+						for (var rd : initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR][idxAdditSvc].additAssociatedServices) {
+							lstAssocSrv.add(rd.associatedService);
+							lstAssocSrvUnits.add(rd.priceUnits);
+						}
+						initiateModel.getAdditAssocSrv()[idxBundle][idxSR][idxAdditSvc] = lstAssocSrv.toArray(new String[] {});
+						initiateModel.getAdditAssocSrvUnits()[idxBundle][idxSR][idxAdditSvc] = lstAssocSrvUnits.toArray(new Integer[] {});
+					}
+					
+					idxSR++;
+				}
+				idxBundle++;
 			}
-			idxBundle++;
 		}
 		
 		
@@ -436,7 +505,7 @@ public class InitiateController {
 		if (initiateModel.getPatientCount().length == 0) {
 			initiateModel.setPatientCount(new Integer[srvRecipients.size()]);
 		}
-		if (method.equals(HttpMethod.GET)) {
+		if (bIncludePostableData) {
 			int idx = 0;
 			for (ProcSrvRecipient sr : srvRecipients) {
 				initiateModel.getContractTermMonths()[idx] = sr.getTerm();
@@ -470,7 +539,9 @@ public class InitiateController {
 			}
 		}
 		
-		addEmptyRowToCollections(initiateModel);
+		if (bIncludePostableData) {
+			addEmptyRowToCollections(initiateModel);
+		}
 	}
 	
 	private void addEmptyRowToCollections(InitiateModel initiateModel) {
@@ -542,6 +613,31 @@ public class InitiateController {
 				}
 			}
 		}
+		
+		// The multi-dimensional arrays need to be set up to be able to accommodate the on-screen postback data. 
+		// On postback, the aaarrayDimensions is posted first (because of the name I assume) and so it is able
+		// to initialise the multi-dimensional arrays before their values are posted back.
+		int max2ndDim = 0;
+		int max3rdDim = 0;
+		for (int idxBundle=0; idxBundle<assocSrvs.length; idxBundle++) {
+			for (int idxSR=0; idxSR<assocSrvs[idxBundle].length; idxSR++) {
+				if (assocSrvs[idxBundle][idxSR].length > max2ndDim) {
+					max2ndDim = assocSrvs[idxBundle][idxSR].length;
+				}
+				if (additSrvs[idxBundle][idxSR].length > max2ndDim) {
+					max2ndDim = additSrvs[idxBundle][idxSR].length;
+				}
+				for (int idxAddit=0; idxAddit<additAssocSrv[idxBundle][idxSR].length; idxAddit++) {
+					if (additAssocSrv[idxBundle][idxSR][idxAddit].length > max3rdDim) {
+						max3rdDim = additAssocSrv[idxBundle][idxSR][idxAddit].length;
+					}
+				}
+			}
+		}
+		String arrayDimensions = initiateModel.getDbBundles().size() + "," + initiateModel.getSrvRecipients().size() + ","+
+				max2ndDim + "," + max3rdDim;
+		
+		initiateModel.setAaarrayDimensions(arrayDimensions);
 	}
 	
 	private Object procurementSecurityValidation(SecurityInfo secInfo, long procurementId, RedirectAttributes attr) {
@@ -644,6 +740,9 @@ public class InitiateController {
 				if (unit1Id == TmpUnitType.SERVICE_RECIPIENT) {
 					rowDetail.priceUnits = serviceRecipientCount;
 				}
+				if (priceBasis.isFixedPrice()) {
+					rowDetail.priceUnits = 1;
+				}
 			} else {
 				rowDetail.unitTypeName = "";
 				rowDetail.readonly = false;
@@ -707,7 +806,7 @@ public class InitiateController {
 			
 		return rowDetails;
 	}
-	
+/*	
 	private ProcBundleSrService getBundleServiceForServiceType(ProcSrvRecipient sr, long iServiceType, List<ProcBundleSrService> bundleServices) {
 		for (var bundleService : bundleServices) {
 			if (bundleService.getServiceType().getId() == iServiceType 
@@ -717,7 +816,7 @@ public class InitiateController {
 		}
 		return null;
 	}
-	
+*/	
 	private List<ProcBundleSrService> getBundleServicesForServiceType(ProcSolutionBundle bundle, ProcSrvRecipient sr, long iServiceType, List<ProcBundleSrService> bundleServices) {
 		List <ProcBundleSrService> list = new ArrayList<>();
 		for (var bundleService : bundleServices) {
@@ -727,12 +826,14 @@ public class InitiateController {
 				list.add(bundleService);
 			}
 		}
+/*		
 		if (iServiceType == ServiceType.ASSOCIATED_SERVICE) {
 			list.sort((object1, object2) -> (object1.getAssociatedService()).compareToIgnoreCase(object2.getAssociatedService()));
 		} else
 		if (iServiceType == ServiceType.ADDITIONAL_SERVICE) {
 			list.sort((object1, object2) -> (object1.getAdditionalService()).compareToIgnoreCase(object2.getAdditionalService()));
 		}
+*/		
 		return list;
 	}
 	
@@ -746,7 +847,9 @@ public class InitiateController {
 				list.add(bundleService);
 			}
 		}
+/*		
 		list.sort((object1, object2) -> (object1.getAssociatedService()).compareToIgnoreCase(object2.getAssociatedService()));
+*/		
 		return list;
 	}
 }
