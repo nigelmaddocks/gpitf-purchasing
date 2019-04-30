@@ -120,6 +120,7 @@ public class ProcurementService {
     }
 
     public Procurement save(Procurement procurement) {
+      procurement.setLastUpdated(LocalDateTime.now());
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
       return thisRepository.save(procurement);

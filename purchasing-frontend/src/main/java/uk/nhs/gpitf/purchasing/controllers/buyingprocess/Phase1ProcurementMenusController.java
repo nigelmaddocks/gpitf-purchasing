@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 
+import static org.springframework.web.servlet.view.UrlBasedViewResolver.REDIRECT_URL_PREFIX;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Optional;
@@ -169,7 +170,7 @@ public class Phase1ProcurementMenusController {
 	    model.addAttribute(ATTRIBUTE_PAGE_MODEL, pageModel);
 	    model.addAttribute("evaluationTypes", Arrays.asList(EvaluationTypeEnum.values()));
 
-        return BuyingProcessController.PATH + PAGE_PRICE_DECLARATION;
+        return BuyingProcessController.PAGE_PATH + PAGE_PRICE_DECLARATION;
     }
 
 	@PostMapping("/buyingprocess/choose-price-declaration")
@@ -183,7 +184,10 @@ public class Phase1ProcurementMenusController {
 	    procurementService.setPrimitiveProcurement(session, procurement);
 
 	    // TODO change to correct view when known
-        return BuyingProcessController.PATH + BuyingProcessController.PAGE_PROCUREMENT;
+        return REDIRECT_URL_PREFIX
+            + BuyingProcessController.URL_PATH
+            + "/"
+            + BuyingProcessController.PAGE_PROCUREMENT;
     }
 
 	@GetMapping(value = {
@@ -210,7 +214,7 @@ public class Phase1ProcurementMenusController {
 	    model.addAttribute(ATTRIBUTE_PAGE_MODEL, pageModel);
 	    model.addAttribute("solutionSets", Arrays.asList(SolutionSetEnum.values()));
 
-	    return BuyingProcessController.PATH + PAGE_SOLUTION_SET;
+	    return BuyingProcessController.PAGE_PATH + PAGE_SOLUTION_SET;
 	}
 
 	@PostMapping("/buyingprocess/choose-solution-set")
@@ -231,7 +235,10 @@ public class Phase1ProcurementMenusController {
         }
 
         //TODO change to correct view when known
-        return BuyingProcessController.PATH + BuyingProcessController.PAGE_PROCUREMENT;
+        return REDIRECT_URL_PREFIX
+            + BuyingProcessController.URL_PATH
+            + "/"
+            + BuyingProcessController.PAGE_PROCUREMENT;
 	}
 
 	// Temporary page to kick off a procurement

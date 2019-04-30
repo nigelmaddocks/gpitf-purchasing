@@ -38,7 +38,8 @@ public class BuyingProcessController {
 
     protected static final String ATTRIBUTE_PROCUREMENT = "procurement";
 
-	protected static final String PATH = "buying-process/";
+    protected static final String URL_PATH = "/buyingprocess";
+    protected static final String PAGE_PATH = "buying-process/";
 	protected static final String PAGE_INDEX = "index";
 	protected static final String PAGE_SEARCH_SOLUTIONS_MENU = "searchSolutionMenu";
 	protected static final String PAGE_LIST_PROCUREMENTS = "listProcurements";
@@ -58,13 +59,13 @@ public class BuyingProcessController {
 	@GetMapping()
 	public String home(HttpServletRequest request) {
 		//Breadcrumbs.register("Buying Process", request);
-		return PATH + PAGE_INDEX;
+		return PAGE_PATH + PAGE_INDEX;
 	}
 
 	@GetMapping("/searchSolutionMenu")
 	public String searchSolutionsMenu(HttpServletRequest request) {
 		//Breadcrumbs.register("Search menu", request);
-		return PATH + PAGE_SEARCH_SOLUTIONS_MENU;
+		return PAGE_PATH + PAGE_SEARCH_SOLUTIONS_MENU;
 	}
 
 	@GetMapping("/{procurementId}/gotoProcurement")
@@ -142,7 +143,7 @@ public class BuyingProcessController {
 
 		model.addAttribute("listProcurementsModel", listProcurementsModel);
 
-		return PATH + PAGE_LIST_PROCUREMENTS;
+		return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
 	}
 
 	@GetMapping("/procurement")
@@ -154,7 +155,7 @@ public class BuyingProcessController {
 
 	  model.addAttribute("procurements", procurementList);
 
-	  return PATH + PAGE_PROCUREMENT;
+	  return PAGE_PATH + PAGE_PROCUREMENT;
 	}
 
 	@GetMapping("/procurement/{procurementId}/edit-name")
@@ -169,7 +170,7 @@ public class BuyingProcessController {
  	    pageModel.setName(obj.getName());
  	  });
  	  model.addAttribute(ATTRIBUTE_PROCUREMENT, pageModel);
-	  return PATH + PAGE_RENAME_PROCUREMENT;
+	  return PAGE_PATH + PAGE_RENAME_PROCUREMENT;
 	}
 
 	@PostMapping("/procurement/edit-name")
@@ -180,7 +181,7 @@ public class BuyingProcessController {
 
 	  validator.validate(validatedProcurement, bindingResult);
 	  if (bindingResult.hasErrors()) {
-	    return PATH + PAGE_RENAME_PROCUREMENT;
+	    return PAGE_PATH + PAGE_RENAME_PROCUREMENT;
 	  }
 
 	  procurementService.save(validatedProcurement);
@@ -203,7 +204,7 @@ public class BuyingProcessController {
       });
 
       model.addAttribute(ATTRIBUTE_PROCUREMENT, pageModel);
-      return PATH + PAGE_DELETE_PROCUREMENT;
+      return PAGE_PATH + PAGE_DELETE_PROCUREMENT;
     }
 
 	@PostMapping("/procurement/delete")
