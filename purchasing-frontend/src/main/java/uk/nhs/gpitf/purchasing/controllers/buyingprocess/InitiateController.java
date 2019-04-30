@@ -335,6 +335,7 @@ public class InitiateController {
 			for (var sr : srvRecipients) {
 				
 				// Store Associated Services
+				// -------------------------
 				List<ProcBundleSrService> bundleServices = getBundleServicesForServiceType(bundle, sr, ServiceType.ASSOCIATED_SERVICE, allBundleServices);
 				List<ProcBundleSrService> toRemoveBundleServices = new ArrayList<>();
 				// . add/amend
@@ -349,7 +350,7 @@ public class InitiateController {
 								pbss.setBundle(bundle);
 								pbss.setServiceRecipient(sr);
 								pbss.setServiceType((ServiceType) GUtils.makeObjectForId(ServiceType.class, ServiceType.ASSOCIATED_SERVICE));
-								pbss.setAssociatedService(initiateModel.assocSrv[idxBundle][idxSR][idxPostedAssociatedService]);
+								pbss.setAssociatedService(postedAssociatedService);
 							} else {
 								pbss = optPbss.get();
 							}
@@ -384,6 +385,7 @@ public class InitiateController {
 				
 				
 				// Store Additional Services
+				// -------------------------
 				bundleServices = getBundleServicesForServiceType(bundle, sr, ServiceType.ADDITIONAL_SERVICE, allBundleServices);
 				toRemoveBundleServices = new ArrayList<>();
 				// . add/amend
@@ -398,7 +400,7 @@ public class InitiateController {
 								pbss.setBundle(bundle);
 								pbss.setServiceRecipient(sr);
 								pbss.setServiceType((ServiceType) GUtils.makeObjectForId(ServiceType.class, ServiceType.ADDITIONAL_SERVICE));
-								pbss.setAdditionalService(initiateModel.additSrv[idxBundle][idxSR][idxPostedAdditionalService]);
+								pbss.setAdditionalService(postedAdditionalService);
 							} else {
 								pbss = optPbss.get();
 							}
@@ -438,6 +440,63 @@ public class InitiateController {
 					procBundleSrServiceRepository.delete(pbss);
 					allBundleServices.remove(pbss);
 				}
+
+				
+				
+				
+				// Store Additional Service's Associated Services
+				// ----------------------------------------------
+				for (int idxPostedAdditionalService=0; idxPostedAdditionalService<initiateModel.additSrv[idxBundle][idxSR].length; idxPostedAdditionalService++) {
+					if (StringUtils.isNotEmpty(initiateModel.additSrv[idxBundle][idxSR][idxPostedAdditionalService])) {
+						bundleServices = getBundleAssocatedServicesForAdditionalService(bundle, sr, initiateModel.additSrv[idxBundle][idxSR][idxPostedAdditionalService], allBundleServices);
+						toRemoveBundleServices = new ArrayList<>();
+						// . add/amend
+						for (int idxPostedAssociatedService=0; idxPostedAssociatedService<initiateModel.additAssocSrv[idxBundle][idxSR][idxPostedAdditionalService].length; idxPostedAssociatedService++) {
+							if (StringUtils.isNotEmpty(initiateModel.additAssocSrv[idxBundle][idxSR][idxPostedAdditionalService][idxPostedAssociatedService])) {
+								try {
+									String postedAssociatedService = initiateModel.additAssocSrv[idxBundle][idxSR][idxPostedAdditionalService][idxPostedAssociatedService];
+									Optional<ProcBundleSrService> optPbss = bundleServices.stream().filter(s -> s.getAssociatedService().equals(postedAssociatedService)).findFirst();
+									ProcBundleSrService pbss = null;
+									if (optPbss.isEmpty()) {
+										pbss = new ProcBundleSrService();
+										pbss.setBundle(bundle);
+										pbss.setServiceRecipient(sr);
+										pbss.setServiceType((ServiceType) GUtils.makeObjectForId(ServiceType.class, ServiceType.ASSOCIATED_SERVICE_OF_ADDITIONAL_SERVICE));
+										pbss.setAdditionalService(initiateModel.additSrv[idxBundle][idxSR][idxPostedAdditionalService]);
+										pbss.setAssociatedService(postedAssociatedService);
+									} else {
+										pbss = optPbss.get();
+									}
+									Integer postedUnits = initiateModel.additAssocSrvUnits[idxBundle][idxSR][idxPostedAdditionalService][idxPostedAssociatedService];
+									if (postedUnits == null && pbss.getNumberOfUnits() != null || postedUnits != null && pbss.getNumberOfUnits() == null
+									 || (postedUnits != null && pbss.getNumberOfUnits() != null && postedUnits.intValue() != pbss.getNumberOfUnits().intValue())
+									 || optPbss.isEmpty()) {
+										pbss.setNumberOfUnits(initiateModel.additAssocSrvUnits[idxBundle][idxSR][idxPostedAdditionalService][idxPostedAssociatedService]);
+										procBundleSrServiceRepository.save(pbss);
+									}
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}
+						// . delete (for each database record, if it's not in the posted set then delete it)
+						for (ProcBundleSrService pbss : bundleServices) {
+							boolean exists = false;
+							for (String assocService : initiateModel.additAssocSrv[idxBundle][idxSR][idxPostedAdditionalService]) {
+								if (assocService.equals(pbss.getAssociatedService())) {
+									exists = true;
+									break;
+								}
+							}
+							if (!exists) {
+								toRemoveBundleServices.add(pbss);
+							}
+						}
+						procBundleSrServiceRepository.deleteAll(toRemoveBundleServices);
+						allBundleServices.removeAll(toRemoveBundleServices);
+					}
+				}
+				
 				
 				
 				idxSR++;
@@ -658,7 +717,7 @@ public class InitiateController {
 					lstAssocSrvUnits.add(null);
 					additAssocSrvUnits[idxBundle][idxSR][idxAddit] = lstAssocSrvUnits.toArray(new Integer[] {});
 					
-					if (lstAssocSrv.size() > 1) {
+					if (initiateModel.getPossibleAdditAssociatedServices().get(additSrv[idxBundle][idxSR][idxAddit]).size() > 0) {
 						list = new ArrayList(List.of(initiateModel.getRowDetailForAdditSrvPerBundleAndSR()[idxBundle][idxSR][idxAddit].additAssociatedServices));
 						rdElement = new RowDetail();
 						rdElement.bundleId = initiateModel.getDbBundles().get(idxBundle).getId();
