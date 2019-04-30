@@ -28,6 +28,7 @@ public class InitiateModel {
 	TmpSolutionPriceBandService tmpSolutionPriceBandService;
 	
 	private long procurementId;
+	private String procurementName;
 	
 	// Multi-Dimensional array dimension information. This is posted back first because of its name
 	// and is therefore able to set up the multi-dimensional arrays' dimensions
@@ -41,6 +42,7 @@ public class InitiateModel {
 			int dim1 = Integer.valueOf(arrDims[1]);
 			int dim2 = Integer.valueOf(arrDims[2]);
 			int dim3 = Integer.valueOf(arrDims[3]);
+			baseSystemUnits = new Integer[dim0][dim1];
 			assocSrv = new String[dim0][dim1][dim2];
 			assocSrvUnits = new Integer[dim0][dim1][dim2];
 			additSrv = new String[dim0][dim1][dim2];
@@ -63,6 +65,7 @@ public class InitiateModel {
 	public RowDetail[][][] rowDetailForAssocSrvPerBundleAndSR = new RowDetail[][][] {};
 	public RowDetail[][][] rowDetailForAdditSrvPerBundleAndSR = new RowDetail[][][] {};
 	
+	public Integer[][] baseSystemUnits = new Integer[][] {};
 	public String[][][] assocSrv = new String[][][] {};
 	public Integer[][][] assocSrvUnits = new Integer[][][] {};
 	public String[][][] additSrv = new String[][][] {};

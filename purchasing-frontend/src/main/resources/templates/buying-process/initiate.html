@@ -8,7 +8,7 @@
 <body>
 <section>
     <div class="container">
-		<h3>Initiate Buying</h3>	
+		<h3>Initiate Buying for procurement: [[${initiateModel.procurementName}]]</h3>	
 
 		
         <form class="form-horizontal" th:object="${initiateModel}" th:action="@{/buyingprocess/initiate}" method="post">
@@ -88,10 +88,19 @@
 							<div class="col-md-1 unit-text"></div>
 							<div class="col-md-2">
 								<div class="input-group unit-numbers">
+<!-- 								
 								    <input th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == false}" class="form-control" size="6" 
 								    	th:value="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}" />
 								    <div   th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == true}" class="unit-numbers"
 								    	th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}"></div>
+-->		
+								    <input th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == false}" class="form-control" size="6" 
+								    	th:field="*{baseSystemUnits[__${infoBundle.index}__][__${infoSR.index}__]}" />
+								    <div   th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == true}" class="unit-numbers"
+								    	th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}">
+								    	 <input type="hidden" th:field="*{baseSystemUnits[__${infoBundle.index}__][__${infoSR.index}__]}" />
+								    </div>
+						    	
 					            </div>
 				            </div>
 							<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].price}">.</div>

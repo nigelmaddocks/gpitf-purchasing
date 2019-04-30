@@ -334,9 +334,34 @@ public class InitiateController {
 			int idxSR = 0;
 			for (var sr : srvRecipients) {
 				
+				
+				// Store Base System counts
+				// ------------------------
+				List<ProcBundleSrService> bundleServices = getBundleServicesForServiceType(bundle, sr, ServiceType.BASE_SOLUTION, allBundleServices);
+				if (bundleServices.size() == 0) {
+					bundleServices.add(new ProcBundleSrService());
+				}
+				ProcBundleSrService bundleService = bundleServices.get(0);
+
+				Integer postedUnits = initiateModel.getBaseSystemUnits()[idxBundle][idxSR];
+				if (postedUnits == null && bundleService.getNumberOfUnits() != null || postedUnits != null && bundleService.getNumberOfUnits() == null
+				 || (postedUnits != null && bundleService.getNumberOfUnits() != null && postedUnits.intValue() != bundleService.getNumberOfUnits().intValue())) {
+					try {
+						if (bundleService.getId() == 0) {
+							bundleService.setBundle(bundle);
+							bundleService.setServiceRecipient(sr);
+							bundleService.setServiceType((ServiceType) GUtils.makeObjectForId(ServiceType.class, ServiceType.BASE_SOLUTION));
+						}
+						bundleService.setNumberOfUnits(postedUnits);
+						procBundleSrServiceRepository.save(bundleService);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				
 				// Store Associated Services
 				// -------------------------
-				List<ProcBundleSrService> bundleServices = getBundleServicesForServiceType(bundle, sr, ServiceType.ASSOCIATED_SERVICE, allBundleServices);
+				bundleServices = getBundleServicesForServiceType(bundle, sr, ServiceType.ASSOCIATED_SERVICE, allBundleServices);
 				List<ProcBundleSrService> toRemoveBundleServices = new ArrayList<>();
 				// . add/amend
 				for (int idxPostedAssociatedService=0; idxPostedAssociatedService<initiateModel.assocSrv[idxBundle][idxSR].length; idxPostedAssociatedService++) {
@@ -354,7 +379,7 @@ public class InitiateController {
 							} else {
 								pbss = optPbss.get();
 							}
-							Integer postedUnits = initiateModel.assocSrvUnits[idxBundle][idxSR][idxPostedAssociatedService];
+							postedUnits = initiateModel.assocSrvUnits[idxBundle][idxSR][idxPostedAssociatedService];
 							if (postedUnits == null && pbss.getNumberOfUnits() != null || postedUnits != null && pbss.getNumberOfUnits() == null
 							 || (postedUnits != null && pbss.getNumberOfUnits() != null && postedUnits.intValue() != pbss.getNumberOfUnits().intValue())
 							 || optPbss.isEmpty()) {
@@ -404,7 +429,7 @@ public class InitiateController {
 							} else {
 								pbss = optPbss.get();
 							}
-							Integer postedUnits = initiateModel.additSrvUnits[idxBundle][idxSR][idxPostedAdditionalService];
+							postedUnits = initiateModel.additSrvUnits[idxBundle][idxSR][idxPostedAdditionalService];
 							if (postedUnits == null && pbss.getNumberOfUnits() != null || postedUnits != null && pbss.getNumberOfUnits() == null
 							 || (postedUnits != null && pbss.getNumberOfUnits() != null && postedUnits.intValue() != pbss.getNumberOfUnits().intValue())
 							 || optPbss.isEmpty()) {
@@ -467,7 +492,7 @@ public class InitiateController {
 									} else {
 										pbss = optPbss.get();
 									}
-									Integer postedUnits = initiateModel.additAssocSrvUnits[idxBundle][idxSR][idxPostedAdditionalService][idxPostedAssociatedService];
+									postedUnits = initiateModel.additAssocSrvUnits[idxBundle][idxSR][idxPostedAdditionalService][idxPostedAssociatedService];
 									if (postedUnits == null && pbss.getNumberOfUnits() != null || postedUnits != null && pbss.getNumberOfUnits() == null
 									 || (postedUnits != null && pbss.getNumberOfUnits() != null && postedUnits.intValue() != pbss.getNumberOfUnits().intValue())
 									 || optPbss.isEmpty()) {
@@ -525,6 +550,7 @@ public class InitiateController {
 		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
 		
 		initiateModel.setProcurementId(procurement.getId());
+		initiateModel.setProcurementName(procurement.getName());
 		
 		setupModelCollections(initiateModel, procurement, bIncludePostableData);
 		
@@ -552,6 +578,7 @@ public class InitiateController {
 		initiateModel.setRowDetailForAdditSrvPerBundleAndSR(  	new InitiateModel.RowDetail[bundles.size()][srvRecipients.size()][0]);
 		
 		if (bIncludePostableData) {
+			initiateModel.setBaseSystemUnits(					  	new Integer[bundles.size()][srvRecipients.size()]);
 			initiateModel.setAssocSrv(  						  	new String[bundles.size()][srvRecipients.size()][0]);
 			initiateModel.setAssocSrvUnits(						  	new Integer[bundles.size()][srvRecipients.size()][0]);
 			initiateModel.setAdditSrv(  						  	new String[bundles.size()][srvRecipients.size()][0]);
@@ -566,6 +593,7 @@ public class InitiateController {
 				for (var sr : srvRecipients) {
 					InitiateModel.RowDetail rowDetail = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.BASE_SOLUTION, bundleServices).get(0);				
 					initiateModel.getRowDetailForBaseSystemPerBundleAndSR()[idxBundle][idxSR] = rowDetail;
+					initiateModel.getBaseSystemUnits()[idxBundle][idxSR] = rowDetail.priceUnits;
 					
 					InitiateModel.RowDetail[] rowDetails = setupRowDetails(bundle, sr, null, srvRecipients.size(), initiateModel, ServiceType.ASSOCIATED_SERVICE, bundleServices)
 							.toArray(new InitiateModel.RowDetail[] {});
