@@ -180,7 +180,7 @@ public class ShortlistController {
 		long initialPatientCount = organisationService.getPatientCountForOrganisationsInList(procurement.getCsvPractices());
 		// . . Update the procurement	
 		try {
-			ProcStatus statusShortlist = (ProcStatus) GUtils.makeObjectForId(ProcStatus.class, ProcStatus.SHORTLIST);
+			ProcStatus statusShortlist = (ProcStatus) GUtils.makeObjectForId(ProcStatus.class, ProcStatus.INITIATE);
 //			procurement.setCsvShortlistSolutions(csvSolutionIds);
 			procurement.setInitialPatientCount((int)initialPatientCount);
 			procurement.setStatus(statusShortlist);
@@ -397,7 +397,7 @@ public class ShortlistController {
 	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 			}
 			
-			if (procurement.getStatus().getId() != ProcStatus.SHORTLIST) {
+			if (procurement.getStatus().getId() != ProcStatus.INITIATE) {
 	        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
 	    		logger.warn(secInfo.loggerSecurityMessage(message));
 	    		attr.addFlashAttribute("security_message", message);

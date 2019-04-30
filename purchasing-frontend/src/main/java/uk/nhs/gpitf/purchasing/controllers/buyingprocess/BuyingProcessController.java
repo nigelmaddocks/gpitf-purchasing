@@ -93,8 +93,8 @@ public class BuyingProcessController {
 				return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + GUtils.nullToString(procurement.getCsvCapabilities()).trim();
 			//}
 		} else
-		if (procurementStatusId == ProcStatus.SHORTLIST) {
-			return "redirect:/buyingprocess/shortlist/" + procurementId;
+		if (procurementStatusId == ProcStatus.INITIATE) {
+			return "redirect:/buyingprocess/initiate/" + procurementId;
 		}
 
     	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
