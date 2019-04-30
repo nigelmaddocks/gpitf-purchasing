@@ -224,7 +224,7 @@ public class TmpSolutionPriceBandService {
     
     private BigDecimal getUnitPrice(List<TmpSolutionPriceBand> coll, int numberOf) {
     	BigDecimal price = BigDecimal.valueOf(0L);
-    	BigDecimal catchAllPrice = null;
+    	BigDecimal catchAllPrice = BigDecimal.valueOf(0L); // was null;
         boolean matchesNonNullBand = false;
     	for (TmpSolutionPriceBand band : coll) {
     		if (band.getLowerLimitIncl() == null && band.getUpperLimitIncl() == null) {
