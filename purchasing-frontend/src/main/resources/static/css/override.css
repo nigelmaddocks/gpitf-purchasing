@@ -41,6 +41,10 @@ h5 {
 	font-weight: bold; font-size: 0.85em; color: #425563;
 }
 
+.row {
+	margin-left: 0px; margin-right: 0px;
+}
+
 #content {
     padding-top: 0rem; !important;
 }

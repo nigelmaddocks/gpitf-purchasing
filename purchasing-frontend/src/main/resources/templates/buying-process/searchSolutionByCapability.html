@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script}, ~{::link})}">
 <head>
     <meta charset="UTF-8" />
     <title>Capability Search Results</title>
@@ -91,7 +91,7 @@
 		    </div>
         	<div class="col-md-2" th:if="${myModel.userIsKnown && myModel.procurementId != 0 && myModel.procurement != null}">
         		<br />
-		     	<button id="btnShortlist" class="btn btn-default" style="display:none;" type="button" onclick="proceedToShortlist();">Create Shortlist</button>
+		     	<button id="btnShortlist" class="btn btn-default" style="display:none;" type="button" onclick="proceedToInitiate();">Initiate Buying</button>
 		    </div>
         	
         </div>
@@ -580,9 +580,9 @@ $('#togFoundation').change(function() {
     	
     }
     
-    function proceedToShortlist() {
+    function proceedToInitiate() {
 		/*<![CDATA[*/
-        var url = /*[[@{'/buyingprocess/directShortlistInitialise/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
+        var url = /*[[@{'/buyingprocess/directInitiateInitialise/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
     	/*]]>*/
 
     	location.href = url;

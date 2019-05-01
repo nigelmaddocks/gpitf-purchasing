@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
@@ -94,6 +95,7 @@ public class Procurement {
     	fetch = FetchType.LAZY
     )
     @JoinTable(name = "proc_solution_bundle", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
+    @OrderBy(value="id asc")
     @JsonIgnore
     private List<ProcSolutionBundle> bundles = new ArrayList<>();
 

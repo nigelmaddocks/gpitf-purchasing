@@ -64,7 +64,8 @@ public class OnboardingService {
     private String ADD_DOCMAN_TO_BUNDLES_STRING;
 	private static boolean ADD_DOCMAN_TO_BUNDLES;
 	
-	private static final String FRAMEWORK_ID = "5A8D06DD-8C32-4821-AC65-BD47294ACD8E";
+	@Value("${sysparam.initialFrameworkId}")
+	public String FRAMEWORK_ID;
 	public String getDefaultFramework() {
 		return FRAMEWORK_ID;
 	}
