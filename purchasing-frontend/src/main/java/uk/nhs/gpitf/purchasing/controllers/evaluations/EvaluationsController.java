@@ -20,7 +20,6 @@ import uk.nhs.gpitf.purchasing.entities.CompetitionType;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.EvaluationsModel;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
-import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 
 @Controller 

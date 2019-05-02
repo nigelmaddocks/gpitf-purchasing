@@ -34,7 +34,7 @@ import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller
-public class Phase1ProcurementMenusController {
+public class Stage1ProcurementMenusController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

@@ -2,7 +2,7 @@
 <html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script}, ~{::link})}">
 <head>
     <meta charset="UTF-8" />
-    <title>Capability Search Results</title>
+    <title>Solution Search Results</title>
 </head>
 <body>
 <section>
@@ -11,14 +11,14 @@
  	
 		<div th:if="${myModel.userIsKnown && myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_SITES_ONLY)}" class="panel-heading" style="background-color: white;">
 			<div class="row">
-				<div class="col-md-10">
+				<div class="col-md-8">
 					<h3>Who you're buying for
 			        </h3>	
 		        </div>
-		        <div class="col-md-2" th:if="${(myModel.mode == myModel.MODE_ALL)}"><br />
-			        <a onclick="showCapabilityPanel(false);" href="#">Add answer</a>
+		        <div class="col-md-4" th:if="${(myModel.mode == myModel.MODE_ALL)}"><br />
+			        <a onclick="showCapabilityPanel(false);" href="#">Select Service Recipients</a>
 		        </div>
-		        <div class="col-md-2" th:if="${myModel.mode == myModel.MODE_SITES_ONLY}"><br />
+		        <div class="col-md-4" th:if="${myModel.mode == myModel.MODE_SITES_ONLY}"><br />
 			        <a th:onclick="'continueToFoundationChoiceMenu(' + ${myModel.procurementId} + ');'" href="#">Continue</a>
 		        </div>
 		    </div>
@@ -30,12 +30,12 @@
 	
 		<div class="panel-heading" th:if="${myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_CAPABILITIES_ONLY)}" style="background-color: white;">
 			<div class="row">
-				<div class="col-md-10">
-					<h3>Capabilities selected
+				<div class="col-md-8">
+					<h3 id="idCapabilitiesSelected">Capabilities selected
 			        </h3>	
 			    </div>
-		        <div class="col-md-2"><br />
-        			<a onclick="showCapabilityPanel(true);" th:if="${myModel.userIsKnown && myModel.mode == myModel.MODE_ALL}" href="#">Add answer</a>
+		        <div class="col-md-4"><br />
+        			<a onclick="showCapabilityPanel(true);" th:if="${myModel.userIsKnown && myModel.mode == myModel.MODE_ALL}" id="idSelectCapabilities" href="#">Select Capabilities</a>
         		</div>
         	</div>
 			<div class="row" th:if="${myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_CAPABILITIES_ONLY)}">
@@ -101,13 +101,13 @@
             	<div class="row">
 	                <div class="col-md-1">
 	                </div>
-	                <div class="col-md-3"><div class="mx-auto"><h3>Capabilities</h3></div>
+	                <div class="col-md-3" th:style="${'display: ' + (myModel.foundation?'none':'block')}"><div class="mx-auto"><h3>Capabilities</h3></div>
 	                </div>
 	                <div class="col-md-8"><div class="text-center"><h3>Search Results</h3></div>
 	                </div>
                 </div>
             	<div class="row">
-	                <div class="col-md-4">
+	                <div class="col-md-4" th:style="${'display: ' + (myModel.foundation?'none':'block')}">
 	                	<input type="checkbox" id="togFoundation" disabled="true" name="togFoundation" th:checked="${myModel.foundation}" data-toggle="toggle" data-on="Foundation" data-off="Non-Foundation" data-onstyle="success" data-offstyle="info" data-width="150" /> <br />  <br /> 
 			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : 'capabilitysearch-capability-non-foundation'}" >		                
 		               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
@@ -218,9 +218,13 @@ $('#togFoundation').change(function() {
 		});
 
 		if (vFoundation) {
-	    	document.getElementById("capabilitySearchTitle").innerHTML = "Foundation Solutions Search";
+	    	document.getElementById("capabilitySearchTitle").innerHTML = "Foundation Solutions";
+	    	document.getElementById("idSelectCapabilities").innerHTML = "Show Foundation Solutions";
+	    	document.getElementById("idCapabilitiesSelected").innerHTML = "";
 		} else {
 	    	document.getElementById("capabilitySearchTitle").innerHTML = "Non-Foundation Solutions Capability Search";
+	    	document.getElementById("idSelectCapabilities").innerHTML = "Select Capabilities";
+	    	document.getElementById("idCapabilitiesSelected").innerHTML = "Capabilities selected";
 		}
 	}
 
