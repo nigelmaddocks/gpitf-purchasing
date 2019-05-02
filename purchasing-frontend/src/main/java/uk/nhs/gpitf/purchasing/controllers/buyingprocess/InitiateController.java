@@ -687,6 +687,42 @@ public class InitiateController {
 		if (bIncludePostableData) {
 			addEmptyRowToCollections(initiateModel);
 		}
+		
+		// Calculate TCO
+		BigDecimal bigZero = BigDecimal.valueOf(0L);
+		BigDecimal[] tcos = new BigDecimal[bundles.size()];
+		if (bIncludePostableData) {
+			for (int idxBundle=0; idxBundle<initiateModel.getAssocSrv().length; idxBundle++) {
+				BigDecimal tco = bigZero;
+				for (int idxSR=0; idxSR<initiateModel.getAssocSrv()[idxBundle].length; idxSR++) {
+					BigDecimal value = initiateModel.rowDetailForBaseSystemPerBundleAndSR[idxBundle][idxSR].priceOverTerm;
+					if (value != null) {
+						tco = tco.add(value);
+					}
+					for (int idxAssoc=0; idxAssoc<initiateModel.getAssocSrv()[idxBundle][idxSR].length; idxAssoc++) {
+						value = initiateModel.rowDetailForAssocSrvPerBundleAndSR[idxBundle][idxSR][idxAssoc].priceOverTerm;
+						if (value != null) {
+							tco = tco.add(value);
+						}
+					}				
+					for (int idxAddit=0; idxAddit<initiateModel.getAdditSrv()[idxBundle][idxSR].length; idxAddit++) {
+						value = initiateModel.rowDetailForAdditSrvPerBundleAndSR[idxBundle][idxSR][idxAddit].priceOverTerm;
+						if (value != null) {
+							tco = tco.add(value);
+						}
+						for (int idxAdditAssoc=0; idxAdditAssoc<initiateModel.rowDetailForAdditSrvPerBundleAndSR[idxBundle][idxSR][idxAddit].additAssociatedServices.length; idxAdditAssoc++) {
+							value = initiateModel.rowDetailForAdditSrvPerBundleAndSR[idxBundle][idxSR][idxAddit].additAssociatedServices[idxAdditAssoc].priceOverTerm;
+							if (value != null) {
+								tco = tco.add(value);
+							}
+						}
+					}				
+				}
+				tcos[idxBundle] = tco;
+			}
+		}
+		initiateModel.setTco(tcos);
+		
 	}
 	
 	private void addEmptyRowToCollections(InitiateModel initiateModel) {

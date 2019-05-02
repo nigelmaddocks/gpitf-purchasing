@@ -34,6 +34,11 @@
 						<label class="col-md-11"></label>
 						<label class="col-md-1 nopadding">Over Term</label>
 					</div>
+					<div class="row">
+						<label class="col-md-10"></label>
+						<label class="col-md-1">TCO</label>
+						<label class="col-md-1 nopadding" th:text="${initiateModel.tco[__${infoBundle.index}__]}"></label>
+					</div>
 					<div th:each="srvRecipient, infoSR : ${initiateModel.srvRecipients}" class="row">
 
 						<!-- Service Recipient Info -->

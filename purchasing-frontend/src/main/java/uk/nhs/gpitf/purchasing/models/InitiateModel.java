@@ -61,6 +61,7 @@ public class InitiateModel {
 	private LocalDate plannedContractStart = null;
 	public Integer[] contractTermMonths = new Integer[] {}; // One element per Service Recipient
 	public Integer[] patientCount = new Integer[] {}; // One element per Service Recipient
+	public BigDecimal[] tco; // One element per Solution (bundle)
 	public RowDetail[][] rowDetailForBaseSystemPerBundleAndSR = new RowDetail[][] {};
 	public RowDetail[][][] rowDetailForAssocSrvPerBundleAndSR = new RowDetail[][][] {};
 	public RowDetail[][][] rowDetailForAdditSrvPerBundleAndSR = new RowDetail[][][] {};
