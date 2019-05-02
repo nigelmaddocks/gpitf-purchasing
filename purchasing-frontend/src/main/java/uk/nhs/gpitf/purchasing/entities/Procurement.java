@@ -74,6 +74,8 @@ public class Procurement {
     @Convert(converter = EvaluationTypeConverter.class)
 	private EvaluationTypeEnum evaluationType;
 
+    private Boolean singleSiteContinuity;
+
     private Boolean foundation;
 
 	private String csvCapabilities;
@@ -113,6 +115,7 @@ public class Procurement {
 		private String name;
 		private long orgContactId;
 		private EvaluationTypeEnum evaluationType;
+		private Boolean singleSiteContinuity;
 		private Boolean foundation;
 		private String csvCapabilities;
 		private String csvInteroperables;

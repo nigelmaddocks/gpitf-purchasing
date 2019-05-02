@@ -23,5 +23,4 @@ public enum EvaluationTypeEnum {
               .findFirst()
               .orElse(null);
   }
-
 }

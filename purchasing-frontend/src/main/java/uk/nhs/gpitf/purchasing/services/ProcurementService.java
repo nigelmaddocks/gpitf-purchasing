@@ -74,6 +74,7 @@ public class ProcurementService {
                           Optional<String> csvCapabilities,
                           Optional<String> csvInteroperables,
                           Optional<EvaluationTypeEnum> evaluationType,
+                          Optional<Boolean> singleSiteContinuity,
                           Optional<Boolean> foundation,
                           Optional<String> csvPractices) throws Exception {
     	final Procurement procurement;
@@ -87,6 +88,7 @@ public class ProcurementService {
     	csvCapabilities.ifPresent(procurement::setCsvCapabilities);
     	csvInteroperables.ifPresent(procurement::setCsvInteroperables);
     	evaluationType.ifPresent(procurement::setEvaluationType);
+    	singleSiteContinuity.ifPresent(procurement::setSingleSiteContinuity);
     	foundation.ifPresent(procurement::setFoundation);
     	csvPractices.ifPresent(practices -> procurement.setCsvPractices(GUtils.trimCommas(practices)));
     	procurement.setLastUpdated(LocalDateTime.now());
@@ -103,6 +105,7 @@ public class ProcurementService {
 			prim.getCsvCapabilities() == null ? Optional.empty() : Optional.of(prim.getCsvCapabilities()),
 			prim.getCsvInteroperables() == null ? Optional.empty() : Optional.of(prim.getCsvInteroperables()),
 			prim.getEvaluationType() == null ? Optional.empty() : Optional.of(prim.getEvaluationType()),
+			prim.getSingleSiteContinuity() == null ? Optional.empty() : Optional.of(prim.getSingleSiteContinuity()),
 			prim.getFoundation() == null ? Optional.empty() : Optional.of(prim.getFoundation()),
 			prim.getCsvPractices() == null ? Optional.empty() : Optional.of(GUtils.trimCommas(prim.getCsvPractices()))
 		);

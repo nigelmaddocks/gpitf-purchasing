@@ -14,6 +14,8 @@ public class TmpBuyingStartModel {
     	this.evaluationType = EvaluationTypeEnum.getById(evaluationTypeId);
     }
 
+	private long singleSiteContinuity;
+
 	private long foundation;
 
 
