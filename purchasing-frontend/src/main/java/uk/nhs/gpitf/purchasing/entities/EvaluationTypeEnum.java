@@ -32,5 +32,4 @@ public enum EvaluationTypeEnum {
                 return new NoSuchElementException("EvaluationTypeEnum " + id + " not found");
               });
   }
-
 }

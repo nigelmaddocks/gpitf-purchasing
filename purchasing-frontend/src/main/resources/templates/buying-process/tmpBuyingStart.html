@@ -10,6 +10,28 @@
 	<div class="container">
 		<div class="row"><h2>Start the Buying process (temporary page)</h2></div>
         <form class="form-horizontal" th:object="${TmpBuyingStartModel}" th:action="@{/buyingprocess/tmpBuyingStart}" method="post">
+ 
+            <div class="form-group">
+            	<div class="col-sm-1">&nbsp;</div>
+            	<div class="col-sm-11">Buying for Single Site for Continuity?</div>
+                <label class="col-sm-2 control-label">
+                <input type="radio" name="singleSiteContinuity" id="ssc_1" value="1" checked />
+                </label>
+                <div class="col-sm-10" style="margin-top:12px;">
+                	<label  for="ssc_1">No
+      				</label>
+                </div>
+
+                <label class="col-sm-2 control-label">
+                <input type="radio" name="singleSiteContinuity" id="ssc_2" value="2" />
+                </label>
+                <div class="col-sm-10" style="margin-top:12px;">
+                	<label  for="ssc_2">Yes
+      				</label>
+                </div>
+            </div>
+ 
+ 
             <div class="form-group">
             	<div class="col-sm-1">&nbsp;</div>
             	<div class="col-sm-11">Evaluation Type</div>

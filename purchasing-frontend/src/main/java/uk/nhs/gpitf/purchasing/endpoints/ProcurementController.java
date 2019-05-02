@@ -68,7 +68,7 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.of(csvCapabilities), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.of(csvCapabilities), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -114,7 +114,7 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.of(csvInteroperables), Optional.empty(), Optional.empty(), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.of(csvInteroperables), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -159,7 +159,7 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(Boolean.valueOf(sFoundation)), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(Boolean.valueOf(sFoundation)), Optional.empty());
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -205,7 +205,7 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(csvPractices));
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(csvPractices));
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
