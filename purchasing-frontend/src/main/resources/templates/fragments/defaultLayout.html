@@ -88,17 +88,18 @@
 
     <div>
       &copy; 2018 Footer
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" crossorigin="anonymous"></script>
-		<script src="../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
-		<script src="../static/js/bootstrap-datepicker.min.js" th:src="@{/js/bootstrap-datepicker.min.js}"></script>
-		<script src="../static/js/bootstrap-toggle.min.js" th:src="@{/js/bootstrap-toggle.min.js}"></script>
- 		
-	    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,es7"></script>
-	    <script type="text/javascript" src="../static/js/vendor/modernizr-custom.js" th:src="@{/js/vendor/modernizr-custom.js}"></script>
-	    <script type="text/javascript" src="../static/js/vendor/details-element-polyfill.js" th:src="@{/js/vendor/details-element-polyfill.js}"></script>
-
-		<script src="../static/js/site.js" th:src="@{/js/site.js}"></script>
     </div>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" crossorigin="anonymous"></script>
+	<script src="../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+	<script src="../static/js/bootstrap-datepicker.min.js" th:src="@{/js/bootstrap-datepicker.min.js}"></script>
+	<script src="../static/js/bootstrap-toggle.min.js" th:src="@{/js/bootstrap-toggle.min.js}"></script>
+ 	
+	<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,es7"></script>
+	<script type="text/javascript" src="../static/js/vendor/modernizr-custom.js" th:src="@{/js/vendor/modernizr-custom.js}"></script>
+	<script type="text/javascript" src="../static/js/vendor/details-element-polyfill.js" th:src="@{/js/vendor/details-element-polyfill.js}"></script>
+
+	<script src="../static/js/site.js" th:src="@{/js/site.js}"></script>
 
 	<script th:replace="${script} != null ? ${script} : ~{}">
 		<p>Layout script</p>

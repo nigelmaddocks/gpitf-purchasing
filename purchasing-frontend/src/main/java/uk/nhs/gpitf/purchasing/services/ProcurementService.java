@@ -123,6 +123,7 @@ public class ProcurementService {
     }
 
     public Procurement save(Procurement procurement) {
+      procurement.setLastUpdated(LocalDateTime.now());
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
       return thisRepository.save(procurement);
@@ -204,10 +205,17 @@ public class ProcurementService {
     	return prim;
     }
 
-    public Procurement.PrimitiveProcurement createAndPersistNewPrimitiveProcurement(HttpSession session, SecurityInfo secInfo) {
-    	Procurement.PrimitiveProcurement prim = createNewPrimitiveProcurement(secInfo);
-    	session.setAttribute(Procurement.SESSION_ATTR_NAME, prim);
-    	return prim;
+    public Procurement.PrimitiveProcurement getPrimitiveProcurement(HttpSession session, SecurityInfo secInfo) {
+      Procurement.PrimitiveProcurement procurement = (Procurement.PrimitiveProcurement) session.getAttribute(Procurement.SESSION_ATTR_NAME);
+      if (procurement == null) {
+        procurement = createNewPrimitiveProcurement(secInfo);
+      }
+      return procurement;
     }
+
+    public Procurement.PrimitiveProcurement setPrimitiveProcurement(HttpSession session, Procurement.PrimitiveProcurement procurement) {
+      session.setAttribute(Procurement.SESSION_ATTR_NAME, procurement);
+      return procurement;
+  }
 
 }

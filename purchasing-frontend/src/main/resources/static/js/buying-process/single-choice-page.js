@@ -1,19 +1,19 @@
 (function($) {
 	
-$( "#select-evaluation-type .select button" ).on( "click", function( event ) {
-	evaluationTypeList.onclick_setButtons(this);
+$( "#select-options .select button" ).on( "click", function( event ) {
+	optionsList.onclick_setButtons(this);
 });
 
 $(function() {
-	evaluationTypeList.setSelected($('#select-evaluation-type #evaluation-type-item-' + $('#' + evaluationTypeList.FIELD_EVALUATION_TYPE).val() + ' .select button'));
+	optionsList.setSelected($('#select-options #option-item-' + $('#' + optionsList.FIELD_SELECTED_OPTION).val() + ' .select button'));
 	continueButton.set();
 });
 
-var evaluationTypeList = {
+var optionsList = {
 	CLASS_SELECTED : "selected",
-	FIELD_EVALUATION_TYPE : "evaluationType",
+	FIELD_SELECTED_OPTION : "selectedOption",
 	onclick_setButtons : function(el) {
-		$('#' + this.FIELD_EVALUATION_TYPE)
+		$('#' + this.FIELD_SELECTED_OPTION)
 			.val( $(el).val() );
 		this.setUnselected();
 		this.setSelected(el);
@@ -25,7 +25,7 @@ var evaluationTypeList = {
 			.html('<span class="glyphicon glyphicon-ok"/>Selected');
 	},
 	setUnselected : function() {
-		$("#select-evaluation-type .select button")
+		$("#select-options .select button")
 			.removeClass(this.CLASS_SELECTED)
 			.html('Select');
 	}
@@ -35,7 +35,7 @@ var evaluationTypeList = {
 var continueButton = {
 	_button : $("#continue"),
 	set : function() {
-		if ($("#" + evaluationTypeList.FIELD_EVALUATION_TYPE).val().length == 0) {
+		if ($("#" + optionsList.FIELD_SELECTED_OPTION).val().length == 0) {
 			this._button.prop("disabled", true);
 		} else {
 			this._button.prop("disabled", false);
