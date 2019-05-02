@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import uk.nhs.gpitf.purchasing.entities.CompetitionType;
 import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.entities.SingleSiteContinuityEnum;
@@ -27,6 +29,8 @@ import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ChoosePriceDeclarationV
 import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ChooseSingleSiteContinuityView;
 import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ChooseSolutionSetView;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
+import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller
@@ -161,6 +165,8 @@ public class Phase1ProcurementMenusController {
 
 	@GetMapping("/buyingprocess/choose-price-declaration")
     public String choosePriceDeclaration(Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Price or Price+Quality", request);
+		
 	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 	    HttpSession session = request.getSession();
 
@@ -178,19 +184,25 @@ public class Phase1ProcurementMenusController {
 
 	@PostMapping("/buyingprocess/choose-price-declaration")
     public String choosePriceDeclarationPost(ChoosePriceDeclarationView pageModel, HttpServletRequest request) {
-
 	    HttpSession session = request.getSession();
 	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
-	    Procurement.PrimitiveProcurement procurement = procurementService.getPrimitiveProcurement(session, secInfo);
+	    EvaluationTypeEnum value = EvaluationTypeEnum.getById(pageModel.getSelectedOption());
+
+  	    Procurement.PrimitiveProcurement procurement = procurementService.getPrimitiveProcurement(session, secInfo);
 	    procurement.setEvaluationType(EvaluationTypeEnum.getById(pageModel.getSelectedOption()));
 	    procurementService.setPrimitiveProcurement(session, procurement);
 
-	    // TODO change to correct view when known
+	    if (value == EvaluationTypeEnum.PRICE_ONLY) {
+			Breadcrumbs.register("Price only", request);
+	    } else {
+			Breadcrumbs.register("Price+Quality", request);
+	    }	    
+	    
         return REDIRECT_URL_PREFIX
             + BuyingProcessController.URL_PATH
             + "/"
-            + BuyingProcessController.PAGE_PROCUREMENT;
+            + "choose-solution-set";
     }
 
 	@GetMapping(value = {
@@ -198,6 +210,8 @@ public class Phase1ProcurementMenusController {
 	              "/buyingprocess/{procurementId}/choose-solution-set"
 	          })
 	public String chooseSolutionSet(@PathVariable Optional<Long> procurementId, Model model, HttpServletRequest request) throws ProcurementNotFoundException {
+		Breadcrumbs.register("Foundation or Non-Foundation", request);
+
 	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 	    HttpSession session = request.getSession();
 
@@ -227,21 +241,44 @@ public class Phase1ProcurementMenusController {
 
   	    Optional<Long> procurementId = Optional.ofNullable(pageModel.getId());
   	    SolutionSetEnum solution = SolutionSetEnum.getById(pageModel.getSelectedOption());
-        if (procurementId.isPresent()) {
-          Procurement procurement = procurementService.findById(procurementId.get());
-          procurement.setFoundation(solutionSetToFoundationBoolean(solution));
-          procurementService.save(procurement);
-        } else {
-          Procurement.PrimitiveProcurement procurement = procurementService.getPrimitiveProcurement(session, secInfo);
-          procurement.setFoundation(solutionSetToFoundationBoolean(solution));
-          procurementService.setPrimitiveProcurement(session, procurement);
-        }
+  	    
+  	    Procurement procurement = null;
+  	    
+  	    try {
+	  	    if (procurementId.isEmpty()) {
+				Procurement.PrimitiveProcurement prim = procurementService.getPrimitiveProcurement(session, secInfo);
+				prim.setFoundation(solutionSetToFoundationBoolean(solution));
+				session.removeAttribute(Procurement.SESSION_ATTR_NAME);
+	  	    	procurement = procurementService.saveCurrentPosition(prim);
+	  	    } else {
+				procurement = procurementService.findById(procurementId.get());
+				procurement.setFoundation(solutionSetToFoundationBoolean(solution));
+	        }
+	  	    long iCompetitionType = CompetitionType.ON_CATALOGUE;
+	        if (procurement.getSingleSiteContinuity() == false && procurement.getFoundation() == true) {
+	        	iCompetitionType = CompetitionType.OFF_CATALOGUE;
+	        }
+	        procurement.setCompetitionType((CompetitionType) GUtils.makeObjectForId(CompetitionType.class, iCompetitionType));	  	  
+	        
+			procurementService.save(procurement);
 
-        //TODO change to correct view when known
-        return REDIRECT_URL_PREFIX
-            + BuyingProcessController.URL_PATH
-            + "/"
-            + BuyingProcessController.PAGE_PROCUREMENT;
+  	    } catch (Exception e) {
+  	    	e.printStackTrace();
+  	    }
+
+        Breadcrumbs.removeAfterTitle("Home", request);
+
+        if (procurement.getSingleSiteContinuity() == true
+         || procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_ONLY) {
+        	return REDIRECT_URL_PREFIX
+        		+ BuyingProcessController.URL_PATH
+        		+ "/" + procurement.getId()
+        		+ "/gotoProcurement";
+        } else {
+        	return REDIRECT_URL_PREFIX
+            	+ BuyingProcessController.URL_PATH
+            	+ "/evaluations/" + procurement.getId(); 	       	
+        }
 	}
 
 	@GetMapping(value = {
@@ -249,6 +286,8 @@ public class Phase1ProcurementMenusController {
 	              "/buyingprocess/{procurementId}/choose-single-site-continuity"
 	          })
 	public String chooseSingleSiteContinuity(@PathVariable Optional<Long> procurementId, Model model, HttpServletRequest request) throws ProcurementNotFoundException {
+		Breadcrumbs.register("Regular or Continuity", request);
+		
 	    SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 	    HttpSession session = request.getSession();
 
@@ -288,11 +327,20 @@ public class Phase1ProcurementMenusController {
           procurementService.setPrimitiveProcurement(session, procurement);
         }
 
-        //TODO change to correct view when known
+        if (value == SingleSiteContinuityEnum.SINGLE_SITE_CONTINUITY) {
+    		Breadcrumbs.register("Continuity", request);
+
+            return REDIRECT_URL_PREFIX
+                    + BuyingProcessController.URL_PATH
+                    + "/"
+                    + "choose-solution-set";
+        }
+        
+		Breadcrumbs.register("Regular", request);
         return REDIRECT_URL_PREFIX
             + BuyingProcessController.URL_PATH
             + "/"
-            + BuyingProcessController.PAGE_PROCUREMENT;
+            + "choose-price-declaration";
 	}
 
 	// Temporary page to kick off a procurement

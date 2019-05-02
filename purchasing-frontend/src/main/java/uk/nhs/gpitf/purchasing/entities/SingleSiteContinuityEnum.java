@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 public enum SingleSiteContinuityEnum {
-  NOT_SINGLE_SITE_CONTINUITY(1, "Not Single Site Continuity"),
+  NOT_SINGLE_SITE_CONTINUITY(1, "Regular Procurement"),
   SINGLE_SITE_CONTINUITY(2, "Single Site Continuity");
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

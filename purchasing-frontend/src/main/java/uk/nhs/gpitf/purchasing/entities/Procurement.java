@@ -78,6 +78,11 @@ public class Procurement {
 
     private Boolean foundation;
 
+    @ManyToOne(optional=true)
+    @JoinColumn(name = "competition_type")
+	private CompetitionType competitionType;
+
+    
 	private String csvCapabilities;
 
 	private String csvInteroperables;

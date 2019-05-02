@@ -22,7 +22,7 @@
 						<ul class="flex-option-container" id="select-options">
 							<li th:each="type : ${values}" th:id="|option-item-${type.id}|">
 								<div class="title" th:text="${type.name}"></div>
-								<div class="body" th:text="#{solution-set.description[__${type.id}__]}"></div>
+								<div class="body" th:text="#{continuity.description[__${type.id}__]}"></div>
 								<div class="select">
 									<button type="button" class="btn button" th:value="${type.id}">Select</button>
 								</div>

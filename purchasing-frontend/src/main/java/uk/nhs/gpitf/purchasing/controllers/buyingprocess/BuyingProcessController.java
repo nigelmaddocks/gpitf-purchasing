@@ -38,8 +38,8 @@ public class BuyingProcessController {
 
     protected static final String ATTRIBUTE_PROCUREMENT = "procurement";
 
-    protected static final String URL_PATH = "/buyingprocess";
-    protected static final String PAGE_PATH = "buying-process/";
+    public static final String URL_PATH = "/buyingprocess";
+    public static final String PAGE_PATH = "buying-process/";
 	protected static final String PAGE_INDEX = "index";
 	protected static final String PAGE_SEARCH_SOLUTIONS_MENU = "searchSolutionMenu";
 	protected static final String PAGE_LIST_PROCUREMENTS = "listProcurements";
@@ -58,7 +58,7 @@ public class BuyingProcessController {
 
 	@GetMapping()
 	public String home(HttpServletRequest request) {
-		//Breadcrumbs.register("Buying Process", request);
+		Breadcrumbs.register("Buy", request);
 		return PAGE_PATH + PAGE_INDEX;
 	}
 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
+<head>
+<meta charset="UTF-8">
+<title>Set Evaluation Criteria for On-Catalogue Procurement</title>
+</head>
+<body>
+	<main id="content">
+		<h1>Set Evaluation Criteria for On-Catalogue Procurement</h1>
+		<form action="" th:action="@{'/buyingprocess/evaluations/' + ${pageModel.id}}" th:object="${pageModel}" method="POST">
+			<input type="hidden" th:field="*{id}"/>
+
+			<p>Placeholder for setting Evaluation Criteria for On-Catalogue Procurement</p>
+
+			<div class="form-group">
+				<button type="submit" class="btn button" id="continue">Continue</button>
+			</div>
+			<div class="form-group">
+				<a class="back-link" href="#" th:href="@{#}"></a>	
+			</div>			
+		</form>
+	</main>
+</body>
+</html>
