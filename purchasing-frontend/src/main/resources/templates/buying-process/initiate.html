@@ -34,6 +34,14 @@
 						<label class="col-md-11"></label>
 						<label class="col-md-1 nopadding">Over Term</label>
 					</div>
+					<div class="row">
+						<label class="col-md-8"></label>
+						<div class="col-md-2">
+							<button id="btnRecalculate" class="btn btn-default" type="button" onclick="forms[0].submit();" style="margin-top: -1.0rem; margin-left: -0.6rem">Recalculate Prices</button>
+						</div>
+						<label class="col-md-1">TCO</label>
+						<label class="col-md-1 nopadding" th:text="${initiateModel.tco[__${infoBundle.index}__]}"></label>
+					</div>
 					<div th:each="srvRecipient, infoSR : ${initiateModel.srvRecipients}" class="row">
 
 						<!-- Service Recipient Info -->
@@ -251,7 +259,7 @@
 					</div>
 				</div>
 				<div class="panel-footer">
-					<button id="btnRecalculate" class="btn btn-default" style="display:noneX;" type="button" onclick="forms[0].submit();">Recalculate Prices</button>
+					<button id="btnRecalculate" class="btn btn-default" type="button" onclick="forms[0].submit();">Recalculate Prices</button>
 				</div>
 			
 			</div>

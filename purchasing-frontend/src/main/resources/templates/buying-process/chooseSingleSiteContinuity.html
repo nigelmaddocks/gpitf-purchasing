@@ -2,13 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
 <head>
 <meta charset="UTF-8">
-<title>Solution</title>
+<title>Purchasing for Continuity</title>
 <script src="/static/js/buying-process/single-choice-page.js" th:src="@{/js/buying-process/single-choice-page.js}"></script>
 </head>
 <body>
 	<main id="content">
-		<h1>Are you buying a Foundation or Non-Foundation solution?</h1>
-		<form action="" th:action="@{/buyingprocess/choose-solution-set}" th:object="${pageModel}" method="POST">
+		<h1>Are you purchasing for a single site for continuity reasons?</h1>
+		<form action="" th:action="@{/buyingprocess/choose-single-site-continuity}" th:object="${pageModel}" method="POST">
 			<input type="hidden" th:field="*{id}"/>
 			<input type="hidden" th:with="field='selectedOption'" th:attr="id=${field},name=${field}" th:value="*{__${field}__} != null ? *{__${field}__} : ''" />
 <!--/*
@@ -20,7 +20,7 @@
 				<div class="row">
 					<div class="col-xs-12 col-md-8 col-md-offset-2">
 						<ul class="flex-option-container" id="select-options">
-							<li th:each="type : ${solutionSets}" th:id="|option-item-${type.id}|">
+							<li th:each="type : ${values}" th:id="|option-item-${type.id}|">
 								<div class="title" th:text="${type.name}"></div>
 								<div class="body" th:text="#{solution-set.description[__${type.id}__]}"></div>
 								<div class="select">
