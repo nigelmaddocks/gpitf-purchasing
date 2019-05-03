@@ -13,12 +13,21 @@
 			<p>Placeholder for input of Evaluation Scoring</p>
 
 			<div class="form-group">
-				<button type="submit" class="btn button" id="continue">Continue</button>
+				<button type="submit" class="btn button" id="continue">Update Scores</button>
 			</div>
 			<div class="form-group">
-				<a class="back-link" href="#" th:href="@{#}"></a>	
+				<button id="btnOrdering" class="btn btn-default" type="button" onclick="gotoOrdering(this);" th:disabled="${scoringDone == false}">Place Order with highest score</button>
 			</div>			
 		</form>
 	</main>
+
+<script th:inline="javascript">
+
+function gotoOrdering(element) {
+	alert('Not yet implemented');
+	element.blur();
+}
+
+</script>
 </body>
 </html>

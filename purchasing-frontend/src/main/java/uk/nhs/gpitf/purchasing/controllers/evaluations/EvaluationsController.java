@@ -63,6 +63,7 @@ public class EvaluationsController {
 		Breadcrumbs.register("Evaluation scoring", request);
     	evaluationsModel.setId(procurementId);
     	model.addAttribute("pageModel", evaluationsModel);
+    	model.addAttribute("scoringDone", false);
 
     	return "buying-process/evaluationsScreen2";
     }
@@ -74,6 +75,7 @@ public class EvaluationsController {
                                  RedirectAttributes attr) {    	
     	evaluationsModel.setId(procurementId);
     	model.addAttribute("pageModel", evaluationsModel);
-   	return "buying-process/evaluationsScreen2";
+    	model.addAttribute("scoringDone", true);
+    	return "buying-process/evaluationsScreen2";
     }
 }

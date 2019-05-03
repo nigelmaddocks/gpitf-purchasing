@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
@@ -58,7 +59,10 @@ public class StubScreensController {
 			return securityCheck;
 		}
 		
+		Procurement procurement = procurementRepository.findById(procurementId).get();
+		
 		model.addAttribute("procurementId", procurementId);
+		model.addAttribute("evaluationPriceOnly", procurement.getEvaluationType() != null && procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_ONLY);
 		return "buying-process/solutionsComparison";
 	}	
 	
