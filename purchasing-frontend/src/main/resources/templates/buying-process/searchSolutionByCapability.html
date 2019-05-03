@@ -218,13 +218,13 @@ $('#togFoundation').change(function() {
 		});
 
 		if (vFoundation) {
-	    	document.getElementById("capabilitySearchTitle").innerHTML = "Foundation Solutions";
-	    	document.getElementById("idSelectCapabilities").innerHTML = "Show Foundation Solutions";
-	    	document.getElementById("idCapabilitiesSelected").innerHTML = "";
+	    	if (document.getElementById("capabilitySearchTitle")) document.getElementById("capabilitySearchTitle").innerHTML = "Foundation Solutions";
+	    	if (document.getElementById("idSelectCapabilities")) document.getElementById("idSelectCapabilities").innerHTML = "Show Foundation Solutions";
+	    	if (document.getElementById("idCapabilitiesSelected")) document.getElementById("idCapabilitiesSelected").innerHTML = "";
 		} else {
-	    	document.getElementById("capabilitySearchTitle").innerHTML = "Non-Foundation Solutions Capability Search";
-	    	document.getElementById("idSelectCapabilities").innerHTML = "Select Capabilities";
-	    	document.getElementById("idCapabilitiesSelected").innerHTML = "Capabilities selected";
+			if (document.getElementById("capabilitySearchTitle")) document.getElementById("capabilitySearchTitle").innerHTML = "Non-Foundation Solutions Capability Search";
+			if (document.getElementById("idSelectCapabilities")) document.getElementById("idSelectCapabilities").innerHTML = "Select Capabilities";
+			if (document.getElementById("idCapabilitiesSelected")) document.getElementById("idCapabilitiesSelected").innerHTML = "Capabilities selected";
 		}
 	}
 
