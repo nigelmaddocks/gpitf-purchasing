@@ -66,6 +66,22 @@ public class StubScreensController {
 		return "buying-process/solutionsComparison";
 	}	
 	
+
+	@GetMapping(value = {"/buyingprocess/offCatalogueBidsAndEvaluation/{procurementId}"})
+	public String offCatalogueBidsAndEvaluation(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
+		Breadcrumbs.register("Off-Catalogue Process", request);
+		
+		String securityCheck = procurementSecurity(procurementId, attr, request);
+		if (StringUtils.isNotEmpty(securityCheck)) {
+			return securityCheck;
+		}
+		
+		Procurement procurement = procurementRepository.findById(procurementId).get();
+		
+		model.addAttribute("procurementId", procurementId);
+		return "buying-process/offCatalogueBidsAndEvaluation";
+	}	
+	
 	private String procurementSecurity(long procurementId, RedirectAttributes attr, HttpServletRequest request) {
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);

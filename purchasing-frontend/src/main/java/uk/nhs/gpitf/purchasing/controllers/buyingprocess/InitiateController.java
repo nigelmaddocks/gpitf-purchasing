@@ -247,9 +247,10 @@ public class InitiateController {
 			e.printStackTrace();
 		}
 		
-		setupModel(secInfo, procurement, model, true);
+		//setupModel(secInfo, procurement, model, true);
 		
-		return "buying-process/initiate";
+		//return "buying-process/initiate";
+		return "redirect:/buyingprocess/initiate/" + procurement.getId();
 
 	}
 	

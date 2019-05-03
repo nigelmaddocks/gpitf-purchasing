@@ -260,7 +260,7 @@ public class Stage1ProcurementMenusController {
 	        }
 	        procurement.setCompetitionType((CompetitionType) GUtils.makeObjectForId(CompetitionType.class, iCompetitionType));	  	  
 	        
-			procurementService.save(procurement);
+			procurement = procurementService.save(procurement);
 
   	    } catch (Exception e) {
   	    	e.printStackTrace();

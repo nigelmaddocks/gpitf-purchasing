@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
+<head>
+<meta charset="UTF-8">
+<title>Off-Catalogue Bids and Evaluation</title>
+</head>
+<body>
+	<main id="content">
+		<h1>Off-Catalogue Bids and Evaluation</h1>
+		<form >
+
+			<p>Placeholder for the Off-Catalogue process for requesting and receiving bids and performing evaluations.</p>
+
+			<p>Although the process is off-line, it may be that documents containing the solutions being considered, along with their Associated
+			and Addition Services, and Associated Services of each Additional Service and their units, can be prepared to initiate the process.</p>
+
+
+		</form>
+		<button id="btnOffCatalogue" class="btn btn-default" type="button" onclick="gotoOffCatalogue(this);">Go Off-Catalogue</button>
+		<button id="btnEvaluationScoring" class="btn btn-default" type="button" onclick="gotoEvaluationScoring();" disabled="true">Evaluation Scoring</button>
+	</main>
+
+<script th:inline="javascript">
+
+function gotoEvaluationScoring() {
+	location.href = '/buyingprocess/evaluations/weightings/' + [[${procurementId}]];
+}
+
+function gotoOffCatalogue(element) {
+	alert('.... prepare documents for Off-Catalogue bids ....');
+	document.getElementById("btnEvaluationScoring").disabled = false;
+	element.blur();
+}
+
+</script>
+</body>
+</html>

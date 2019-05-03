@@ -91,7 +91,8 @@
 		    </div>
         	<div class="col-md-2" th:if="${myModel.userIsKnown && myModel.procurementId != 0 && myModel.procurement != null}">
         		<br />
-		     	<button id="btnShortlist" class="btn btn-default" style="display:none;" type="button" onclick="proceedToInitiate();">Initiate Buying</button>
+		     	<button id="btnInitiate" class="btn btn-default" style="display:none;" type="button" onclick="gotoInitiate();">Initiate Buying</button>
+		     	<button id="btnSolutionsComparison" class="btn btn-default" style="display:none;" type="button" onclick="gotoSolutionsComparison();">Compare Solutions</button>
 		    </div>
         	
         </div>
@@ -431,7 +432,7 @@ $('#togFoundation').change(function() {
 		$.getJSON( url)
 		.done(function( data ) {
 			$("#foundSolutions").empty();
-			$("#btnShortlist").hide();
+			$("#btnInitiate").hide();
 			//console.log(data);
 /*
 			var htmlTable = $("<table class=\"table table-striped\">");
@@ -488,11 +489,16 @@ $('#togFoundation').change(function() {
 				htmlSolnListEntry.appendTo("#foundSolutions");
 			});
 			
-			
-			if (selectedPractices <= 0 || solutionsCount > [[${myModel.SHORTLIST_MAX}]]) {
-				$("#btnShortlist").hide();
+			if ([[${myModel.procurement != null}]] && selectedPractices > 0 && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]) {
+				$("#btnInitiate").show();
 			} else {
-				$("#btnShortlist").show();
+				$("#btnInitiate").hide();
+			}
+			
+			if ([[${myModel.procurement == null}]] && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]) {
+				$("#btnSolutionsComparison").show();
+			} else {
+				$("#btnSolutionsComparison").hide();
 			}
 		});
    	}
@@ -584,9 +590,17 @@ $('#togFoundation').change(function() {
     	
     }
     
-    function proceedToInitiate() {
+    function gotoInitiate() {
 		/*<![CDATA[*/
         var url = /*[[@{'/buyingprocess/directInitiateInitialise/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
+    	/*]]>*/
+
+    	location.href = url;
+    }
+    
+    function gotoSolutionsComparison() {
+		/*<![CDATA[*/
+        var url = /*[[@{'/buyingprocess/solutionsComparison/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
     	/*]]>*/
 
     	location.href = url;
