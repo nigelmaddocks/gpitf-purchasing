@@ -35,7 +35,12 @@
 						<label class="col-md-1 nopadding">Over Term</label>
 					</div>
 					<div class="row">
-						<label class="col-md-8"></label>
+						<label class="col-md-6"></label>
+						<div class="col-md-2">
+							<button tf:if="${initiateModel.isFoundation == false}" id="btnSolutionReview" class="btn btn-default" type="button" 
+								onclick="gotoSolutionsReview();" 
+								style="margin-top: -1.0rem; margin-left: -0.6rem">Solutions Review</button>
+						</div>
 						<div class="col-md-2">
 							<button id="btnRecalculate" class="btn btn-default" type="button" onclick="forms[0].submit();" style="margin-top: -1.0rem; margin-left: -0.6rem">Recalculate Prices</button>
 						</div>
@@ -269,27 +274,8 @@
 
 <script th:inline="javascript">
 
-function reduceServicePanelHeights() {
-/*	
-	$(".associated-service-panel").each( function() {
-		if ($(this).height() > 5 && typeof($(this).attr("heightset")) == "undefined") {
-			$(this).height($(this).height() - 35);
-			$(this).attr("heightset", "true");
-		}
-	});
-	$(".additional-service-panel").each( function() {
-		if ($(this).height() > 5 && typeof($(this).attr("heightset")) == "undefined") {
-			$(this).height($(this).height() - 25);
-			$(this).attr("heightset", "true");
-		}
-	});
-	$(".addit-associated-service-panel").each( function() {
-		if ($(this).height() > 5 && typeof($(this).attr("heightset")) == "undefined") {
-			$(this).height($(this).height() - 35);
-			$(this).attr("heightset", "true");
-		}
-	});
-*/	
+function gotoSolutionsReview() {
+	location.href = '/buyingprocess/solutionsReview/' + [[${initiateModel.procurementId}]];
 }
 
 // Default the Term value from the 1st Service Recipient into the Term for the other Service Recipients (if they don't already contain a value)

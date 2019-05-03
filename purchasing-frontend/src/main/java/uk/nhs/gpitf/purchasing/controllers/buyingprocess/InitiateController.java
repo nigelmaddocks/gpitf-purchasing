@@ -553,6 +553,7 @@ public class InitiateController {
 		
 		initiateModel.setProcurementId(procurement.getId());
 		initiateModel.setProcurementName(procurement.getName());
+		initiateModel.setFoundation(procurement.getFoundation());
 		
 		setupModelCollections(initiateModel, procurement, bIncludePostableData);
 		

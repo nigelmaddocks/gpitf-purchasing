@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
+<head>
+<meta charset="UTF-8">
+<title>Solutions Review</title>
+</head>
+<body>
+	<main id="content">
+		<h1>Solutions Review</h1>
+		<form >
+
+			<p>Placeholder for reviewing the solutions</p>
+
+			<p>Inform on solutions partially meeting capabilities or lacking required interoperabilities.</p>
+
+			<p>Enable deselection with feedback. Latest thinking is that Non-Foundation procurement solutions 
+			can only be deselected on grounds of lack of interoperability or partial/limited capability.</p>
+
+		</form>
+		<button id="btnSolutionComparison" class="btn btn-default" type="button" onclick="gotoSolutionsComparison();">Solutions Comparison</button>
+	</main>
+<script th:inline="javascript">
+
+function gotoSolutionsComparison() {
+	location.href = '/buyingprocess/solutionsComparison/' + [[${procurementId}]];
+}
+</script>	
+</body>
+</html>
