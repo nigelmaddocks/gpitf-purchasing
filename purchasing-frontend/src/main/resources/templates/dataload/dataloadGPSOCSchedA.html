@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script}, ~{::link})}">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dataload of GP Practice Subsidiary Services from TDB GPSoC Schedule A Maintenance report</title>
+</head>
+<body>
+<section>
+    <div class="container">
+<!--     
+        <ol class="breadcrumb">
+            <li><a href="#" th:href="${'/widgets'}">Home</a></li>
+        </ol>
+-->        
+        <div class="row"><h2>Dataload of GP Practice Subsidiary Services from TDB GPSoC Schedule A Maintenance report</h2></div>
+        <form class="form-horizontal" th:action="@{/dataload/GPSOCSchedA}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="col-sm-12">Please select the GPSoC Schedule A Maintenance report CSV file output from the Tracking Database</label>
+            </div>
+            
+            <div class="form-group">
+               <label class="col-sm-12 control-label"><input type="file" name="file" style="width:100%;"/></label>
+             </div>
+             
+            <div class="form-group">
+                <div class="col-sm-12">
+            		<button type="submit" class="btn btn-default">Submit</button>
+                </div>
+            </div>
+            <pre>
+To obtain the input file  
+ 
+Login to Tracking Database
+Select the Tree-interface
+Click on NHS Digital (within "Executive Non-Departmental Public Body")
+Select Project GPSoC (top of screen)
+Choose PROJECT REPORTS
+Select the GPSoC Schedule A Maintenance report 
+ 
+            </pre>
+        </form>
+    </div>
+</section>
+</body>
+</html>

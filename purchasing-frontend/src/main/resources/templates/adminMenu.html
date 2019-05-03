@@ -64,9 +64,16 @@
             </div>
             
             <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
-                <label class="col-sm-6 control-label">Load Day Zero Subsidiary Services (Docman only) from Tracking Database output csv file</label>
+                <label class="col-sm-6 control-label" style="text-decoration:line-through;">Load Day Zero Subsidiary Services (Docman only) from Tracking Database output csv file</label>
                 <div class="col-sm-6" style="margin-top:6px;">
-                    <a href="/dataload/GPSOC" th:href="@{'/dataload/GPSOC'}">Load Docman installations</a>
+                    <a href="/dataload/GPSOC" th:href="@{'/dataload/GPSOC'}" style="text-decoration:line-through;">Load Docman installations</a>
+                </div>
+            </div>
+            
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
+                <label class="col-sm-6 control-label">Load Day Zero Subsidiary Services from TDB GPSoC Schedule A Maintenance report csv file</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/dataload/GPSOCSchedA" th:href="@{'/dataload/GPSOCSchedA'}">Load Subsidiary Service installations</a>
                 </div>
             </div>
             
