@@ -33,7 +33,7 @@
 	border: 1px solid #FED86F;
 	text-align: left;
 	padding-top: 0.5em;
-	height: 2em;
+	min-height: 2em;
 	margin-bottom: 0.3em;
 }
 
