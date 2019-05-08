@@ -24,6 +24,7 @@ import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
+import uk.nhs.gpitf.purchasing.services.EvaluationService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
@@ -32,6 +33,9 @@ public class StubScreensController {
 	
 	@Autowired
 	ProcurementRepository procurementRepository;
+	
+	@Autowired
+	EvaluationService evaluationService;
 	
     private static final Logger logger = LoggerFactory.getLogger(StubScreensController.class);
 
@@ -130,4 +134,14 @@ public class StubScreensController {
 		
 		return null;
 	}
+	
+/*
+	@GetMapping(value = {"/buyingprocess/evaluationConversion/{procurementId}"})
+	public String onToOffCatalogConversion(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
+		
+		evaluationService.convertOnToOffCatalogCriteria(procurementId);
+		
+		return null;
+	}	
+*/
 }

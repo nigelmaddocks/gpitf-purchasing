@@ -22,6 +22,7 @@ import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.EvaluationsModel;
 import uk.nhs.gpitf.purchasing.repositories.EvaluationProcCriterionRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
+import uk.nhs.gpitf.purchasing.services.EvaluationService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 
 @Controller 
@@ -29,6 +30,9 @@ public class EvaluationsController {
 	
 	@Autowired
 	ProcurementRepository procurementRepository;
+	
+	@Autowired
+	EvaluationService evaluationService;
 
     @Autowired
     private EvaluationProcCriterionRepository evaluationProcCriterionRepository;
@@ -50,8 +54,8 @@ public class EvaluationsController {
 		    	return "buying-process/evaluationsOnCatScreen1";
 	    	}
     	} else {
-    		int iNumberOfCriteria = evaluationProcCriterionRepository.findByProcurement(procurementId).size();
-    		if (iNumberOfCriteria == 0) {
+    		boolean hasEvaluationCriteria = evaluationService.containsCriteria(procurementId);
+    		if (!hasEvaluationCriteria) {
     			EvaluationProcCriterion criterion = new EvaluationProcCriterion();
     			criterion.setName("Dummy to test page flow");
     			criterion.setProcurement(procurement.getId());

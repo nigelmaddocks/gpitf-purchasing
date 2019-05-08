@@ -29,6 +29,7 @@ import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ProcurementDeleteView;
 import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ProcurementEditNameView;
 import uk.nhs.gpitf.purchasing.repositories.EvaluationProcCriterionRepository;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
+import uk.nhs.gpitf.purchasing.services.EvaluationService;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
@@ -58,7 +59,7 @@ public class BuyingProcessController {
     private ProcurementService procurementService;
 
     @Autowired
-    private EvaluationProcCriterionRepository evaluationProcCriterionRepository;
+    private EvaluationService evaluationService;
 
     @Autowired
     private Validator validator;
@@ -104,8 +105,8 @@ public class BuyingProcessController {
 		if (procurementStatusId == ProcStatus.DRAFT) {
 			boolean bGotoEvaluationCriteria = false;
 			if (!procurement.getSingleSiteContinuity() && procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_AND_QUALITY) {
-				int iNumberOfCriteria = evaluationProcCriterionRepository.findByProcurement(procurementId).size();
-				if (iNumberOfCriteria == 0) {
+				boolean containsEvaluationCriteria = evaluationService.containsCriteria(procurementId);
+				if (!containsEvaluationCriteria) {
 					bGotoEvaluationCriteria = true;
 				}
 			}
