@@ -529,7 +529,7 @@ $('#togFoundation').change(function() {
 			
 			initiateVisibility();
 			
-			if ([[${myModel.procurement == null}]] && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]) {
+			if ([[${myModel.procurement == null || myModel.procurement.singleSiteContinuity}]] && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]) {
 				$("#btnSolutionsComparison").show();
 			} else {
 				$("#btnSolutionsComparison").hide();

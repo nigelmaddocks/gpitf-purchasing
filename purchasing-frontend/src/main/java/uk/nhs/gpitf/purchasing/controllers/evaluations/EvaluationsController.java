@@ -17,8 +17,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.nhs.gpitf.purchasing.controllers.buyingprocess.BuyingProcessController;
 import uk.nhs.gpitf.purchasing.entities.CompetitionType;
+import uk.nhs.gpitf.purchasing.entities.EvaluationProcCriterion;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.models.EvaluationsModel;
+import uk.nhs.gpitf.purchasing.repositories.EvaluationProcCriterionRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 
@@ -27,6 +29,9 @@ public class EvaluationsController {
 	
 	@Autowired
 	ProcurementRepository procurementRepository;
+
+    @Autowired
+    private EvaluationProcCriterionRepository evaluationProcCriterionRepository;
 	
     private static final Logger logger = LoggerFactory.getLogger(EvaluationsController.class);
     @RequestMapping(value = "/buyingprocess/evaluations/{procurementId}", method = { RequestMethod.GET, RequestMethod.POST })
@@ -45,6 +50,16 @@ public class EvaluationsController {
 		    	return "buying-process/evaluationsOnCatScreen1";
 	    	}
     	} else {
+    		int iNumberOfCriteria = evaluationProcCriterionRepository.findByProcurement(procurementId).size();
+    		if (iNumberOfCriteria == 0) {
+    			EvaluationProcCriterion criterion = new EvaluationProcCriterion();
+    			criterion.setName("Dummy to test page flow");
+    			criterion.setProcurement(procurement.getId());
+    			criterion.setSeq(50);
+    			criterion.setWeightingPercent(100);
+    			evaluationProcCriterionRepository.save(criterion);
+    		}
+    		
     		return "redirect:"
 				+ BuyingProcessController.URL_PATH
         		+ "/" + procurement.getId()

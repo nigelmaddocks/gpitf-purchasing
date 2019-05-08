@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import uk.nhs.gpitf.purchasing.entities.EvaluationProcCriterion;
+import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
@@ -24,6 +27,7 @@ import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ProcurementDeleteView;
 import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ProcurementEditNameView;
+import uk.nhs.gpitf.purchasing.repositories.EvaluationProcCriterionRepository;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
@@ -52,6 +56,9 @@ public class BuyingProcessController {
 
     @Autowired
     private ProcurementService procurementService;
+
+    @Autowired
+    private EvaluationProcCriterionRepository evaluationProcCriterionRepository;
 
     @Autowired
     private Validator validator;
@@ -95,9 +102,18 @@ public class BuyingProcessController {
 		long procurementStatusId = procurement.getStatus().getId();
 
 		if (procurementStatusId == ProcStatus.DRAFT) {
-			//if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
+			boolean bGotoEvaluationCriteria = false;
+			if (!procurement.getSingleSiteContinuity() && procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_AND_QUALITY) {
+				int iNumberOfCriteria = evaluationProcCriterionRepository.findByProcurement(procurementId).size();
+				if (iNumberOfCriteria == 0) {
+					bGotoEvaluationCriteria = true;
+				}
+			}
+			if (!bGotoEvaluationCriteria) {
 				return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + GUtils.nullToString(procurement.getCsvCapabilities()).trim();
-			//}
+			} else {
+				return "redirect:/buyingprocess/evaluations/" + procurementId;
+			}
 		} else
 		if (procurementStatusId == ProcStatus.INITIATE) {
 			return "redirect:/buyingprocess/initiate/" + procurementId;

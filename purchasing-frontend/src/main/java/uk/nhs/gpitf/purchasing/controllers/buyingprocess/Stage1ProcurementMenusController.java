@@ -267,18 +267,19 @@ public class Stage1ProcurementMenusController {
   	    }
 
         Breadcrumbs.removeAfterTitle("Home", request);
+        Breadcrumbs.register("Procurements", "/buyingprocess/listProcurements", request);
 
-        if (procurement.getSingleSiteContinuity() == true
-         || procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_ONLY) {
+//        if (procurement.getSingleSiteContinuity() == true
+//         || procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_ONLY) {
         	return REDIRECT_URL_PREFIX
         		+ BuyingProcessController.URL_PATH
         		+ "/" + procurement.getId()
         		+ "/gotoProcurement";
-        } else {
-        	return REDIRECT_URL_PREFIX
-            	+ BuyingProcessController.URL_PATH
-            	+ "/evaluations/" + procurement.getId(); 	       	
-        }
+//        } else {
+//        	return REDIRECT_URL_PREFIX
+//            	+ BuyingProcessController.URL_PATH
+//            	+ "/evaluations/" + procurement.getId(); 	       	
+//        }
 	}
 
 	@GetMapping(value = {

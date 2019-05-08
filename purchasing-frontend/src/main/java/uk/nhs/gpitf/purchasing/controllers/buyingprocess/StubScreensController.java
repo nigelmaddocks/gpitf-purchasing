@@ -39,7 +39,7 @@ public class StubScreensController {
 	public String solutionsReview(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.register("Solutions Review", request);
 		
-		String securityCheck = procurementSecurity(procurementId, attr, request);
+		String securityCheck = procurementSecurity(procurementId, true, attr, request);
 		if (StringUtils.isNotEmpty(securityCheck)) {
 			return securityCheck;
 		}
@@ -54,12 +54,20 @@ public class StubScreensController {
 	public String solutionsComparison(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.register("Solutions Comparison", request);
 		
-		String securityCheck = procurementSecurity(procurementId, attr, request);
+		String securityCheck = procurementSecurity(procurementId, false, attr, request);
 		if (StringUtils.isNotEmpty(securityCheck)) {
 			return securityCheck;
 		}
 		
 		Procurement procurement = procurementRepository.findById(procurementId).get();
+
+		if (procurement.getSingleSiteContinuity() && procurement.getStatus().getId() != ProcStatus.DRAFT
+		 || !procurement.getSingleSiteContinuity() && procurement.getStatus().getId() != ProcStatus.INITIATE) {
+        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
+    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
+    		attr.addFlashAttribute("security_message", message);
+        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
+		}
 		
 		model.addAttribute("procurementId", procurementId);
 		model.addAttribute("evaluationPriceOnly", procurement.getEvaluationType() != null && procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_ONLY);
@@ -71,7 +79,7 @@ public class StubScreensController {
 	public String offCatalogueBidsAndEvaluation(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
 		Breadcrumbs.register("Off-Catalogue Process", request);
 		
-		String securityCheck = procurementSecurity(procurementId, attr, request);
+		String securityCheck = procurementSecurity(procurementId, true, attr, request);
 		if (StringUtils.isNotEmpty(securityCheck)) {
 			return securityCheck;
 		}
@@ -82,7 +90,7 @@ public class StubScreensController {
 		return "buying-process/offCatalogueBidsAndEvaluation";
 	}	
 	
-	private String procurementSecurity(long procurementId, RedirectAttributes attr, HttpServletRequest request) {
+	private String procurementSecurity(long procurementId, boolean statusCheck, RedirectAttributes attr, HttpServletRequest request) {
 		
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
@@ -107,7 +115,7 @@ public class StubScreensController {
 	        	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
 			}
 			
-			if (procurement.getStatus().getId() != ProcStatus.INITIATE) {
+			if (statusCheck && procurement.getStatus().getId() != ProcStatus.INITIATE) {
 	        	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
 	    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 	    		attr.addFlashAttribute("security_message", message);
