@@ -20,6 +20,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
@@ -113,6 +116,34 @@ public class Procurement {
 	private Integer contractMonths;
 
 	private Integer patientCount;
+	
+	@JsonIgnore
+	public String getSummaryAttributes() {
+		String s = "";
+		if (singleSiteContinuity != null && singleSiteContinuity.booleanValue()) {
+			s = "Single Site Continuity";
+		}
+		if (evaluationType != null) {
+			if (StringUtils.isNotEmpty(s)) {
+				s += " | ";
+			}
+			s += evaluationType.getName();
+		}
+		if (foundation != null) {
+			if (StringUtils.isNotEmpty(s)) {
+				s += " | ";
+			}
+			s += (foundation?"":"Non-") + "Foundation";
+		}	
+		if (competitionType != null) {
+			if (StringUtils.isNotEmpty(s)) {
+				s += " | ";
+			}
+			s += competitionType.getName();
+		}
+		
+		return s;
+	}
 
 	@Data
 	public static class PrimitiveProcurement implements Serializable {
@@ -126,6 +157,28 @@ public class Procurement {
 		private String csvInteroperables;
 		private String csvPractices;
 		private Integer initialPatientCount;
+		
+		@JsonIgnore
+		public String getSummaryAttributes() {
+			String s = "";
+			if (singleSiteContinuity != null && singleSiteContinuity.booleanValue()) {
+				s = "Single Site Continuity";
+			}
+			if (evaluationType != null) {
+				if (StringUtils.isNotEmpty(s)) {
+					s += " | ";
+				}
+				s += evaluationType.getName();
+			}
+			if (foundation != null) {
+				if (StringUtils.isNotEmpty(s)) {
+					s += " | ";
+				}
+				s += (foundation?"":"Non-") + "Foundation";
+			}			
+			
+			return s;
+		}
 	}
 /*
 	public String serializeToString() throws IOException {

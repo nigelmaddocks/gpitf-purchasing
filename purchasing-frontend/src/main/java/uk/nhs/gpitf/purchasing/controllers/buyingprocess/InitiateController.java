@@ -212,13 +212,29 @@ public class InitiateController {
 				rankedBundle.bundle.setProcurement(procurement);
 				
 				ProcSolutionBundleItem[] arrBundleItems = rankedBundle.bundle.getBundleItems().toArray(new ProcSolutionBundleItem[] {});
+				
+				boolean bSaveBundle = procurement.getSingleSiteContinuity() != null && !procurement.getSingleSiteContinuity().booleanValue();
+				if (procurement.getSingleSiteContinuity() != null && procurement.getSingleSiteContinuity().booleanValue()) {
+					String selectedSolutionId = request.getParameter("solutionId");
+					if (StringUtils.isNotEmpty(selectedSolutionId) && selectedSolutionId.startsWith("S_")) {
+						selectedSolutionId = selectedSolutionId.substring(2);
+						for (var bundleItem : arrBundleItems) {
+							if (bundleItem.getSolutionId().equals(selectedSolutionId)) {
+								bSaveBundle = true;
+							}
+						}
+					}
+				}
+				
 				rankedBundle.bundle.getBundleItems().clear();
 				
-				ProcSolutionBundle savedBundle = procSolutionBundleRepository.save(rankedBundle.bundle);
-				
-				for (var bundleItem : arrBundleItems) {
-					bundleItem.setBundle(savedBundle);
-					procSolutionBundleItemRepository.save(bundleItem);
+				if (bSaveBundle) {
+					ProcSolutionBundle savedBundle = procSolutionBundleRepository.save(rankedBundle.bundle);
+					
+					for (var bundleItem : arrBundleItems) {
+						bundleItem.setBundle(savedBundle);
+						procSolutionBundleItemRepository.save(bundleItem);
+					}
 				}
 			}
 			

@@ -77,7 +77,7 @@ public class ProcurementService {
                           Optional<Boolean> singleSiteContinuity,
                           Optional<Boolean> foundation,
                           Optional<String> csvPractices) throws Exception {
-    	final Procurement procurement;
+    	Procurement procurement;
     	if (procurementId == 0) {
     		procurement = createNewProcurement(orgContactId);
     	} else {

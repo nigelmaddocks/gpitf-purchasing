@@ -47,10 +47,10 @@
 		<div id="practicePanel" class="panel-body" th:if="${myModel.userIsKnown}" style="background-color: #f0f4f5;">
     
 	        <div class="row" style="margin-left: 1rem">
-	        	<h2>My Sites
-	        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+	        	<h2>Select Service Recipient[[${myModel.singleSiteContinuity?"":"s"}]]
+	        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]]) <small>[ [[${myModel.procurement.summaryAttributes}]] ]</small></span>
 	        	</h2>
-	        	<h4>Select Service Recipients to add them to your Procurement basket.</h4>
+	        	<h4>Select the Service Recipient[[${myModel.singleSiteContinuity?"":"s"}]] to add them to your Procurement basket.</h4>
 	        </div>
 		
 			<div class="panel-group" id="accordion">
@@ -82,7 +82,7 @@
         <div class="row">
         	<div class="col-md-10">
         		<h2><span id="capabilitySearchTitle">Capability Search</span>
-        		<span th:if="${myModel.userIsKnown && myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+        		<span th:if="${myModel.userIsKnown && myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]]) <small>[ [[${myModel.procurement.summaryAttributes}]] ]</small></span>
         		</h2>
         	</div>
         	<div class="col-md-2" th:if="${myModel.userIsKnown && myModel.procurementId == 0}">
@@ -171,6 +171,11 @@ $("form").on("click", ":checkbox[name='filterInteroperable']", function(event) {
 	}
 });
 
+$("form").on("click", ":checkbox[name='selectedBundle']", function(event) {
+	var selectedBundles = getSelectedBundlesCsv();
+	initiateVisibility();
+});
+
 $('#togFoundation').change(function() {
 	var vFoundation = $(this).prop('checked')
 	capabilitiesVisibility();
@@ -228,6 +233,16 @@ $('#togFoundation').change(function() {
 			if (document.getElementById("idCapabilitiesSelected")) document.getElementById("idCapabilitiesSelected").innerHTML = "Capabilities selected";
 		}
 	}
+	
+	function initiateVisibility() {
+		if ([[${myModel.procurement != null}]] && selectedPractices > 0 && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]
+		 && ([[!${myModel.singleSiteContinuity}]] || [[${myModel.singleSiteContinuity}]] && selectedPractices == 1 && countSelectedBundles() == 1)) {
+			$("#btnInitiate").show();
+		} else {
+			$("#btnInitiate").hide();
+		}
+		
+	}
 
     function refreshCapabilityNames() {
 		var selectedCapabilityNames = "";
@@ -273,6 +288,26 @@ $('#togFoundation').change(function() {
 			selectedInteroperables = selectedInteroperables.substring(1);
 		}
 		return selectedInteroperables;
+    }
+    
+    function getSelectedBundlesCsv() {
+		var selectedBundles = "";
+		$("input[name=selectedBundle]:checked").each( function () {
+			selectedBundles += "," + $(this).attr('id').split($(this).attr('name')+'_')[1].trim();
+		});
+		if (selectedBundles.length > 0) {
+			selectedBundles = selectedBundles.substring(1);
+		}
+		return selectedBundles;
+    }
+    
+    function countSelectedBundles() {
+    	var selectedBundles = getSelectedBundlesCsv().split(",");
+    	var count = selectedBundles.length;
+    	if (count == 1 && selectedBundles[0].trim().length == 0) {
+    		count = 0;
+    	}
+    	return count;
     }
     
     function showCapabilityPanel(show) {
@@ -448,7 +483,7 @@ $('#togFoundation').change(function() {
 			});
 			htmlTable.appendTo("#foundSolutions");
 */
-			var solutionsCount = 0
+			solutionsCount = 0;
 			$.each ( data, function( i, element ) {
 				solutionsCount++;
 				
@@ -456,7 +491,10 @@ $('#togFoundation').change(function() {
 				
 				var htmlDivCheck = $("<div>");
 				htmlDivCheck.appendTo(htmlSolnListEntry);
-				var htmlCheck = $("<input type=\"checkbox\" name=\"selectedSolution\" value=\"" + element.id + "\" >");
+				var htmlCheck = $("<div>&nbsp;</div>");
+				if ([[${myModel.singleSiteContinuity}]]) {
+					var htmlCheck = $("<input type=\"checkbox\" name=\"selectedBundle\" value=\"" + element.id + "\" id=\"selectedBundle_" + element.id + "\" >");
+				}
 				htmlCheck.appendTo(htmlDivCheck);
 				
 				var htmlDivSoln = $("<div class=\"solution-content\">");
@@ -489,11 +527,7 @@ $('#togFoundation').change(function() {
 				htmlSolnListEntry.appendTo("#foundSolutions");
 			});
 			
-			if ([[${myModel.procurement != null}]] && selectedPractices > 0 && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]) {
-				$("#btnInitiate").show();
-			} else {
-				$("#btnInitiate").hide();
-			}
+			initiateVisibility();
 			
 			if ([[${myModel.procurement == null}]] && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]) {
 				$("#btnSolutionsComparison").show();
@@ -594,7 +628,10 @@ $('#togFoundation').change(function() {
 		/*<![CDATA[*/
         var url = /*[[@{'/buyingprocess/directInitiateInitialise/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
     	/*]]>*/
-
+		if ([[${myModel.singleSiteContinuity}]]) {
+			url += '?solutionId=' + getSelectedBundlesCsv();
+		}    	
+    	
     	location.href = url;
     }
     
@@ -624,7 +661,7 @@ $('#togFoundation').change(function() {
    	var selectedPracticeIds = [[${myModel.csvPractices}]];
    	var selectedPractices = selectedPracticeIds.split(",").length-2;
    	var arrSelectedCCGPracticeIds = [];
-  	
+	var solutionsCount = 0
    	
    	var selectedPracticePatients = [[${myModel.patientCount}]];
     $( document ).ready(function() {
