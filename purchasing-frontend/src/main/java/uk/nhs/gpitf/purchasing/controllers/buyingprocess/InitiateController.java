@@ -29,7 +29,6 @@ import uk.nhs.gpitf.purchasing.entities.CompetitionType;
 import uk.nhs.gpitf.purchasing.entities.Framework;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.ProcBundleSrService;
-import uk.nhs.gpitf.purchasing.entities.ProcShortlist;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundleItem;
 import uk.nhs.gpitf.purchasing.entities.ProcSrvRecipient;
@@ -44,7 +43,6 @@ import uk.nhs.gpitf.purchasing.models.InitiateModel;
 import uk.nhs.gpitf.purchasing.models.InitiateModel.RowDetail;
 import uk.nhs.gpitf.purchasing.repositories.OrganisationRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcBundleSrServiceRepository;
-import uk.nhs.gpitf.purchasing.repositories.ProcShortlistRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleItemRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSolutionBundleRepository;
 import uk.nhs.gpitf.purchasing.repositories.ProcSrvRecipientRepository;
@@ -54,7 +52,6 @@ import uk.nhs.gpitf.purchasing.services.OnboardingService;
 import uk.nhs.gpitf.purchasing.services.OrgRelationshipService;
 import uk.nhs.gpitf.purchasing.services.OrganisationService;
 import uk.nhs.gpitf.purchasing.services.ProcBundleSrServiceService;
-import uk.nhs.gpitf.purchasing.services.ProcShortlistRemovalReasonService;
 import uk.nhs.gpitf.purchasing.services.ProcSolutionBundleService;
 import uk.nhs.gpitf.purchasing.services.ProcSrvRecipientService;
 import uk.nhs.gpitf.purchasing.services.TmpSolutionPriceBandService;
@@ -85,9 +82,6 @@ public class InitiateController {
 	OrgRelationshipService orgRelationshipService;
     
 	@Autowired
-	ProcShortlistRepository procShortlistRepository;
-    
-	@Autowired
 	ProcSrvRecipientRepository procSrvRecipientRepository;
     
 	@Autowired
@@ -101,9 +95,6 @@ public class InitiateController {
     
 	@Autowired
 	ProcSolutionBundleItemRepository procSolutionBundleItemRepository;
-    
-	@Autowired
-	ProcShortlistRemovalReasonService procShortlistRemovalReasonService;
 	
 	@Autowired
 	TmpSolutionPriceBandService tmpSolutionPriceBandService;
@@ -132,7 +123,7 @@ public class InitiateController {
 		SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
 
 		if (procurementId == 0) {
-        	String message = "Unidentified route to shortlist";
+        	String message = "Unidentified route to Initiate";
     		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
     		attr.addFlashAttribute("security_message", message);
         	return SecurityInfo.SECURITY_ERROR_REDIRECT;					
@@ -196,18 +187,7 @@ public class InitiateController {
 			procurement.setStatusLastChangedDate(LocalDateTime.now());
 			procurement.setLastUpdated(LocalDateTime.now());
 			procurementRepository.save(procurement);
-			
-			String[] arrSolutionIds = csvSolutionIds.split(",");
-			for (String solutionId : arrSolutionIds) {
-				solutionId = solutionId.trim();
-				if (solutionId.length() > 0) {
-					ProcShortlist shortlistItem = new ProcShortlist();
-					shortlistItem.setProcurement(procurement);
-					shortlistItem.setSolutionId(solutionId);
-					procShortlistRepository.save(shortlistItem);
-				}
-			}
-			
+
 			// Create the bundle and bundle items
 			for (var rankedBundle : rankedBundles) {
 				rankedBundle.bundle.setProcurement(procurement);

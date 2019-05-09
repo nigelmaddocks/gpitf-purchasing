@@ -1,7 +1,6 @@
 package uk.nhs.gpitf.purchasing.models;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -9,18 +8,14 @@ import java.util.List;
 
 import javax.validation.constraints.Size;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
-import uk.nhs.gpitf.purchasing.entities.ProcShortlistRemovalReason;
 import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
 import uk.nhs.gpitf.purchasing.entities.ProcSrvRecipient;
 import uk.nhs.gpitf.purchasing.entities.TmpAdditionalService;
 import uk.nhs.gpitf.purchasing.entities.TmpAssociatedService;
-import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 import uk.nhs.gpitf.purchasing.services.TmpSolutionPriceBandService;
 
 @Data

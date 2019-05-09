@@ -102,16 +102,16 @@ public class Procurement {
 	private String csvInteroperables;
 
 	private String csvPractices;
-
+/*
     @OneToMany(
     	fetch = FetchType.LAZY
         //cascade = CascadeType.ALL,
         //orphanRemoval = true
     )
-    @JoinTable(name = "proc_shortlist", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
+    @JoinTable(name = "proc_shortXXlist", schema="purchasing", joinColumns = @JoinColumn(name = "procurement"), inverseJoinColumns = @JoinColumn(name = "id"))
     @JsonIgnore
-    private List<ProcShortlist> shortlistItems = new ArrayList<>();
-
+    private List<ProcShortlist> shortXXlistItems = new ArrayList<>();
+*/
     @OneToMany(
     	fetch = FetchType.LAZY
     )

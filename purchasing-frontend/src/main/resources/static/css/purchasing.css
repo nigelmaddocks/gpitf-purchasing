@@ -98,15 +98,6 @@
 	overflow: auto;
 }
 
-.shortlist-remove {
-	background-color: #DA291C;
-}
-
-.shortlist-remove:hover {
-	background-color: #DA291C !important;
-	filter: brightness(80%);
-}
-
 a.minor-link:link, a.minor-link:visited, a.minor-link:hover, a.minor-link:active {
 	font-size: 0.8rem;
 	color: #005EB8;
