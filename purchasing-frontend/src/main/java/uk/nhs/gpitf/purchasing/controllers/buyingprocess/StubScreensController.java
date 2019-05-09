@@ -74,7 +74,7 @@ public class StubScreensController {
 		
 		Procurement procurement = procurementRepository.findById(procurementId).get();
 
-		if (procurement.getSingleSiteContinuity() && procurement.getStatus().getId() != ProcStatus.INITIATE
+		if (procurement.getSingleSiteContinuity() && procurement.getStatus().getId() != ProcStatus.DRAFT && procurement.getStatus().getId() != ProcStatus.INITIATE
 		 || !procurement.getSingleSiteContinuity() && procurement.getStatus().getId() != ProcStatus.INITIATE) {
         	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
     		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));

@@ -574,6 +574,7 @@ public class InitiateController {
 		initiateModel.setProcurementSummaryAttributes(procurement.getSummaryAttributes());
 		initiateModel.setFoundation(procurement.getFoundation());
 		initiateModel.setOnCatalogue((procurement.getCompetitionType() != null && procurement.getCompetitionType().getId() == CompetitionType.ON_CATALOGUE));
+		initiateModel.setSingleSiteContinuity(procurement.getSingleSiteContinuity());
 		
 		setupModelCollections(initiateModel, procurement, bIncludePostableData);
 		
