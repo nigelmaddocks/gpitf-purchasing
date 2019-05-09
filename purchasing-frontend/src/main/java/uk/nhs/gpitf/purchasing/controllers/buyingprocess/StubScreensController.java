@@ -105,6 +105,7 @@ public class StubScreensController {
 				procurement.setCompetitionType((CompetitionType)GUtils.makeObjectForId(CompetitionType.class, CompetitionType.OFF_CATALOGUE));
 				procurement.setLastUpdated(LocalDateTime.now());
 				procurement = procurementRepository.save(procurement);
+				return "redirect:/buyingprocess/offCatalogueBidsAndEvaluation/" + procurementId;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
