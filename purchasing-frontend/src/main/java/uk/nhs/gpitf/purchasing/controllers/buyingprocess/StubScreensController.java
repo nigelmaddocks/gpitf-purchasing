@@ -1,5 +1,7 @@
 package uk.nhs.gpitf.purchasing.controllers.buyingprocess;
 
+import java.time.LocalDateTime;
+
 /*
  * Controller for stub/rudimentary screens.
  * Move their endpoints into better controllers once development of them has started
@@ -20,12 +22,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.nhs.gpitf.purchasing.entities.CompetitionType;
 import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.EvaluationService;
+import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller 
@@ -48,7 +53,11 @@ public class StubScreensController {
 			return securityCheck;
 		}
 		
+		Procurement procurement = procurementRepository.findById(procurementId).get();
+		
 		model.addAttribute("procurementId", procurementId);
+		model.addAttribute("procurementName", procurement.getName());
+		model.addAttribute("procurementSummaryAttributes", procurement.getSummaryAttributes());
 		return "buying-process/solutionsReview";
 
 	}
@@ -65,7 +74,7 @@ public class StubScreensController {
 		
 		Procurement procurement = procurementRepository.findById(procurementId).get();
 
-		if (procurement.getSingleSiteContinuity() && procurement.getStatus().getId() != ProcStatus.DRAFT
+		if (procurement.getSingleSiteContinuity() && procurement.getStatus().getId() != ProcStatus.INITIATE
 		 || !procurement.getSingleSiteContinuity() && procurement.getStatus().getId() != ProcStatus.INITIATE) {
         	String message = "procurement " + procurementId + " is at the wrong status. Its status is " + procurement.getStatus().getName() + ".";
     		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
@@ -74,6 +83,8 @@ public class StubScreensController {
 		}
 		
 		model.addAttribute("procurementId", procurementId);
+		model.addAttribute("procurementName", procurement.getName());
+		model.addAttribute("procurementSummaryAttributes", procurement.getSummaryAttributes());
 		model.addAttribute("evaluationPriceOnly", procurement.getEvaluationType() != null && procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_ONLY);
 		return "buying-process/solutionsComparison";
 	}	
@@ -89,8 +100,19 @@ public class StubScreensController {
 		}
 		
 		Procurement procurement = procurementRepository.findById(procurementId).get();
+		if (procurement.getCompetitionType() == null || procurement.getCompetitionType().getId() != CompetitionType.OFF_CATALOGUE) {
+			try {
+				procurement.setCompetitionType((CompetitionType)GUtils.makeObjectForId(CompetitionType.class, CompetitionType.OFF_CATALOGUE));
+				procurement.setLastUpdated(LocalDateTime.now());
+				procurement = procurementRepository.save(procurement);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		
 		model.addAttribute("procurementId", procurementId);
+		model.addAttribute("procurementName", procurement.getName());
+		model.addAttribute("procurementSummaryAttributes", procurement.getSummaryAttributes());
 		return "buying-process/offCatalogueBidsAndEvaluation";
 	}	
 	

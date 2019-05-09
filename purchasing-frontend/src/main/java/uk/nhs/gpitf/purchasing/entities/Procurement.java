@@ -24,7 +24,11 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
 
@@ -76,8 +80,15 @@ public class Procurement {
 //    @JoinColumn(name = "evaluation_type")
     @Convert(converter = EvaluationTypeConverter.class)
 	private EvaluationTypeEnum evaluationType;
-
+    
+    @Getter(AccessLevel.NONE)
     private Boolean singleSiteContinuity;
+    public Boolean getSingleSiteContinuity() {
+    	if (this.singleSiteContinuity == null) {
+    		return false;
+    	}
+    	return this.singleSiteContinuity.booleanValue();
+    }
 
     private Boolean foundation;
 
