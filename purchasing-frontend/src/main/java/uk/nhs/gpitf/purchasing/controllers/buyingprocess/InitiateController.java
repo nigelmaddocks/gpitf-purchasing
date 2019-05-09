@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import io.micrometer.core.instrument.util.StringUtils;
+import uk.nhs.gpitf.purchasing.entities.CompetitionType;
 import uk.nhs.gpitf.purchasing.entities.Framework;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.ProcBundleSrService;
@@ -570,7 +571,9 @@ public class InitiateController {
 		
 		initiateModel.setProcurementId(procurement.getId());
 		initiateModel.setProcurementName(procurement.getName());
+		initiateModel.setProcurementSummaryAttributes(procurement.getSummaryAttributes());
 		initiateModel.setFoundation(procurement.getFoundation());
+		initiateModel.setOnCatalogue((procurement.getCompetitionType() != null && procurement.getCompetitionType().getId() == CompetitionType.ON_CATALOGUE));
 		
 		setupModelCollections(initiateModel, procurement, bIncludePostableData);
 		

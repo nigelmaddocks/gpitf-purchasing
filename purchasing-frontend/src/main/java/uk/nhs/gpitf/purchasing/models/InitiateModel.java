@@ -29,7 +29,9 @@ public class InitiateModel {
 	
 	private long procurementId;
 	private String procurementName;
+	private String procurementSummaryAttributes;
 	private boolean isFoundation;
+	private boolean isOnCatalogue;
 	
 	// Multi-Dimensional array dimension information. This is posted back first because of its name
 	// and is therefore able to set up the multi-dimensional arrays' dimensions
