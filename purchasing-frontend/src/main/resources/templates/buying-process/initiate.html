@@ -37,10 +37,10 @@
 					<div class="row">
 						<label class="col-md-4"></label>
 						<div class="col-md-2">
-							<button th:if="${initiateModel.onCatalogue == true && !initiateModel.singleSiteContinuity}" id="btnSolutionReview" class="btn btn-default" type="button" 
+							<button th:if="${initiateModel.canOnCatalogueCompetition()}" id="btnSolutionReview" class="btn btn-default" type="button" 
 								onclick="gotoSolutionsReview();" 
 								style="margin-top: -1.0rem; margin-left: -0.6rem">Solutions Review</button>
-							<button th:if="${initiateModel.singleSiteContinuity}" id="btnSolutionReview" class="btn btn-default" type="button" 
+							<button th:if="${initiateModel.canDirectAward()}" id="btnSolutionReview" class="btn btn-default" type="button" 
 								onclick="gotoOrdering(this);" 
 								style="margin-top: -1.0rem; margin-left: -0.6rem">Place Order</button>
 						</div>

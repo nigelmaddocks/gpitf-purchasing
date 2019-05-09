@@ -78,6 +78,7 @@ public class InitiateModel {
 	@Size(max = 255)
 	public String removalReasonText = "";
 	public int DIRECTAWARD_MAXVALUE = 0;
+	public int ONCATALOGUE_MAXVALUE = 0;
 	public String directAwardBundleId = "";
 	private int[] possibleContractTermMonths = new int[] {}; 
 	private Hashtable<Long, List<TmpAssociatedService>> possibleBundleAssociatedServices = new Hashtable<>();
@@ -148,20 +149,33 @@ public class InitiateModel {
 		}
 		return BigDecimal.ZERO;
 	}
-
 	
-	
-	public boolean canDirectAward(long bundleId, int bandingUnits, int priceUnits, int termMonths) {
-		BigDecimal price = getPriceOverTermForBundle(bundleId, bandingUnits, priceUnits, termMonths);
-		return price.compareTo(new BigDecimal(DIRECTAWARD_MAXVALUE)) <= 0;
-		// Direct award no longer depends on whether foundation solution
-/*		
-		for (var solution : solutions) {
-			if (solution.getId().equals(solutionId)) {
-				return !solution.isFoundation();
+	public boolean canDirectAward() {
+		if (!isSingleSiteContinuity) {
+			return false;
+		}
+		Boolean can = true;
+		for (BigDecimal value : tco) {
+			if (value.compareTo(BigDecimal.valueOf(DIRECTAWARD_MAXVALUE)) > 0) {
+				can = false;
+				break;
 			}
 		}
-*/
+		return tco.length > 0 && can;
+	}
+	
+	public boolean canOnCatalogueCompetition() {
+		if (isSingleSiteContinuity || isFoundation) {
+			return false;
+		}
+		Boolean can = true;
+		for (BigDecimal value : tco) {
+			if (value.compareTo(BigDecimal.valueOf(ONCATALOGUE_MAXVALUE)) > 0) {
+				can = false;
+				break;
+			}
+		}
+		return tco.length > 0 && can;
 	}
 	
 	public static class RowDetail {

@@ -111,6 +111,9 @@ public class InitiateController {
 	@Value("${sysparam.directaward.maxvalue}")
     private String DIRECTAWARD_MAXVALUE;
 	
+	@Value("${sysparam.oncatalogue.maxvalue}")
+    private String ONCATALOGUE_MAXVALUE;
+	
     private static final Logger logger = LoggerFactory.getLogger(InitiateController.class);
 
 	@GetMapping(value = {"/buyingprocess/directInitiateInitialise/{procurementId}"})
@@ -283,7 +286,6 @@ public class InitiateController {
 		}
 		Procurement procurement = (Procurement)rtnObject;
 		
-		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
 		setupModelCollections(initiateModel, procurement, false);
 		
 		// Validate that if a direct award is being made for a solution, that the value is less than the threshold
@@ -548,6 +550,9 @@ public class InitiateController {
 		if (initiateModel == null) {
 			initiateModel = new InitiateModel();
 		}
+		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
+		initiateModel.ONCATALOGUE_MAXVALUE = Integer.valueOf(ONCATALOGUE_MAXVALUE);
+
 		initiateModel.setTmpSolutionPriceBandService(this.tmpSolutionPriceBandService);
 
 		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
