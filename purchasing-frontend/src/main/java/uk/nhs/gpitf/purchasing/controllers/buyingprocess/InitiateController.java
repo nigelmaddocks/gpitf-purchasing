@@ -125,7 +125,7 @@ public class InitiateController {
 	@GetMapping(value = {"/buyingprocess/directInitiateInitialise/{procurementId}"})
 	@Transactional
 	public String directInitiateInitialise(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
-		Breadcrumbs.removeTitle("By capability", request);
+		Breadcrumbs.removeTitle("Search", request);
 		Breadcrumbs.removeTitle("By keyword", request);
 		Breadcrumbs.register("Initiate", request);
 		
@@ -284,7 +284,7 @@ public class InitiateController {
 		}
 		Procurement procurement = (Procurement)rtnObject;
 		
-		setupModel(secInfo, procurement, model, true);
+		setupModel(secInfo, procurement, model, null, true);
 		
 		return "buying-process/initiate";
 	}
@@ -557,14 +557,17 @@ public class InitiateController {
 			initiateModel.setDirectAwardBundleId(null);
 		}		
 
-		setupModelCollections(initiateModel, procurement, true); // again
+		//setupModelCollections(initiateModel, procurement, true); // again
+		setupModel(secInfo, procurement, null, initiateModel, true);
 		
 		return "buying-process/initiate";	
 	}
 	
-	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model, boolean bIncludePostableData) {
+	private Model setupModel(SecurityInfo secInfo, Procurement procurement, Model model, InitiateModel initiateModel, boolean bIncludePostableData) {
 		
-		InitiateModel initiateModel = new InitiateModel();
+		if (initiateModel == null) {
+			initiateModel = new InitiateModel();
+		}
 		initiateModel.setTmpSolutionPriceBandService(this.tmpSolutionPriceBandService);
 
 		initiateModel.DIRECTAWARD_MAXVALUE = Integer.valueOf(DIRECTAWARD_MAXVALUE);
@@ -582,8 +585,9 @@ public class InitiateController {
 		initiateModel.setNumberOfPatients(procurement.getPatientCount() == null ? procurement.getInitialPatientCount() : procurement.getPatientCount());
 		initiateModel.setPlannedContractStart(procurement.getPlannedContractStart());
 		
-		model.addAttribute("initiateModel", initiateModel);
-		
+		if (model != null) {
+			model.addAttribute("initiateModel", initiateModel);
+		}
 		return model;
 	}
 	

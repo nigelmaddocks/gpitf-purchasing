@@ -20,8 +20,8 @@
 			<p>Also available should be Epics with status and Standards with status.</p>
 
 		</form>
-		<button id="btnOrdering" class="btn btn-default" type="button" onclick="gotoOrdering(this);" th:disabled="${evaluationPriceOnly == false}">Place Order with lowest TCO</button>
-		<button id="btnEvaluationScoring" class="btn btn-default" type="button" onclick="gotoEvaluationScoring();" th:disabled="${evaluationPriceOnly == true}">Evaluation Scoring</button>
+		<button th:if="${singleSiteContinuity == false}" id="btnOrdering" class="btn btn-default" type="button" onclick="gotoOrdering(this);" th:disabled="${evaluationPriceOnly == false}">Place Order with lowest TCO</button>
+		<button th:if="${singleSiteContinuity == false}" id="btnEvaluationScoring" class="btn btn-default" type="button" onclick="gotoEvaluationScoring();" th:disabled="${evaluationPriceOnly == true}">Evaluation Scoring</button>
 	</main>
 
 <script th:inline="javascript">

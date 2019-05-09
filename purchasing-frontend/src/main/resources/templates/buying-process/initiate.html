@@ -45,7 +45,7 @@
 								style="margin-top: -1.0rem; margin-left: -0.6rem">Place Order</button>
 						</div>
 						<div class="col-md-2">
-							<button id="btnOffCatalogue" class="btn btn-default" type="button" 
+							<button th:if="${!initiateModel.singleSiteContinuity}" id="btnOffCatalogue" class="btn btn-default" type="button" 
 								onclick="gotoOffCatalogue();" 
 								style="margin-top: -1.0rem; margin-left: -0.6rem">Go Off-Catalogue</button>
 						</div>

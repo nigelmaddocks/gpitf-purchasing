@@ -83,7 +83,7 @@ public class SolutionByCapabilityController {
 		int mode = Integer.valueOf(sMode);
 		boolean foundation = Boolean.valueOf(sFoundationFromQuerystring);
 
-		Breadcrumbs.register(mode==SearchSolutionByCapabilityModel.MODE_SITES_ONLY ? "Select sites" : "By capability", request);
+		Breadcrumbs.register(mode==SearchSolutionByCapabilityModel.MODE_SITES_ONLY ? "Select sites" : "Search", request);
 
 		String csvCapabilities =  null;
 		if (optCsvCapabilities.isPresent()) {
@@ -132,7 +132,7 @@ public class SolutionByCapabilityController {
 			if (procurement.getSearchKeyword() != null && procurement.getSearchKeyword().trim().length() > 0) {
 				Breadcrumbs.removeLast(request);
 				Breadcrumbs.register("By keyword", "/buyingprocess/" + procurement.getId() + "/solutionByKeyword", request);
-				Breadcrumbs.register("By capability", request);
+				Breadcrumbs.register("Search", request);
 			}
 
 			// Check that the user is authorised to this procurement

@@ -85,6 +85,7 @@ public class StubScreensController {
 		model.addAttribute("procurementId", procurementId);
 		model.addAttribute("procurementName", procurement.getName());
 		model.addAttribute("procurementSummaryAttributes", procurement.getSummaryAttributes());
+		model.addAttribute("singleSiteContinuity", procurement.getSingleSiteContinuity());
 		model.addAttribute("evaluationPriceOnly", procurement.getEvaluationType() != null && procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_ONLY);
 		return "buying-process/solutionsComparison";
 	}	
