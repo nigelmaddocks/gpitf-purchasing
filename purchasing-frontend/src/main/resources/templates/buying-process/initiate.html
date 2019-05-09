@@ -37,15 +37,15 @@
 					<div class="row">
 						<label class="col-md-4"></label>
 						<div class="col-md-2">
-							<button th:if="${initiateModel.canOnCatalogueCompetition()}" id="btnSolutionReview" class="btn btn-default" type="button" 
+							<button th:if="${initiateModel.canOnCatalogueCompetition()}" id="btnSolutionReview" class="btn btn-default btn-pathway" type="button" 
 								onclick="gotoSolutionsReview();" 
 								style="margin-top: -1.0rem; margin-left: -0.6rem">Solutions Review</button>
-							<button th:if="${initiateModel.canDirectAward()}" id="btnSolutionReview" class="btn btn-default" type="button" 
+							<button th:if="${initiateModel.canDirectAward()}" id="btnSolutionReview" class="btn btn-default btn-pathway" type="button" 
 								onclick="gotoOrdering(this);" 
 								style="margin-top: -1.0rem; margin-left: -0.6rem">Place Order</button>
 						</div>
 						<div class="col-md-2">
-							<button th:if="${!initiateModel.singleSiteContinuity}" id="btnOffCatalogue" class="btn btn-default" type="button" 
+							<button th:if="${!initiateModel.singleSiteContinuity}" id="btnOffCatalogue" class="btn btn-default btn-pathway" type="button" 
 								onclick="gotoOffCatalogue();" 
 								style="margin-top: -1.0rem; margin-left: -0.6rem">Go Off-Catalogue</button>
 						</div>
@@ -138,7 +138,7 @@
 								<div class="row associated-service-row" th:each="svc, infoSvc : ${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__]}">
 									<div class="col-md-3 control-label" style="padding-right: 0px">
 										<div class="input-group">
-										    <select class="form-control associated-service" th:field="*{assocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" >
+										    <select class="form-control associated-service" th:field="*{assocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" onchange="inhibitPathwayButtons()">
 										    <option value=""></option>
 										    <option th:each="assocSrv : ${initiateModel.possibleBundleAssociatedServices.get(bundle.id)}" th:value="${assocSrv.associatedServiceId}" th:text="${assocSrv.name}"></option>
 										    </select>
@@ -152,7 +152,7 @@
 									<div class="col-md-2">
 										<div class="input-group unit-numbers">
 										    <input th:if="${svc.readonly == false}" class="form-control" size="6" 
-										    	th:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+										    	th:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" onchange="inhibitPathwayButtons()" />
 										    <div   th:if="${svc.readonly == true}" class="unit-numbers"
 										    	th:text="${svc.priceUnits}">
 										    	 <input type="hidden" th:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
@@ -175,7 +175,7 @@
 									<div class="row additional-service-row">
 										<div class="col-md-3 control-label" style="padding-right: 0px">
 											<div class="input-group">
-											    <select class="form-control additional-service" th:field="*{additSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" >
+											    <select class="form-control additional-service" th:field="*{additSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" onchange="inhibitPathwayButtons()" >
 											    <option value=""></option>
 											    <option th:each="additSrv : ${initiateModel.possibleBundleAdditionalServices.get(bundle.id)}" th:value="${additSrv.additionalServiceId}" th:text="${additSrv.name}"></option>
 											    </select>
@@ -189,7 +189,7 @@
 										<div class="col-md-2">
 											<div class="input-group unit-numbers">
 											    <input th:if="${svc.readonly == false}" class="form-control" size="6" 
-											    	th:field="*{additSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+											    	th:field="*{additSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" onchange="inhibitPathwayButtons()" />
 											    <div   th:if="${svc.readonly == true}" class="unit-numbers"
 											    	th:text="${svc.priceUnits}">
 											    	<input type="hidden" th:field="*{additSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
@@ -210,7 +210,7 @@
 											<div class="row addit-associated-service-row" th:each="adas, infoAdas : ${svc.additAssociatedServices}">
 												<div class="col-md-3 control-label" style="padding-right: 0px">
 													<div class="input-group">
-													    <select class="form-control associated-service" th:field="*{additAssocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" >
+													    <select class="form-control associated-service" th:field="*{additAssocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" onchange="inhibitPathwayButtons()" >
 													    <option value=""></option>
 													    <option th:each="assocSrv : ${initiateModel.possibleAdditAssociatedServices.get(svc.additionalService)}" th:value="${assocSrv.associatedServiceId}" th:text="${assocSrv.name}"></option>
 													    </select>
@@ -223,7 +223,7 @@
 												<div class="col-md-2">
 													<div class="input-group unit-numbers">
 													    <input th:if="${adas.readonly == false}" class="form-control" size="6" 
-													    	th:field="*{additAssocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" />
+													    	th:field="*{additAssocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" onchange="inhibitPathwayButtons()" />
 													    <div   th:if="${adas.readonly == true}" class="unit-numbers"
 													    	th:text="${adas.priceUnits}">
 													    	<input type="hidden" th:field="*{additAssocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" />
@@ -295,6 +295,12 @@ function gotoOrdering(element) {
 	element.blur();
 }
 
+function inhibitPathwayButtons() {
+	$(".btn-pathway").each( function() {
+		$(this).attr("disabled", true);
+	});
+}
+
 // Default the Term value from the 1st Service Recipient into the Term for the other Service Recipients (if they don't already contain a value)
 $("form").on("change", ":input[id='contractTermMonths0']", function(event) {
 	$(".contract-term-months").each( function() {
@@ -316,6 +322,7 @@ $("form").on("change", ":input.contract-term-months", function(event) {
 	for (var idxBundle=1; idxBundle<$("div.tab-pane").length; idxBundle++) {
 		$("#contractTermMonthsRO_" + idxBundle + "_" + idxSR).text(sMonths);
 	}
+	inhibitPathwayButtons();
 });
 
 //Sets the r/o Patient Count in the 2nd and subsequent tabs to the value from the 1st tab
@@ -327,7 +334,7 @@ $("form").on("change", ":input.patient-count", function(event) {
 	$(".PCRO-" + idxSR).each( function() {
 		$(this).text(event.target.value);
 	});
-
+	inhibitPathwayButtons();
 });
 /*
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
