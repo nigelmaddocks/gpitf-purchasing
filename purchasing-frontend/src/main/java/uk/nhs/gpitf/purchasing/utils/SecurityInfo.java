@@ -62,7 +62,7 @@ public class SecurityInfo implements Serializable {
 	}
 	
 	public String loggerSecurityMessage(String issue) {
-		return "SECURITY: " + issue + " but user not authorised. User: " + toString();
+		return "SECURITY: " + issue + ". User: " + toString();
 	}
 	
 	@Override

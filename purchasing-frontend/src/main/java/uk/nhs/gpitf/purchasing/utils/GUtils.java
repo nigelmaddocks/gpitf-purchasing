@@ -38,6 +38,9 @@ public class GUtils {
      * @return the same phrase with capitals applied.
      */
     public static String getCapitalized(String phrase) {
+    	if (phrase == null) {
+    		return null;
+    	}
 
         phrase = phrase.toUpperCase();
 
@@ -99,5 +102,18 @@ public class GUtils {
     /** Returns string or empty string if null */
     public static String nullToString(String value) {
     	return value == null ? "" : value;
+    }
+    
+    public static String trimCommas(String value) {
+    	if (value == null) {
+    		return value;
+    	}
+    	if (value.startsWith(",")) {
+    		value = value.substring(1);
+    	}
+    	if (value.endsWith(",")) {
+    		value = value.substring(0, value.length()-1);
+    	}
+    	return value;
     }
 }

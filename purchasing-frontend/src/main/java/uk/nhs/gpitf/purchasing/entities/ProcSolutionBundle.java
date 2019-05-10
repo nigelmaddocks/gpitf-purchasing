@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -67,7 +68,8 @@ public class ProcSolutionBundle {
 		
 		return name;
 	}
-	
+
+	// TODO: Remove as it's very artificial
 	public BigDecimal getPrice() {
 		BigDecimal price = new BigDecimal(0.0d);
 		for (var item : bundleItems) {
@@ -87,5 +89,14 @@ public class ProcSolutionBundle {
 		}			
 		
 		return false;
+	}
+	
+	public String getSolutionId() {
+		for (var item : bundleItems) {
+			if (StringUtils.isNotEmpty(item.getSolutionId())) {
+				return item.getSolutionId();
+			}
+		}			
+		return "";		
 	}
 }

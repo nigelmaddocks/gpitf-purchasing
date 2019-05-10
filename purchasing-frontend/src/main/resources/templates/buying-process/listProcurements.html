@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
 <head>
     <meta charset="UTF-8">
     <title>List Procurements</title>
@@ -28,13 +27,17 @@
                     [[${listProcurementsModel.orgContact.contact.surname}]] - both those in progress and complete.</h3>
             </div>
 
-            <div class="row">
-                <h3>Open procurements</h3></div>
-            <form action="#" th:action="@{/buyingprocess/filtered}" th:object="${searchListProcurementsModel}"
-                  method="post">
+			<br />
+	       	<a href="/buyingprocess" th:href="@{'/buyingprocess'}"><button class="btn" type="button" style="width:150px; padding:6px;">Start New</button></a>
+
+           <form action="#" th:action="@{/buyingprocess/filtered}" th:object="${searchListProcurementsModel}"
+                   method="post">
+	            <div class="row">
+	                <h3>Open procurements</h3>
+	            </div>
                 <div class="flex-container">
                     <div class="search-box">
-                        <input type="text" th:field="*{openProcNameSearchField}" placeholder="Name Filter"/>
+                        <input type="text" th:field="*{openProcNameSearchField}" placeholder="Name Filter" autocomplete="off"/>
                     </div>
                     <select class="dropdown" th:field="*{openProcStatusSearchField}" th:action="@{/buyingprocess/filtered}">
                         <option value="ALL">All Status Types</option>
@@ -46,63 +49,62 @@
                     <input type="submit" id="submit" class="name-search-submit" value="Search"/>
                 </div>
 
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Stage last saved</th>
-                    <th scope="col">Date last saved</th>
-                    <th scope="col"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="proc : ${listProcurementsModel.openProcurements}">
-                    <th scope="row">
-                        <a th:text="${proc.name}" th:href="@{'/buyingprocess/' + ${proc.id} + '/gotoProcurement'}"></a>
-                        <a class="minor-link"
-                           th:href="@{/buyingprocess/procurement/{procurementId}/edit-name(procurementId=${proc.id})}">Rename</a>
-                    </th>
-                    <td th:text="${proc.status.name}">Draft</td>
-                    <td>Not yet implemented</td>
-                    <td th:text="${#temporals.format(proc.lastUpdated, 'dd MMM yyyy')}">32 Jan 2019</td>
-                    <td><a class="btn btn-link" th:href="@{/buyingprocess/procurement/{procurementId}/delete(procurementId=${proc.id})}">Delete</a></td>
-                </tr>
-                </tbody>
-            </table>
+				<table class="table table-striped">
+					<thead>
+				    	<tr>
+				      		<th scope="col">Name</th>
+				      		<th scope="col">Status</th>
+				      		<th scope="col">Type</th>
+				      		<th scope="col">Date last saved</th>
+				      		<th scope="col"></th>
+				    	</tr>
+				  	</thead>
+					<tbody>
+						<tr th:each="proc : ${listProcurementsModel.openProcurements}">
+							<th scope="row">
+								<a th:text="${proc.name}" th:href="@{'/buyingprocess/' + ${proc.id} + '/gotoProcurement'}"></a>
+								<a class="btn btn-link minor-link" th:href="@{/buyingprocess/procurement/{procurementId}/edit-name(procurementId=${proc.id})}">Rename</a>
+							</th>
+					    	<td th:text="${proc.status.name}">Draft</td>
+					    	<td th:text="${proc.summaryAttributes}" style="font-size: 80%;"></td>
+					    	<td th:text="${#temporals.format(proc.lastUpdated, 'dd MMM yyyy')}">32 Jan 2019</td>
+					    	<td><a class="btn btn-link" th:href="@{/buyingprocess/procurement/{procurementId}/delete(procurementId=${proc.id})}">Delete</a></td>
+					  	</tr>
+					</tbody>
+				</table>
 
-            <div class="row">
-                <h3>Completed procurements</h3></div>
-
-                <div class="flex-container">
-                    <div class="search-box">
-                        <input type="text" th:field="*{completedProcNameSearchField}" placeholder="Name Filter"/>
-                    </div>
-                    <input type="submit" id="submit2" class="name-search-submit" value="Search"/>
-                </div>
+	            <div class="row">
+	                <h3>Completed procurements</h3></div>
+	
+	                <div class="flex-container">
+	                    <div class="search-box">
+	                        <input type="text" th:field="*{completedProcNameSearchField}" placeholder="Name Filter" autocomplete="off"/>
+	                    </div>
+	                    <input type="submit" id="submit2" class="name-search-submit" value="Search"/>
+	                </div>
+	            <table class="table table-striped">
+	                <thead>
+	                <tr>
+	                    <th scope="col">Name</th>
+	                    <th scope="col">Summary</th>
+	                    <th scope="col">Contract</th>
+	                    <th scope="col">Date signed</th>
+	                </tr>
+	                </thead>
+	                <tbody>
+	                <tr th:each="proc : ${listProcurementsModel.completedProcurements}">
+	                    <th scope="row">
+	                        <a th:text="${proc.name}"></a>
+	                        <a class="minor-link"
+	                           th:href="@{/buyingprocess/procurement/{procurementId}/edit-name(procurementId=${proc.id})}">Rename</a>
+	                    </th>
+	                    <td><a onclick="take me to a page that displays the procurement summary">View summary</a></td>
+	                    <td><a onclick="take me to a page that displays the contract">View contract</a></td>
+	                    <td th:text="${#temporals.format(proc.completedDate, 'dd MMM yyyy')}">32 Jan 2019</td>
+	                </tr>
+	                </tbody>
+	            </table>
             </form>
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Summary</th>
-                    <th scope="col">Contract</th>
-                    <th scope="col">Date signed</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="proc : ${listProcurementsModel.completedProcurements}">
-                    <th scope="row">
-                        <a th:text="${proc.name}"></a>
-                        <a class="minor-link"
-                           th:href="@{/buyingprocess/procurement/{procurementId}/edit-name(procurementId=${proc.id})}">Rename</a>
-                    </th>
-                    <td><a onclick="take me to a page that displays the procurement summary">View summary</a></td>
-                    <td><a onclick="take me to a page that displays the contract">View contract</a></td>
-                    <td th:text="${#temporals.format(proc.completedDate, 'dd MMM yyyy')}">32 Jan 2019</td>
-                </tr>
-                </tbody>
-            </table>
 
         </main>
     </div>

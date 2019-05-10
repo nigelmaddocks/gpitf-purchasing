@@ -44,5 +44,7 @@ public class OrgSolution {
 	private LocalDate installedDate;
 	
 	private boolean deleted;
+    
+	private LocalDate contractEndDate;
 
 }

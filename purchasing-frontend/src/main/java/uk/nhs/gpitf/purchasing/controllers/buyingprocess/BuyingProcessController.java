@@ -14,13 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
@@ -28,10 +30,11 @@ import uk.nhs.gpitf.purchasing.exception.ProcurementNotFoundException;
 import uk.nhs.gpitf.purchasing.models.ListProcurementsModel;
 import uk.nhs.gpitf.purchasing.models.SearchListProcurementsModel;
 import uk.nhs.gpitf.purchasing.repositories.OrgContactRepository;
-import uk.nhs.gpitf.purchasing.repositories.ProcStatusRepository;
-import uk.nhs.gpitf.purchasing.services.buying.process.ProcurementsFilteringServiceParameterObject;
 import uk.nhs.gpitf.purchasing.services.buying.process.IProcurementsFilteringService;
 import uk.nhs.gpitf.purchasing.services.ProcStatusService;
+import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ProcurementDeleteView;
+import uk.nhs.gpitf.purchasing.models.view.buyingprocess.ProcurementEditNameView;
+import uk.nhs.gpitf.purchasing.services.EvaluationService;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
@@ -43,7 +46,10 @@ public class BuyingProcessController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuyingProcessController.class);
 
-	protected static final String PATH = "buying-process/";
+    protected static final String ATTRIBUTE_PROCUREMENT = "procurement";
+
+    public static final String URL_PATH = "/buyingprocess";
+    public static final String PAGE_PATH = "buying-process/";
 	protected static final String PAGE_INDEX = "index";
 	protected static final String PAGE_SEARCH_SOLUTIONS_MENU = "searchSolutionMenu";
 	protected static final String PAGE_LIST_PROCUREMENTS = "listProcurements";
@@ -64,16 +70,21 @@ public class BuyingProcessController {
 	IProcurementsFilteringService procurementsFilteringService;
 
     @Autowired
+    private EvaluationService evaluationService;
+
+    @Autowired
     private Validator validator;
 
 	@GetMapping()
 	public String home(HttpServletRequest request) {
-		return PATH + PAGE_INDEX;
+		Breadcrumbs.register("Buy", request);
+		return PAGE_PATH + PAGE_INDEX;
 	}
 
 	@GetMapping("/searchSolutionMenu")
 	public String searchSolutionsMenu(HttpServletRequest request) {
-		return PATH + PAGE_SEARCH_SOLUTIONS_MENU;
+		//Breadcrumbs.register("Search menu", request);
+		return PAGE_PATH + PAGE_SEARCH_SOLUTIONS_MENU;
 	}
 
 	@GetMapping("/{procurementId}/gotoProcurement")
@@ -103,12 +114,21 @@ public class BuyingProcessController {
 		long procurementStatusId = procurement.getStatus().getId();
 
 		if (procurementStatusId == ProcStatus.DRAFT) {
-			//if (procurement.getCsvCapabilities() != null && procurement.getCsvCapabilities().trim().length() > 0) {
+			boolean bGotoEvaluationCriteria = false;
+			if (!procurement.getSingleSiteContinuity() && procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_AND_QUALITY) {
+				boolean containsEvaluationCriteria = evaluationService.containsCriteria(procurementId);
+				if (!containsEvaluationCriteria) {
+					bGotoEvaluationCriteria = true;
+				}
+			}
+			if (!bGotoEvaluationCriteria) {
 				return "redirect:/buyingprocess/" + procurementId + "/solutionByCapability/" + GUtils.nullToString(procurement.getCsvCapabilities()).trim();
-			//}
+			} else {
+				return "redirect:/buyingprocess/evaluations/" + procurementId;
+			}
 		} else
-		if (procurementStatusId == ProcStatus.SHORTLIST) {
-			return "redirect:/buyingprocess/shortlist/" + procurementId;
+		if (procurementStatusId == ProcStatus.INITIATE) {
+			return "redirect:/buyingprocess/initiate/" + procurementId;
 		}
 
     	String message = "Development is still in progress for procurements of status " + procurement.getStatus().getName();
@@ -167,8 +187,7 @@ public class BuyingProcessController {
 
 		SearchListProcurementsModel searchListProcurementsModel = new SearchListProcurementsModel();
 		model.addAttribute("searchListProcurementsModel", searchListProcurementsModel);
-
-		return PATH + PAGE_LIST_PROCUREMENTS;
+		return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
 	}
 
 	@PostMapping(value = {"/filtered"})
@@ -182,7 +201,7 @@ public class BuyingProcessController {
 			long orgContactd = getOrgContactId(optionalOrgContactId, getSecurityInfo(request));
 			ListProcurementsModel filteredProcurements = procurementsFilteringService.filterProcurements(orgContactd, searchModel);
 			model.addAttribute("listProcurementsModel", filteredProcurements);
-			return PATH + PAGE_LIST_PROCUREMENTS;
+			return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
 		}
 	}
 
@@ -195,26 +214,33 @@ public class BuyingProcessController {
 
 	  model.addAttribute("procurements", procurementList);
 
-	  return PATH + PAGE_PROCUREMENT;
+	  return PAGE_PATH + PAGE_PROCUREMENT;
 	}
 
 	@GetMapping("/procurement/{procurementId}/edit-name")
 	public String editProcurementName(@PathVariable Long procurementId, Model model, HttpServletRequest request) throws ProcurementNotFoundException {
  	  Breadcrumbs.register("Rename Procurement", request);
 
- 	  model.addAttribute("procurement", procurementService.findById(procurementId));
-	  return PATH + PAGE_RENAME_PROCUREMENT;
+ 	  Optional<Procurement> procurement = Optional.ofNullable(procurementService.findById(procurementId));
+
+ 	  var pageModel = new ProcurementEditNameView();
+ 	  procurement.ifPresent(obj -> {
+ 	    pageModel.setId(obj.getId());
+ 	    pageModel.setName(obj.getName());
+ 	  });
+ 	  model.addAttribute(ATTRIBUTE_PROCUREMENT, pageModel);
+	  return PAGE_PATH + PAGE_RENAME_PROCUREMENT;
 	}
 
 	@PostMapping("/procurement/edit-name")
-	public String updateProcurementName(Procurement procurement, BindingResult bindingResult) throws ProcurementNotFoundException {
+    public String editProcurementNamePost(@ModelAttribute(ATTRIBUTE_PROCUREMENT) ProcurementEditNameView pageModel, BindingResult bindingResult) throws ProcurementNotFoundException {
 
-	  Procurement validatedProcurement = procurementService.findById(procurement.getId());
-	  validatedProcurement.setName(procurement.getName());
+	  Procurement validatedProcurement = procurementService.findById(pageModel.getId());
+	  validatedProcurement.setName(pageModel.getName());
 
 	  validator.validate(validatedProcurement, bindingResult);
 	  if (bindingResult.hasErrors()) {
-	    return PATH + PAGE_RENAME_PROCUREMENT;
+	    return PAGE_PATH + PAGE_RENAME_PROCUREMENT;
 	  }
 
 	  procurementService.save(validatedProcurement);
@@ -226,14 +252,24 @@ public class BuyingProcessController {
     public String deleteProcurement(@PathVariable Long procurementId, Model model, HttpServletRequest request) throws ProcurementNotFoundException {
       Breadcrumbs.register("Delete Procurement", request);
 
-      model.addAttribute("procurement", procurementService.findById(procurementId));
-      return PATH + PAGE_DELETE_PROCUREMENT;
+      Optional<Procurement> procurement = Optional.ofNullable(procurementService.findById(procurementId));
+
+      var pageModel = new ProcurementDeleteView();
+      procurement.ifPresent(obj -> {
+        pageModel.setId(obj.getId());
+        pageModel.setName(obj.getName());
+        pageModel.setStartedDate(obj.getStartedDate());
+        pageModel.setLastUpdated(obj.getLastUpdated());
+      });
+
+      model.addAttribute(ATTRIBUTE_PROCUREMENT, pageModel);
+      return PAGE_PATH + PAGE_DELETE_PROCUREMENT;
     }
 
 	@PostMapping("/procurement/delete")
-	public String deleteProcurement(Procurement procurement) throws Exception {
+	public String deleteProcurement(ProcurementDeleteView pageModel) throws Exception {
 
-	  procurementService.delete(procurement.getId());
+	  procurementService.delete(pageModel.getId());
 
 	  return REDIRECT_URL_PREFIX + "/buyingprocess/listProcurements";
 	}

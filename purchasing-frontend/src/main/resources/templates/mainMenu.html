@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script}, ~{::link})}">
 <head>
     <meta charset="UTF-8" />
     <title>Admin Menu</title>
@@ -16,6 +16,20 @@
 		</div>        
         
         <form class="form-horizontal">
+          	<div th:if="${session.SecurityInfo == null || !session.SecurityInfo.isKnown()}" class="form-group">
+                <label class="col-sm-6 control-label">Browse</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/buyingprocess/solutionByCapability?foundation=true" th:href="@{'/buyingprocess/solutionByCapability?foundation=true'}">Foundation Solutions</a>
+                </div>
+            </div>
+            
+          	<div th:if="${session.SecurityInfo == null || !session.SecurityInfo.isKnown()}" class="form-group">
+                <label class="col-sm-6 control-label">Browse</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/buyingprocess/solutionByCapability" th:href="@{'/buyingprocess/solutionByCapability'}">Non-Foundation Solutions</a>
+                </div>
+            </div>
+            
           	<div th:if="${session.SecurityInfo != null && session.SecurityInfo.isLocalAdminOrAdmin()}" class="form-group">
                 <label class="col-sm-6 control-label">Organisation Admin Tasks</label>
                 <div class="col-sm-6" style="margin-top:6px;">

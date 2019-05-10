@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script}, ~{::link})}">
 <head>
     <meta charset="UTF-8" />
-    <title>Capability Search Results</title>
+    <title>Solution Search Results</title>
 </head>
 <body>
 <section>
     <div class="container">
  	<div class="panel panel-default">
  	
-		<div th:if="${myModel.procurement != null}" class="panel-heading" style="background-color: white;">
+		<div th:if="${myModel.userIsKnown && myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_SITES_ONLY)}" class="panel-heading" style="background-color: white;">
 			<div class="row">
-				<div class="col-md-10">
-					<h3>1A. Who you're buying for
+				<div class="col-md-8">
+					<h3>Who you're buying for
 			        </h3>	
 		        </div>
-		        <div class="col-md-2" th:if="${myModel.mode == myModel.MODE_ALL}"><br />
-			        <a onclick="showCapabilityPanel(false);" href="#">Add answer</a>
+		        <div class="col-md-4" th:if="${(myModel.mode == myModel.MODE_ALL)}"><br />
+			        <a onclick="showCapabilityPanel(false);" href="#">Select Service Recipients</a>
 		        </div>
-		        <div class="col-md-2" th:if="${myModel.mode == myModel.MODE_SITES_ONLY}"><br />
+		        <div class="col-md-4" th:if="${myModel.mode == myModel.MODE_SITES_ONLY}"><br />
 			        <a th:onclick="'continueToFoundationChoiceMenu(' + ${myModel.procurementId} + ');'" href="#">Continue</a>
 		        </div>
 		    </div>
@@ -28,29 +28,29 @@
 	        </div>
 		</div>
 	
-		<div th:if="${myModel.procurement != null && myModel.mode == myModel.MODE_ALL}" class="panel-heading" style="background-color: white;">
+		<div class="panel-heading" th:if="${myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_CAPABILITIES_ONLY)}" style="background-color: white;">
 			<div class="row">
-				<div class="col-md-10">
-					<h3>1B. Capabilities selected
+				<div class="col-md-8">
+					<h3 id="idCapabilitiesSelected">Capabilities selected
 			        </h3>	
 			    </div>
-		        <div class="col-md-2"><br />
-        			<a onclick="showCapabilityPanel(true);" href="#">Add answer</a>
+		        <div class="col-md-4"><br />
+        			<a onclick="showCapabilityPanel(true);" th:if="${myModel.userIsKnown && myModel.mode == myModel.MODE_ALL}" id="idSelectCapabilities" href="#">Select Capabilities</a>
         		</div>
         	</div>
-			<div class="row">
+			<div class="row" th:if="${myModel.procurement != null && (myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_CAPABILITIES_ONLY)}">
 				<div id="selectedCapabilityNames" class="col-md-12 capability-section-header-sub-text">
 				</div>
         	</div>
 		</div>
 		
-		<div id="practicePanel" class="panel-body" style="background-color: #f0f4f5;">
+		<div id="practicePanel" class="panel-body" th:if="${myModel.userIsKnown}" style="background-color: #f0f4f5;">
     
 	        <div class="row" style="margin-left: 1rem">
-	        	<h2>My Sites
-	        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+	        	<h2>Select Service Recipient[[${myModel.singleSiteContinuity?"":"s"}]]
+	        	<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]]) <small>[ [[${myModel.procurement.summaryAttributes}]] ]</small></span>
 	        	</h2>
-	        	<h4>Select Service Recipients to add them to your Procurement basket.</h4>
+	        	<h4>Select the Service Recipient[[${myModel.singleSiteContinuity?"":"s"}]] to add them to your Procurement basket.</h4>
 	        </div>
 		
 			<div class="panel-group" id="accordion">
@@ -82,12 +82,17 @@
         <div class="row">
         	<div class="col-md-10">
         		<h2><span id="capabilitySearchTitle">Capability Search</span>
-        		<span th:if="${myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]])</span>
+        		<span th:if="${myModel.userIsKnown && myModel.procurement != null}" style="font-size:75%;"><br />(Procurement: [[${myModel.procurement.name}]]) <small>[ [[${myModel.procurement.summaryAttributes}]] ]</small></span>
         		</h2>
         	</div>
-        	<div class="col-md-2" th:if="${myModel.procurement != null}">
+        	<div class="col-md-2" th:if="${myModel.userIsKnown && myModel.procurementId == 0}">
         		<br />
-		     	<button id="btnShortlist" class="btn btn-default" style="display:none;" type="button" onclick="proceedToShortlist();">Create Shortlist</button>
+		     	<button id="btnCreateProcurement" class="btn btn-default" type="button" onclick="createProcurementPOST();">Store Procurement</button>
+		    </div>
+        	<div class="col-md-2" th:if="${myModel.userIsKnown && myModel.procurementId != 0 && myModel.procurement != null}">
+        		<br />
+		     	<button id="btnInitiate" class="btn btn-default" style="display:none;" type="button" onclick="gotoInitiate();">Initiate Buying</button>
+		     	<button id="btnSolutionsComparison" class="btn btn-default" style="display:none;" type="button" onclick="gotoSolutionsComparison();">Compare Solutions</button>
 		    </div>
         	
         </div>
@@ -97,17 +102,17 @@
             	<div class="row">
 	                <div class="col-md-1">
 	                </div>
-	                <div class="col-md-3"><div class="mx-auto"><h3>Capabilities</h3></div>
+	                <div class="col-md-3" th:style="${'display: ' + (myModel.foundation?'none':'block')}"><div class="mx-auto"><h3>Capabilities</h3></div>
 	                </div>
 	                <div class="col-md-8"><div class="text-center"><h3>Search Results</h3></div>
 	                </div>
                 </div>
             	<div class="row">
-	                <div class="col-md-4">
+	                <div class="col-md-4" th:style="${'display: ' + (myModel.foundation?'none':'block')}">
 	                	<input type="checkbox" id="togFoundation" disabled="true" name="togFoundation" th:checked="${myModel.foundation}" data-toggle="toggle" data-on="Foundation" data-off="Non-Foundation" data-onstyle="success" data-offstyle="info" data-width="150" /> <br />  <br /> 
-			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : ''}" >		                
+			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : 'capabilitysearch-capability-non-foundation'}" >		                
 		               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
-		               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
+		               			th:checked="${myModel.inInitialCapabilities(cap.id)}"
 		               		/>
 							<label class="col-md-11" th:text="${cap.name}" th:for="${'filterCapabilities_' + cap.id}" >Capability 1</label>		                
 			            </div>
@@ -115,7 +120,7 @@
 			            <div class="capabilitysearch-interoperable"><h4>Interoperable with</h4></div>
 			            <div th:each="fs : ${myModel.foundationSolutions}" class="capabilitysearch-interoperable">		                
 		               		<input class="col-md-1" type="checkbox" name="filterInteroperable" th:value="${fs.id}" th:id="${'filterInteroperable_' + fs.id}" 
-		               		th:checked="${myModel.inInitialInteroperables(fs.id)}"
+		               			th:checked="${myModel.inInitialInteroperables(fs.id)}"
 		               		/>
 							<label class="col-md-11" th:text="${fs.name}" th:for="${'filterInteroperable_' + fs.id}" >a foundation solution</label>		                
 			            </div>
@@ -131,6 +136,15 @@
 </section>    
 
 <script th:inline="javascript">
+$(window).bind('beforeunload', function() {
+		if ([[${myModel.userIsKnown}]] && procurementId == 0) {
+			return "";
+		}
+		
+		return undefined;
+	}
+);
+
 $("form").on("click", ":checkbox[name='filterCapabilities']", function(event) {
 	var selectedCapabilities = getSelectedCapabilitiesCsv();
 	var selectedInteroperables = getSelectedInteroperablesCsv();
@@ -138,8 +152,8 @@ $("form").on("click", ":checkbox[name='filterCapabilities']", function(event) {
 
 	refreshCapabilityNames();
 	$("#foundSolutions").empty();
+	updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities);
 	if (selectedCapabilities.length > 0 || selectedInteroperables.length > 0 || vFoundation) {
-		updateProcurementWithCapabilitiesPOST([[${myModel.procurementId}]], selectedCapabilities);
 		searchCapabilitiesForSolutions(selectedCapabilities, selectedInteroperables, vFoundation);
 	}
 });
@@ -151,10 +165,15 @@ $("form").on("click", ":checkbox[name='filterInteroperable']", function(event) {
 
 	refreshCapabilityNames();
 	$("#foundSolutions").empty();
+	updateProcurementWithInteroperablesPOST([[${myModel.procurementId}]], selectedInteroperables);
 	if (selectedCapabilities.length > 0 || selectedInteroperables.length > 0 || vFoundation) {
-		updateProcurementWithInteroperablesPOST([[${myModel.procurementId}]], selectedInteroperables);
 		searchCapabilitiesForSolutions(selectedCapabilities, selectedInteroperables, vFoundation);
 	}
+});
+
+$("form").on("click", ":checkbox[name='selectedBundle']", function(event) {
+	var selectedBundles = getSelectedBundlesCsv();
+	initiateVisibility();
 });
 
 $('#togFoundation').change(function() {
@@ -182,6 +201,20 @@ $('#togFoundation').change(function() {
 			}
 		});
 
+		/*<![CDATA[*/
+        var FOUNDATION_SEARCH_ADD_CAPABILITIES = /*[[${myModel.FOUNDATION_SEARCH_ADD_CAPABILITIES}]]*/;
+    	/*]]>*/
+		
+		if (!FOUNDATION_SEARCH_ADD_CAPABILITIES) {
+			$(".capabilitysearch-capability-non-foundation").each( function() {
+				if (vFoundation) {
+					$(this).hide();
+				} else {
+					$(this).show();
+				}
+			});
+		}
+
 		$(".capabilitysearch-interoperable").each( function() {
 			if (vFoundation) {
 				$(this).hide();
@@ -191,22 +224,46 @@ $('#togFoundation').change(function() {
 		});
 
 		if (vFoundation) {
-	    	document.getElementById("capabilitySearchTitle").innerHTML = "Foundation Solutions Search";
+	    	if (document.getElementById("capabilitySearchTitle")) document.getElementById("capabilitySearchTitle").innerHTML = "Foundation Solutions";
+	    	if (document.getElementById("idSelectCapabilities")) document.getElementById("idSelectCapabilities").innerHTML = "Show Foundation Solutions";
+	    	if (document.getElementById("idCapabilitiesSelected")) document.getElementById("idCapabilitiesSelected").innerHTML = "";
 		} else {
-	    	document.getElementById("capabilitySearchTitle").innerHTML = "Non-Foundation Solutions Capability Search";
+			if (document.getElementById("capabilitySearchTitle")) document.getElementById("capabilitySearchTitle").innerHTML = "Non-Foundation Solutions Capability Search";
+			if (document.getElementById("idSelectCapabilities")) document.getElementById("idSelectCapabilities").innerHTML = "Select Capabilities";
+			if (document.getElementById("idCapabilitiesSelected")) document.getElementById("idCapabilitiesSelected").innerHTML = "Capabilities selected";
 		}
+	}
+	
+	function initiateVisibility() {
+		if ([[${myModel.procurement != null}]] && selectedPractices > 0 && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]
+		 && ([[!${myModel.singleSiteContinuity}]] || [[${myModel.singleSiteContinuity}]] && selectedPractices == 1 && countSelectedBundles() == 1)) {
+			$("#btnInitiate").show();
+		} else {
+			$("#btnInitiate").hide();
+		}
+		
 	}
 
     function refreshCapabilityNames() {
 		var selectedCapabilityNames = "";
+		var selectedInteroperablesNames = "";
+
 		$("input[name=filterCapabilities]:checked").each( function () {
 			selectedCapabilityNames += ", " + $(this).siblings().first().text().trim();
 		});
 		if (selectedCapabilityNames.length > 0) {
 			selectedCapabilityNames = selectedCapabilityNames.substring(2);
 		}
+
+		$("input[name=filterInteroperable]:checked").each( function () {
+			selectedInteroperablesNames += ", " + $(this).siblings().first().text().trim();
+		});
+		if (selectedInteroperablesNames.length > 0) {
+			selectedInteroperablesNames = " Interoperable with " + selectedInteroperablesNames.substring(2);
+		}
+		
 		if ($("#selectedCapabilityNames") != null) {
-			$("#selectedCapabilityNames").text(selectedCapabilityNames);
+			$("#selectedCapabilityNames").text(selectedCapabilityNames + selectedInteroperablesNames);
 		}
     	
     }
@@ -231,6 +288,26 @@ $('#togFoundation').change(function() {
 			selectedInteroperables = selectedInteroperables.substring(1);
 		}
 		return selectedInteroperables;
+    }
+    
+    function getSelectedBundlesCsv() {
+		var selectedBundles = "";
+		$("input[name=selectedBundle]:checked").each( function () {
+			selectedBundles += "," + $(this).attr('id').split($(this).attr('name')+'_')[1].trim();
+		});
+		if (selectedBundles.length > 0) {
+			selectedBundles = selectedBundles.substring(1);
+		}
+		return selectedBundles;
+    }
+    
+    function countSelectedBundles() {
+    	var selectedBundles = getSelectedBundlesCsv().split(",");
+    	var count = selectedBundles.length;
+    	if (count == 1 && selectedBundles[0].trim().length == 0) {
+    		count = 0;
+    	}
+    	return count;
     }
     
     function showCapabilityPanel(show) {
@@ -349,13 +426,48 @@ $('#togFoundation').change(function() {
 		;
 	}
     
+    function createProcurementPOST() {
+    	var token = $("meta[name='_csrf']").attr("content");
+    	var header = $("meta[name='_csrf_header']").attr("content");
+
+		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.ProcurementController).ENDPOINT_CREATE_PROCUREMENT}]];
+		var sendInfo = {
+		};
+		$.ajax({
+		    type: 'POST',
+		    beforeSend: function(request) {
+		        request.setRequestHeader(header, token);
+		    },
+		    url: url,
+		    data: JSON.stringify (sendInfo),
+		    //success: function(data) { alert('data: ' + data); },
+		    contentType: "application/json",
+		    dataType: 'json'
+		})
+		.done(function( data ) {
+			procurementId = data.id;
+			/*<![CDATA[*/
+	        var url = /*[[@{'/buyingprocess/'}]]*/;
+	    	/*]]>*/
+	    	url += procurementId;
+	    	url += '/solutionByCapability/';
+
+	    	location.href = url;
+		})
+
+		.fail(function(error) {
+			console.error(error);
+        })
+		;
+	}
+    
     function searchCapabilitiesForSolutions(csvCapabilities, csvInteroperables, isFoundation) {
 		//console.log(csvCapabilities);
 		var url = [[${T(uk.nhs.gpitf.purchasing.endpoints.OnboardingController).ENDPOINT_SOLUTIONS_BY_RANK_WITH_CAPABILITIES_IN_LIST}]] + csvCapabilities + "?foundation=" + isFoundation + "&interoperables=" + csvInteroperables;
 		$.getJSON( url)
 		.done(function( data ) {
 			$("#foundSolutions").empty();
-			$("#btnShortlist").hide();
+			$("#btnInitiate").hide();
 			//console.log(data);
 /*
 			var htmlTable = $("<table class=\"table table-striped\">");
@@ -371,7 +483,7 @@ $('#togFoundation').change(function() {
 			});
 			htmlTable.appendTo("#foundSolutions");
 */
-			var solutionsCount = 0
+			solutionsCount = 0;
 			$.each ( data, function( i, element ) {
 				solutionsCount++;
 				
@@ -379,7 +491,10 @@ $('#togFoundation').change(function() {
 				
 				var htmlDivCheck = $("<div>");
 				htmlDivCheck.appendTo(htmlSolnListEntry);
-				var htmlCheck = $("<input type=\"checkbox\" name=\"selectedSolution\" value=\"" + element.id + "\" >");
+				var htmlCheck = $("<div>&nbsp;</div>");
+				if ([[${myModel.singleSiteContinuity}]]) {
+					var htmlCheck = $("<input type=\"checkbox\" name=\"selectedBundle\" value=\"" + element.id + "\" id=\"selectedBundle_" + element.id + "\" >");
+				}
 				htmlCheck.appendTo(htmlDivCheck);
 				
 				var htmlDivSoln = $("<div class=\"solution-content\">");
@@ -412,11 +527,12 @@ $('#togFoundation').change(function() {
 				htmlSolnListEntry.appendTo("#foundSolutions");
 			});
 			
+			initiateVisibility();
 			
-			if (selectedPractices <= 0 || solutionsCount > [[${myModel.SHORTLIST_MAX}]]) {
-				$("#btnShortlist").hide();
+			if ([[${myModel.procurement == null || myModel.procurement.singleSiteContinuity}]] && solutionsCount > 0 && solutionsCount < [[${myModel.SHORTLIST_MAX}]]) {
+				$("#btnSolutionsComparison").show();
 			} else {
-				$("#btnShortlist").show();
+				$("#btnSolutionsComparison").hide();
 			}
 		});
    	}
@@ -440,7 +556,7 @@ $('#togFoundation').change(function() {
 			var htmlTable = $("<table class=\"table table-striped\">");
 			var htmlHead = $("<thead>");
 			htmlHead.appendTo(htmlTable);
-			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th><th scope=\"col\">Foundation System</th></tr>");
+			var htmlHeaderRow = $("<tr><th scope=\"col\">Sel</th><th scope=\"col\">Site</th><th scope=\"col\">ODS</th><th scope=\"col\">Patients</th><th scope=\"col\">Foundation System & other services [Contract End]</th></tr>");
 			htmlHeaderRow.appendTo(htmlHead);
 			var htmlSelectorRow = $("<tr>" +
 					"<td scope=\"col\"><input type=\"checkbox\" name=\"selAllOrg-" + ccgId + "\" onchange=\"checkAllOrgs(this.checked);\" /></td>" + 
@@ -458,7 +574,7 @@ $('#togFoundation').change(function() {
 				if (arrSelectedCCGPracticeIds[""+ccgId].includes("," + item.organisationId + ",")) {
 					checked = "checked";
 				}
-				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + (item.patientCount==null?"":item.patientCount) + "</td><td>" + item.formattedSolution + "</td></tr>");
+				var htmlRow = $("<tr><td scope=\"row\"><input type=\"checkbox\" name=\"selOrg\" value=\"" + item.organisationId + "\" onclick=\"addRemovePractice(this, '" + ccgId + "', " + item.patientCount + ")\" " + checked + "/></td><td>" + item.organisationNameProperCase + "</td><td>" + item.organisationCode + "</td><td>" + (item.patientCount==null?"":item.patientCount) + "</td><td>" + item.htmlFormattedSolutions + "</td></tr>");
 				htmlRow.appendTo(htmlBody);
 			});
 			htmlTable.appendTo("#practices-" + ccgId);
@@ -508,9 +624,20 @@ $('#togFoundation').change(function() {
     	
     }
     
-    function proceedToShortlist() {
+    function gotoInitiate() {
 		/*<![CDATA[*/
-        var url = /*[[@{'/buyingprocess/directShortlistInitialise/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
+        var url = /*[[@{'/buyingprocess/directInitiateInitialise/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
+    	/*]]>*/
+		if ([[${myModel.singleSiteContinuity}]]) {
+			url += '?solutionId=' + getSelectedBundlesCsv();
+		}    	
+    	
+    	location.href = url;
+    }
+    
+    function gotoSolutionsComparison() {
+		/*<![CDATA[*/
+        var url = /*[[@{'/buyingprocess/solutionsComparison/' + ${myModel.procurement==null?'null':myModel.procurement.id}}]]*/;
     	/*]]>*/
 
     	location.href = url;
@@ -530,10 +657,11 @@ $('#togFoundation').change(function() {
     }
     
     // On document ready, setup "selected practices" variables and perform a capability search
+    var procurementId = [[${myModel.procurementId}]];
    	var selectedPracticeIds = [[${myModel.csvPractices}]];
    	var selectedPractices = selectedPracticeIds.split(",").length-2;
    	var arrSelectedCCGPracticeIds = [];
-  	
+	var solutionsCount = 0
    	
    	var selectedPracticePatients = [[${myModel.patientCount}]];
     $( document ).ready(function() {
@@ -541,19 +669,22 @@ $('#togFoundation').change(function() {
        	var csvInteroperables = [[${myModel.csvInteroperables}]];
        	var vFoundation = $('#togFoundation').prop('checked');
     	capabilitiesVisibility();
-       	var arrMyCsvCCGIDs = [[${myModel.myCsvCCGIDs}]].split(",");
-       	for (var idx=0; idx<arrMyCsvCCGIDs.length; idx++) {
-			$('#ccg-' + arrMyCsvCCGIDs[idx]).on('hidden.bs.collapse', function () {
-				$("#practices-" + this.id.split("-")[1]).empty();
-			});    	   
-			$('#ccg-' + arrMyCsvCCGIDs[idx]).on('show.bs.collapse', function () {
-				getPracticesForCCG(this.id.split("-")[1]);
-			});  
-			arrSelectedCCGPracticeIds[""+arrMyCsvCCGIDs[idx]] = ",";
-		}
-       	getPracticesForCCG(arrMyCsvCCGIDs[0]);       
+    	var myCsvCCGIDs = [[${myModel.myCsvCCGIDs}]];
+    	if (myCsvCCGIDs != null && myCsvCCGIDs.length > 0) {
+	       	var arrMyCsvCCGIDs = myCsvCCGIDs.split(",");
+	       	for (var idx=0; idx<arrMyCsvCCGIDs.length; idx++) {
+				$('#ccg-' + arrMyCsvCCGIDs[idx]).on('hidden.bs.collapse', function () {
+					$("#practices-" + this.id.split("-")[1]).empty();
+				});    	   
+				$('#ccg-' + arrMyCsvCCGIDs[idx]).on('show.bs.collapse', function () {
+					getPracticesForCCG(this.id.split("-")[1]);
+				});  
+				arrSelectedCCGPracticeIds[""+arrMyCsvCCGIDs[idx]] = ",";
+			}
+	       	getPracticesForCCG(arrMyCsvCCGIDs[0]); 
+    	}
 
-       	showCapabilityPanel([[${myModel.mode == myModel.MODE_ALL}]]);
+       	showCapabilityPanel([[${myModel.mode == myModel.MODE_ALL || myModel.mode == myModel.MODE_CAPABILITIES_ONLY}]]);
        	refreshCapabilityNames();
        	searchCapabilitiesForSolutions(csvCapabilities, csvInteroperables, vFoundation);
        	refreshSelectedPractices();

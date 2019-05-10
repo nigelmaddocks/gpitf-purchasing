@@ -1,6 +1,8 @@
 package uk.nhs.gpitf.purchasing.controllers.dataload;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -527,6 +529,8 @@ public class DataLoadController {
 	public String loadLegacySystemsExcelSelectFile(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
 		Breadcrumbs.register("Output", request);
 		
+		LocalDate contractEndDate = LocalDate.of(2019, Month.DECEMBER, 31);
+		
 		List<Organisation> suppliersAdded = new ArrayList<>();
 		List<LegacySolution> legacySolutionsAdded = new ArrayList<>();
 		List<Exception> exceptions = new ArrayList<Exception>();
@@ -656,14 +660,15 @@ public class DataLoadController {
 							orgSolution = new OrgSolution();
 							orgSolution.setOrganisation(orgGP);
 							orgSolution.setLegacySolution(legSolution);
-							try {
-								orgSolutionRepository.save(orgSolution);
-							} catch (Exception e) {
-								exceptions.add(e);
-								bContinue = false;
-							}
 						} else {
 							orgSolution = optOrgSolution.get();
+						}
+						orgSolution.setContractEndDate(contractEndDate);
+						try {
+							orgSolutionRepository.save(orgSolution);
+						} catch (Exception e) {
+							exceptions.add(e);
+							bContinue = false;
 						}
 					}
 				}
@@ -1069,6 +1074,501 @@ public class DataLoadController {
 		return true;
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	/**
+	 * Endpoint for loading Principal and Subsidiary services.
+	 * This needs more work. Currently it just lists the live services
+	 * but it should be developed to store some of the info against
+	 * GP Practices.
+	 * See notes in the view for info on how to obtain
+	 * the csv input file.
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping("/dataload/GPSOC")
+	public String loadGPSOCSelectFile(Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Load Docman", request);
+		return "dataload/dataloadGPSOC";
+	}
+
+	@PostMapping("/dataload/GPSOC")
+	public String loadGPSOCSelectFile(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
+		String OUTPUT_PAGE = "dataload/dataloadGPSOCOutput";
+		
+		Breadcrumbs.register("Output", request);
+
+		LocalDate contractEndDate = LocalDate.of(2019, Month.DECEMBER, 31);
+		
+		List<String> subsidiaryServicesAdded = new ArrayList<>();
+		List<String> principalServicesAdded = new ArrayList<>();
+		List<OrgSolution> orgSolutionsAdded = new ArrayList<>();
+		List<Exception> exceptions = new ArrayList<Exception>();
+		
+		model.addAttribute("principalServices", principalServicesAdded);
+		model.addAttribute("subsidiaryServices", subsidiaryServicesAdded);
+		model.addAttribute("orgSolutionsAdded", orgSolutionsAdded);
+		model.addAttribute("exceptions", exceptions);
+
+		Scanner scanner = null;
+		try {
+			scanner = new Scanner(file.getInputStream());
+
+		} catch (Exception e) {
+			exceptions.add(e);
+		}
+		long iLine = 0;
+		if (scanner != null) {
+			CSVUtils csvUtils = new CSVUtils();
+
+			// Omit header line, but test that we're dealing with the correct columns
+			List<String> line = csvUtils.parseLine(scanner.nextLine());
+			String sExpectedCurrentPrincipalServicesColHdg = "GPSoCRCurrentPrincipalServices";
+			String sExpectedCurrentSubsidiaryServicesColHdg = "GPSoCRCurrentSubsidiaryServices";
+			String sActualCurrentPrincipalServicesColHdg = GUtils.nullToString(line.get(41)).trim();
+			String sActualCurrentSubsidiaryServicesColHdg = GUtils.nullToString(line.get(43)).trim();
+			if (!sExpectedCurrentPrincipalServicesColHdg.equals(sActualCurrentPrincipalServicesColHdg)) {
+				exceptions.add(new Exception("Column headers not right. Expected '" + sExpectedCurrentPrincipalServicesColHdg + "', found '" + sActualCurrentPrincipalServicesColHdg + "'"));
+			}
+			if (!sExpectedCurrentPrincipalServicesColHdg.equals(sActualCurrentPrincipalServicesColHdg)) {
+				exceptions.add(new Exception("Column headers not right. Expected '" + sExpectedCurrentSubsidiaryServicesColHdg + "', found '" + sActualCurrentSubsidiaryServicesColHdg + "'"));
+			}
+			
+			if (exceptions.size() > 0) {
+				return OUTPUT_PAGE;
+			}
+			
+	        while (scanner.hasNext()) {
+	            line = csvUtils.parseLine(scanner.nextLine());
+	            iLine++;
+	            
+	            if (line.size() > 41) {
+		            String sGPSOC = line.get(41); // GPSOCRCurrentPrincipalServices
+		            String[] arrGPSOC = sGPSOC.split(";");
+	
+		            for (String service : arrGPSOC) {
+		            	service = service.trim();
+		            	if (service.length() > 0) {
+		            		if (!principalServicesAdded.contains(service)) {
+		            			principalServicesAdded.add(service);
+		            		}
+		            	}
+		            }
+	            }
+	            
+	            if (line.size() > 43) {
+		            String sGPSOC = line.get(43); // GPSOCRCurrentSubsidiaryServices
+		            String[] arrGPSOC = sGPSOC.split(";");
+	
+		            for (String service : arrGPSOC) {
+		            	service = service.trim();
+		            	if (service.length() > 0) {
+		            		if (!subsidiaryServicesAdded.contains(service)) {
+		            			subsidiaryServicesAdded.add(service);
+		            		}
+		            		
+		            		// Add Docman to installed Legacy system where it's found
+		            		if (service.startsWith("Document Management - Docman GP")
+		            		 && service.contains("(Centrally funded)")) {
+		            			String sProductName = "Docman GP";
+		            			String sProductVersion = service.substring(service.indexOf(sProductName) + sProductName.length(), service.indexOf("(Centrally funded)")).trim();
+		            			String sSupplierName = service.substring(service.indexOf("(Centrally funded)") + "(Centrally funded)".length())
+		            					.trim().replace("(", "").replace(")", "").trim();
+		            			String sGPOrgCode = line.get(5).trim().replace("\"", "").trim().toUpperCase();
+		            			
+		            			// Add / Amend Supplier
+		            			if (sSupplierName.toUpperCase().contains("PCTI")) {
+		    						boolean bContinue = true;
+
+		    						Optional<Organisation> optGP  = organisationRepository.findByOrgCode(sGPOrgCode);	
+		    						Organisation orgGP = null;
+		        					if (optGP.isEmpty()) {
+		        						exceptions.add(new Exception("GP for Org Code " + sGPOrgCode + " not found"));
+		        						bContinue = false;
+		        					} else {
+		        						orgGP = optGP.get();
+		        					}
+		            				
+		            				
+		            				String sSupplierOrgCode = "8HP20";
+		    						Optional<Organisation> optSupplier = organisationRepository.findByOrgCode(sSupplierOrgCode);
+		    						Organisation orgSupplier = null;
+		    						if (optSupplier.isEmpty()) {
+		    							try {
+		    								orgSupplier = new Organisation();
+		    								orgSupplier.setOrgCode(sSupplierOrgCode);
+		    								orgSupplier.setOrgType((OrgType)GUtils.makeObjectForId(OrgType.class, OrgType.SUPPLIER));
+		    								orgSupplier.setName(sSupplierName);
+		    								organisationRepository.save(orgSupplier);
+		    							} catch (Exception e) {
+		    								exceptions.add(e);
+		    								bContinue = false;
+		    							}
+		    						} else {
+		    							orgSupplier = optSupplier.get();
+		    							if ((orgSupplier.getName() == null || orgSupplier.getName().trim().length() == 0)
+		    							 && sSupplierName != null && sSupplierName.trim().length() > 0) {
+		    								orgSupplier.setName(sSupplierName);
+		    								organisationRepository.save(orgSupplier);
+		    								exceptions.add(new Exception("**info** Supplier " + orgSupplier.getOrgCode() + " name updated to " + orgSupplier.getName()));
+		    							}
+		    						}
+
+		    						
+		    						// If solution doesn't exist, create it
+		    						LegacySolution legSolution = null;
+		    						if (bContinue) {
+		    							Optional<LegacySolution> optLegSol = legacySolutionRepository.findByNameAndVersionAndSupplier(sProductName, sProductVersion, orgSupplier);
+		    							if (optLegSol.isEmpty()) {
+		    								legSolution = new LegacySolution();
+		    								legSolution.setName(sProductName);
+		    								legSolution.setVersion(sProductVersion);
+		    								legSolution.setSupplier(orgSupplier);
+		    								legSolution.setFoundation(false);
+		    								try {
+		    									legacySolutionRepository.save(legSolution);
+		    								} catch (Exception e) {
+		    									exceptions.add(e);
+		    									bContinue = false;
+		    								}
+		    							} else {
+		    								legSolution = optLegSol.get();
+		    							}
+		    						}
+		    						
+		    						if (bContinue) {
+		    							Optional<OrgSolution> optOrgSolution = orgSolutionRepository.findByOrganisationAndLegacySolution(orgGP, legSolution);
+		    							OrgSolution orgSolution = null;
+		    							if (optOrgSolution.isEmpty()) {
+		    								orgSolution = new OrgSolution();
+		    								orgSolution.setOrganisation(orgGP);
+		    								orgSolution.setLegacySolution(legSolution);
+		    							} else {
+		    								orgSolution = optOrgSolution.get();
+		    							}
+		    							orgSolution.setContractEndDate(contractEndDate);
+		    							try {
+		    								orgSolutionRepository.save(orgSolution);
+		    								if (optOrgSolution.isEmpty() ) {
+		    									orgSolutionsAdded.add(orgSolution);
+		    								}
+		    							} catch (Exception e) {
+		    								exceptions.add(e);
+		    								bContinue = false;
+		    							}
+
+		    						}		    						
+		            			}		            			
+		            		}
+		            	}
+		            }
+	            }
+	        }
+	        
+	        principalServicesAdded.sort((object1, object2) -> object1.compareToIgnoreCase(object2));
+	        subsidiaryServicesAdded.sort((object1, object2) -> object1.compareToIgnoreCase(object2));
+	        
+	        scanner.close();
+		}
+		
+		model.addAttribute("lineCount", iLine);
+
+		return OUTPUT_PAGE;
+	}	
+	
+	
+	/**
+	 * Endpoint for loading Principal and Subsidiary services.
+	 * See notes in the view for info on how to obtain
+	 * the csv input file.
+	 *
+	 * @param model
+	 * @return
+	 */
+	@GetMapping("/dataload/GPSOCSchedA")
+	public String loadGPSOCScheduleASelectFile(Model model, HttpServletRequest request) {
+		Breadcrumbs.register("Load Subsidiary Services", request);
+		return "dataload/dataloadGPSOCSchedA";
+	}
+
+	@PostMapping("/dataload/GPSOCSchedA")
+	public String loadGPSOCScheduleASelectFile(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
+		String OUTPUT_PAGE = "dataload/dataloadGPSOCSchedAOutput";
+		
+		Breadcrumbs.register("Output", request);
+
+		LocalDate contractEndDate = LocalDate.of(2019, Month.DECEMBER, 31);
+		
+		List<String> subsidiaryServicesAdded = new ArrayList<>();
+		List<String> suppliersFound = new ArrayList<>();
+		List<OrgSolution> orgSolutionsAdded = new ArrayList<>();
+		List<Exception> exceptions = new ArrayList<Exception>();
+		
+		model.addAttribute("suppliersFound", suppliersFound);
+		model.addAttribute("subsidiaryServices", subsidiaryServicesAdded);
+		model.addAttribute("orgSolutionsAdded", orgSolutionsAdded);
+		model.addAttribute("exceptions", exceptions);
+
+		Scanner scanner = null;
+		try {
+			scanner = new Scanner(file.getInputStream());
+
+		} catch (Exception e) {
+			exceptions.add(e);
+		}
+		long iLine = 0;
+		if (scanner != null) {
+			CSVUtils csvUtils = new CSVUtils();
+
+			// Omit header line, but test that we're dealing with the correct columns
+			List<String> line = csvUtils.parseLine(scanner.nextLine());
+			
+			String[] knownSuppliers = new String[] {
+					"PCTI SOLUTIONS LTD",
+					"BLACK PEAR SOFTWARE LIMITED",
+					"DXS INTERNATIONAL PLC",
+					"IN PRACTICE SYSTEMS",
+					"INFORMATICA SYSTEMS LTD",
+					"PRESCRIBING SERVICES LIMITED",
+					"TPP"
+			};
+			String[] knownSupplierCodes = new String[] {
+					"8HP20",
+					"8HV05",
+					"8J605",
+					"8GX95",
+					"8HK35",
+					"8HX18",
+					"YGM27"
+			};
+			
+			String[] arrSystem = new String[] {
+					"Document Management",
+					"DXS Best Pathway (MANDATORY)",
+					"DXS Directory of Services (OPTIONAL)",
+					"DXS Best Triage (OPTIONAL)",
+					"DXS Best Script: Traffic Light (OPTIONAL)",
+					"DXS Best Script: Switch (OPTIONAL)",
+					"DXS Best Script: Compliance (OPTIONAL)",
+					"Mobile Clinical Applications",
+					"Workflow and Tasks",
+					"Advice and Guidance",
+					"Data Entry Forms",
+					"Clinical Decision Support", //In Practice Systems, Vision Outcomes Manager (Centrally funded)
+					"Non-Vision Clinical Component",
+					"Clinical Decision Support", //Informatica Systems Ltd, Informatica Audit+ (Centerally funded)
+					"Electronic Share Plan (Centrally funded)",
+					"Electronic Share Plan (Locally funded)"
+			};
+			
+			int[] arrSystemColumns = new int[arrSystem.length];
+			
+			boolean bAllColumnsAsExpected = true;
+			int idxCurrentCol = 0;
+			for (int idxSystem=0; idxSystem<arrSystem.length; idxSystem++) {
+				String sSearchSystem = arrSystem[idxSystem] + " - Supplier Name";
+				boolean bFoundSystem = false;
+				for (int idxCol=idxCurrentCol; idxCol<line.size(); idxCol++) {
+					if (line.get(idxCol).equals(sSearchSystem)) {
+						bFoundSystem = true;
+						arrSystemColumns[idxSystem] = idxCol;
+						idxCurrentCol = idxCol;						
+						break;
+					}
+				}
+				if (!bFoundSystem) {
+					bAllColumnsAsExpected = false;
+					break;
+				}				
+			}
+			
+			if (!bAllColumnsAsExpected) {
+				String sExpectedColumns = "";
+				for (String system : arrSystem) {
+					sExpectedColumns += system + " - Supplier Name <br />";
+				} 
+				exceptions.add(new Exception("Columns not as expected. Require the following column headers to be found <br />" + sExpectedColumns));
+			}
+			
+			if (exceptions.size() > 0) {
+				return OUTPUT_PAGE;
+			}
+			
+	        while (scanner.hasNext()) {
+	            line = csvUtils.parseLine(scanner.nextLine());
+	            iLine++;
+	            
+	            if (line.size() > arrSystemColumns[arrSystemColumns.length-1] + 1) {
+	            	String sGPOrgCode = line.get(3).trim();
+	            
+	            	for (int idxCol=0; idxCol < arrSystemColumns.length; idxCol++) {
+	            		String sSupplierName = GUtils.nullToString(line.get(arrSystemColumns[idxCol])).trim();
+	            		String sProductName = removeFundedSuffix(GUtils.nullToString(line.get(arrSystemColumns[idxCol]+1)).trim());
+	            		String sProductVersion = "";
+	            		if (StringUtils.isNotEmpty(sSupplierName) && StringUtils.isNotEmpty(sProductName)) {
+	            			if (!suppliersFound.contains(sSupplierName)) {
+	            				suppliersFound.add(sSupplierName);
+	            			}
+
+	            			// Add Docman to installed Legacy system where it's found
+		            		if (sProductName.startsWith("Docman GP")) {
+		            			sProductVersion = sProductName.substring("Docman GP".length()).trim();
+		            			sProductName = "Docman GP";
+		            		}
+		            		
+		            		int idxFoundSupplier = -1;
+		            		for (int idxKnownSupplier=0; idxKnownSupplier<knownSuppliers.length; idxKnownSupplier++) {
+		            			if (knownSuppliers[idxKnownSupplier].equals(sSupplierName.toUpperCase())) {
+		            				idxFoundSupplier = idxKnownSupplier;
+		            				break;
+		            			}
+		            		}
+		            		
+		            		if (idxFoundSupplier == -1) {
+		            			exceptions.add(new Exception("Supplier \"" + sSupplierName + "\" is not known to us"));
+		            		}
+		            		
+		            		if (idxFoundSupplier > -1) {
+		            		
+		            			// Add / Amend Supplier
+	    						boolean bContinue = true;
+
+	    						Optional<Organisation> optGP  = organisationRepository.findByOrgCode(sGPOrgCode);	
+	    						Organisation orgGP = null;
+	        					if (optGP.isEmpty()) {
+	        						exceptions.add(new Exception("GP for Org Code " + sGPOrgCode + " not found"));
+	        						bContinue = false;
+	        					} else {
+	        						orgGP = optGP.get();
+	        					}
+		            				
+	            				String sSupplierOrgCode = knownSupplierCodes[idxFoundSupplier];
+	    						Optional<Organisation> optSupplier = organisationRepository.findByOrgCode(sSupplierOrgCode);
+	    						Organisation orgSupplier = null;
+	    						if (optSupplier.isEmpty()) {
+	    							try {
+	    								orgSupplier = new Organisation();
+	    								orgSupplier.setOrgCode(sSupplierOrgCode);
+	    								orgSupplier.setOrgType((OrgType)GUtils.makeObjectForId(OrgType.class, OrgType.SUPPLIER));
+	    								orgSupplier.setName(sSupplierName.toUpperCase());
+	    								orgSupplier.setName(sSupplierName);
+	    								organisationRepository.save(orgSupplier);
+	    							} catch (Exception e) {
+	    								exceptions.add(e);
+	    								bContinue = false;
+	    							}
+	    						} else {
+	    							orgSupplier = optSupplier.get();
+	    							if ((orgSupplier.getName() == null || orgSupplier.getName().trim().length() == 0)
+	    							 && sSupplierName != null && sSupplierName.trim().length() > 0) {
+	    								orgSupplier.setName(sSupplierName);
+	    								organisationRepository.save(orgSupplier);
+	    								exceptions.add(new Exception("**info** Supplier " + orgSupplier.getOrgCode() + " name updated to " + orgSupplier.getName()));
+	    							}
+	    						}
+
+		    						
+	    						// If solution doesn't exist, create it
+	    						LegacySolution legSolution = null;
+	    						if (bContinue) {
+	    							Optional<LegacySolution> optLegSol = legacySolutionRepository.findByNameAndVersionAndSupplier(sProductName, sProductVersion, orgSupplier);
+	    							if (optLegSol.isEmpty()) {
+	    								legSolution = new LegacySolution();
+	    								legSolution.setName(sProductName);
+	    								legSolution.setVersion(sProductVersion);
+	    								legSolution.setSupplier(orgSupplier);
+	    								legSolution.setFoundation(false);
+	    								try {
+	    									legacySolutionRepository.save(legSolution);
+	    								} catch (Exception e) {
+	    									exceptions.add(e);
+	    									bContinue = false;
+	    								}
+	    							} else {
+	    								legSolution = optLegSol.get();
+	    							}
+	    						}
+		    						
+	    						if (bContinue) {
+	    							Optional<OrgSolution> optOrgSolution = orgSolutionRepository.findByOrganisationAndLegacySolution(orgGP, legSolution);
+	    							OrgSolution orgSolution = null;
+	    							if (optOrgSolution.isEmpty()) {
+	    								orgSolution = new OrgSolution();
+	    								orgSolution.setOrganisation(orgGP);
+	    								orgSolution.setLegacySolution(legSolution);
+	    							} else {
+	    								orgSolution = optOrgSolution.get();
+	    							}
+	    							orgSolution.setContractEndDate(contractEndDate);
+	    							try {
+	    								orgSolutionRepository.save(orgSolution);
+	    								if (optOrgSolution.isEmpty() ) {
+	    									orgSolutionsAdded.add(orgSolution);
+	    								}
+	    							} catch (Exception e) {
+	    								exceptions.add(e);
+	    								bContinue = false;
+	    							}
+
+	    						}		    						
+		            		}
+		            	}
+		            }
+	            }
+	        }
+
+	        suppliersFound.sort((object1, object2) -> object1.compareToIgnoreCase(object2));
+	        subsidiaryServicesAdded.sort((object1, object2) -> object1.compareToIgnoreCase(object2));
+	        
+	        scanner.close();
+		}
+		
+		model.addAttribute("lineCount", iLine);
+
+		return OUTPUT_PAGE;
+	}	
+	
+	private static String removeFundedSuffix(String sSystem) {
+		String sSYSTEM = sSystem.toUpperCase();
+		int idxFunding = sSYSTEM.indexOf("(CENTRALLY FUNDED)");
+		if (idxFunding == -1) {
+			idxFunding = sSYSTEM.indexOf("(CENTERALLY FUNDED)");
+		}
+		if (idxFunding == -1) {
+			idxFunding = sSYSTEM.indexOf("(LOCALLY FUNDED)");
+		}
+		if (idxFunding == -1) {
+			idxFunding = sSYSTEM.indexOf("(ECLIPSE - CENTRALLY FUNDED)");
+		}
+		if (idxFunding == -1) {
+			idxFunding = sSYSTEM.indexOf("(ECLIPSE - LOCALLY FUNDED)");
+		}
+		if (idxFunding != -1) {
+			sSystem = sSystem.substring(0, idxFunding).trim();
+		}
+		return sSystem;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private String getPageOfOrganisations(String role, int pageSize, long offset) {
 		RestTemplate restTemplate = new RestTemplate();
 		String nonPrimaryRole = "";

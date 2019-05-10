@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script}, ~{::link})}">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="../../static/css/pages/initiate.css" th:href="@{/css/pages/initiate.css}">
+    <title>Initiate Buying</title>
+</head>
+<body>
+<section>
+    <div class="container">
+		<h3>Initiate Buying for procurement: [[${initiateModel.procurementName}]]  <small>[ [[${initiateModel.procurementSummaryAttributes}]] ]</small></h3>	
+
+		
+        <form class="form-horizontal" th:object="${initiateModel}" th:action="@{/buyingprocess/initiate}" method="post">
+            <input type="hidden" th:field="*{aaarrayDimensions}" />
+            <input type="hidden" th:field="*{procurementId}" />
+            <input type="hidden" th:field="*{procurementName}" />
+            <input type="hidden" th:field="*{numberOfPractices}" />
+            <input type="hidden" th:field="*{directAwardBundleId}" />
+
+			<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+			    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.fieldName + ': ' + err.message}"></p>    
+			</div>
+
+			<ul class="nav nav-tabs" role="tablist">
+				<li th:each="bundle, info : ${initiateModel.dbBundles}" th:class="${info.count==1?'active':''}">
+				<a th:href="${'#b_' + bundle.id}" role="tab" data-toggle="tab" th:text="${bundle.name}"></a>
+			</ul>
+
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<div th:each="bundle, infoBundle : ${initiateModel.dbBundles}" th:class="${'tab-pane ' + (infoBundle.count==1?'active':'')}" th:id="${'b_' + bundle.id}">
+					<div class="row">
+						<label class="col-md-11"></label>
+						<label class="col-md-1 nopadding">Over Term</label>
+					</div>
+					<div class="row">
+						<label class="col-md-4"></label>
+						<div class="col-md-2">
+							<button th:if="${initiateModel.canOnCatalogueCompetition()}" id="btnSolutionReview" class="btn btn-default btn-pathway" type="button" 
+								onclick="gotoSolutionsReview();" 
+								style="margin-top: -1.0rem; margin-left: -0.6rem">Solutions Review</button>
+							<button th:if="${initiateModel.canDirectAward()}" id="btnSolutionReview" class="btn btn-default btn-pathway" type="button" 
+								onclick="gotoOrdering(this);" 
+								style="margin-top: -1.0rem; margin-left: -0.6rem">Place Order</button>
+						</div>
+						<div class="col-md-2">
+							<button th:if="${!initiateModel.singleSiteContinuity}" id="btnOffCatalogue" class="btn btn-default btn-pathway" type="button" 
+								onclick="gotoOffCatalogue();" 
+								style="margin-top: -1.0rem; margin-left: -0.6rem">Go Off-Catalogue</button>
+						</div>
+						<div class="col-md-2">
+							<button id="btnRecalculate" class="btn btn-default" type="button" onclick="forms[0].submit();" style="margin-top: -1.0rem; margin-left: -0.6rem">Recalculate Prices</button>
+						</div>
+						<label class="col-md-1">TCO</label>
+						<label class="col-md-1 nopadding" th:text="${initiateModel.tco[__${infoBundle.index}__]}"></label>
+					</div>
+					<div th:each="srvRecipient, infoSR : ${initiateModel.srvRecipients}" class="row">
+
+						<!-- Service Recipient Info -->
+						<div class="row">
+	
+							<!-- Service Recipient Name -->
+	
+							<div th:text="${srvRecipient.organisation.nameProperCase}" class="col-md-3 srv-recipient-name" ></div>
+	
+							<!-- Contract Term Months : 1st solution is input, others are read-only -->
+	
+			                <label class="col-md-1 control-label">Term</label>
+							<div th:if="${infoBundle.index==0}" th:class="${#fields.hasErrors('contractTermMonths')}? 'col-md-2 has-error' : 'col-md-2'">
+								<div class="input-group">
+								    <select class="form-control contract-term-months" th:field="*{contractTermMonths[__${infoSR.index}__]}">
+								    <option value="">Months</option>
+								    <option th:each="month : ${initiateModel.possibleContractTermMonths}" th:value="${month}" th:text="${month + ' month' + (month==1?'':'s')}"></option>
+								    </select>
+					                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
+					            </div>
+				            </div>
+				            
+							<div th:if="${infoBundle.index!=0}" class="col-md-2 contract-term-months-read-only" th:id="${'contractTermMonthsRO_' + infoBundle.index + '_' + infoSR.index}"
+								th:text="${initiateModel.contractTermMonths[__${infoSR.index}__] + ' month' + (initiateModel.contractTermMonths[__${infoSR.index}__]==1?'':'s')}">
+							</div>
+	
+							<!-- Patient Count: 1st solution is input, others are read-only -->
+	
+			                <label class="col-md-2 control-label">Patient Count</label>
+							<div th:if="${infoBundle.index==0}" th:class="${#fields.hasErrors('patientCount')}? 'col-md-2 has-error' : 'col-md-2'">
+								<div class="input-group patient-count">
+								    <input class="form-control patient-count" th:field="*{patientCount[__${infoSR.index}__]}" size="6">
+					                <span th:if="${#fields.hasErrors('patientCount')}" class="help-block">[[${#fields.errors('patientCount')[0]}]]</span>
+					            </div>
+				            </div>
+				            
+							<div th:if="${infoBundle.index!=0}" th:class="'col-md-1 patient-count-read-only PCRO-' + ${infoSR.index}" th:id="${'patientCountRO_' + infoBundle.index + '_' + infoSR.index}"
+								th:text="${initiateModel.patientCount[__${infoSR.index}__]}">
+							</div>
+							
+							<label class="col-md-1 nopadding"></label>
+							<label class="col-md-1 nopadding"></label>
+						</div>
+
+						<!-- Base system -->
+						<div class="row base-system-row">
+							<div class="col-md-3 control-label" style="padding-right: 0px">
+								<div class="base-system-name">Base system</div>
+							</div>
+							<div class="col-md-1 unit-text"></div>
+							<div class="col-md-1 unit-text" th:text="${'£' + initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+							<div class="col-md-2 unit-text" th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].unitTypeName}">/ thingy / week</div>
+							<div class="col-md-1 unit-text"></div>
+							<div class="col-md-2">
+								<div class="input-group unit-numbers">
+<!-- 								
+								    <input th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == false}" class="form-control" size="6" 
+								    	th:value="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}" />
+								    <div   th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == true}" class="unit-numbers"
+								    	th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}"></div>
+-->		
+								    <input th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == false}" class="form-control" size="6" 
+								    	th:field="*{baseSystemUnits[__${infoBundle.index}__][__${infoSR.index}__]}" />
+								    <div   th:if="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].readonly == true}" class="unit-numbers"
+								    	th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceUnits}">
+								    	 <input type="hidden" th:field="*{baseSystemUnits[__${infoBundle.index}__][__${infoSR.index}__]}" />
+								    </div>
+						    	
+					            </div>
+				            </div>
+							<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].price}">.</div>
+							<div class="col-md-1 money-value" th:text="${initiateModel.rowDetailForBaseSystemPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__].priceOverTerm}">.</div>
+						</div>
+						
+						<!-- Associated Services -->
+						<div class="panel panel-default associated-service-panel">
+						    <div class="panel-body">
+						        <div class="service-header associated-service-header">Associated Services</div>
+								<div class="row"></div>
+		         
+								<div class="row associated-service-row" th:each="svc, infoSvc : ${initiateModel.rowDetailForAssocSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__]}">
+									<div class="col-md-3 control-label" style="padding-right: 0px">
+										<div class="input-group">
+										    <select class="form-control associated-service" th:field="*{assocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" onchange="inhibitPathwayButtons()">
+										    <option value=""></option>
+										    <option th:each="assocSrv : ${initiateModel.possibleBundleAssociatedServices.get(bundle.id)}" th:value="${assocSrv.associatedServiceId}" th:text="${assocSrv.name}"></option>
+										    </select>
+							                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
+										</div>
+									</div>
+									<div class="col-md-1 unit-text"></div>
+									<div class="col-md-1 unit-text" th:text="${svc.unitPrice==null?'':'£' + svc.unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+									<div class="col-md-2 unit-text" th:text="${svc.unitTypeName}">/ thingy / week</div>
+									<div class="col-md-1 unit-text"></div>
+									<div class="col-md-2">
+										<div class="input-group unit-numbers">
+										    <input th:if="${svc.readonly == false}" class="form-control" size="6" 
+										    	th:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" onchange="inhibitPathwayButtons()" />
+										    <div   th:if="${svc.readonly == true}" class="unit-numbers"
+										    	th:text="${svc.priceUnits}">
+										    	 <input type="hidden" th:field="*{assocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+										    </div>
+							            </div>
+						            </div>
+									<div class="col-md-1 money-value" th:text="${svc.price}">.</div>
+									<div class="col-md-1 money-value" th:text="${svc.priceOverTerm}">.</div>
+								</div>
+						    </div>
+						</div>						
+						
+						<!-- Additional Services -->
+						<div class="panel panel-default additional-service-panel">
+						    <div class="panel-body">
+						        <div class="service-header additional-service-header">Additional Services</div>
+								<div class="row"></div>
+		         
+		         				<div th:each="svc, infoSvc : ${initiateModel.rowDetailForAdditSrvPerBundleAndSR[__${infoBundle.index}__][__${infoSR.index}__]}">
+									<div class="row additional-service-row">
+										<div class="col-md-3 control-label" style="padding-right: 0px">
+											<div class="input-group">
+											    <select class="form-control additional-service" th:field="*{additSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" onchange="inhibitPathwayButtons()" >
+											    <option value=""></option>
+											    <option th:each="additSrv : ${initiateModel.possibleBundleAdditionalServices.get(bundle.id)}" th:value="${additSrv.additionalServiceId}" th:text="${additSrv.name}"></option>
+											    </select>
+								                <span th:if="${#fields.hasErrors('contractTermMonths')}" class="help-block">[[${#fields.errors('contractTermMonths')[0]}]]</span>
+											</div>
+										</div>
+										<div class="col-md-1 unit-text"></div>
+										<div class="col-md-1 unit-text" th:text="${svc.unitPrice==null?'':'£' + svc.unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+										<div class="col-md-2 unit-text" th:text="${svc.unitTypeName}">/ thingy / week</div>
+										<div class="col-md-1 unit-text"></div>
+										<div class="col-md-2">
+											<div class="input-group unit-numbers">
+											    <input th:if="${svc.readonly == false}" class="form-control" size="6" 
+											    	th:field="*{additSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" onchange="inhibitPathwayButtons()" />
+											    <div   th:if="${svc.readonly == true}" class="unit-numbers"
+											    	th:text="${svc.priceUnits}">
+											    	<input type="hidden" th:field="*{additSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__]}" />
+											    </div>
+								            </div>
+							            </div>
+										<div class="col-md-1 money-value" th:text="${svc.price}">.</div>
+										<div class="col-md-1 money-value" th:text="${svc.priceOverTerm}">.</div>
+									</div>
+									
+						
+									<!-- Additional Service's Associated Services (item name = adas) -->
+									<div class="panel panel-default addit-associated-service-panel">
+									    <div class="panel-body">
+									        <div class="service-header associated-service-header">Associated Services <small>(for Additional Service)</small></div>
+											<div class="row"></div>
+					         
+											<div class="row addit-associated-service-row" th:each="adas, infoAdas : ${svc.additAssociatedServices}">
+												<div class="col-md-3 control-label" style="padding-right: 0px">
+													<div class="input-group">
+													    <select class="form-control associated-service" th:field="*{additAssocSrv[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" onchange="inhibitPathwayButtons()" >
+													    <option value=""></option>
+													    <option th:each="assocSrv : ${initiateModel.possibleAdditAssociatedServices.get(svc.additionalService)}" th:value="${assocSrv.associatedServiceId}" th:text="${assocSrv.name}"></option>
+													    </select>
+													</div>
+												</div>
+												<div class="col-md-1 unit-text"></div>
+												<div class="col-md-1 unit-text" th:text="${adas.unitPrice==null?'':'£' + adas.unitPrice.stripTrailingZeros().toPlainString()}">£??.??</div>
+												<div class="col-md-2 unit-text" th:text="${adas.unitTypeName}">/ thingy / week</div>
+												<div class="col-md-1 unit-text"></div>
+												<div class="col-md-2">
+													<div class="input-group unit-numbers">
+													    <input th:if="${adas.readonly == false}" class="form-control" size="6" 
+													    	th:field="*{additAssocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" onchange="inhibitPathwayButtons()" />
+													    <div   th:if="${adas.readonly == true}" class="unit-numbers"
+													    	th:text="${adas.priceUnits}">
+													    	<input type="hidden" th:field="*{additAssocSrvUnits[__${infoBundle.index}__][__${infoSR.index}__][__${infoSvc.index}__][__${infoAdas.index}__]}" />
+													    </div>
+										            </div>
+									            </div>
+												<div class="col-md-1 inner-money-value" th:text="${adas.price}">.</div>
+												<div class="col-md-1 inner-money-value" th:text="${adas.priceOverTerm}">.</div>
+											</div>
+									    </div>
+									</div>						
+									
+								</div>
+						    </div>
+						</div>						
+						
+					</div>
+				</div>
+			</div>
+
+			<br /><br />        
+			<div class="panel panel-default">
+				<div class="panel-heading">Additional Configuration</div>
+				<div class="panel-body">
+					<div class="row">
+		                <div class="col-md-3" style="text-align: right;">Number of practices:</div>
+						<div class="col-md-3" th:text="${initiateModel.numberOfPractices}"></div>
+						
+		                <label class="col-md-3 control-label">Number of patients:</label>
+						<div th:class="${#fields.hasErrors('numberOfPatients')}? 'col-md-3 has-error' : 'col-md-3'">
+			            	<input type="text" th:field="*{numberOfPatients}" class="form-control" placeholder="number of patients" autocomplete="off" />
+			                <span th:if="${#fields.hasErrors('numberOfPatients')}" class="help-block">[[${#fields.errors('numberOfPatients')[0]}]]</span>
+			            </div>
+					</div>
+					<div class="row">
+		                <label class="col-md-3 control-label">Planned Contract Start:</label>
+						<div th:class="${#fields.hasErrors('plannedContractStart')}? 'col-md-3 has-error' : 'col-md-3'">
+							<div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy">
+				            	<input type="text" th:field="*{plannedContractStart}" class="form-control" placeholder="contract start date" autocomplete="off" />
+				            	<div class="input-group-addon">
+	        						<span class="glyphicon glyphicon-th"></span>
+	    						</div>
+				                <span th:if="${#fields.hasErrors('plannedContractStart')}" class="help-block">[[${#fields.errors('plannedContractStart')[0]}]]</span>
+				            </div>
+			            </div>
+					</div>
+				</div>
+				<div class="panel-footer">
+					<button id="btnRecalculate" class="btn btn-default" type="button" onclick="forms[0].submit();">Recalculate Prices</button>
+				</div>
+			
+			</div>
+		</form>
+	</div>
+</section>
+
+<script th:inline="javascript">
+
+function gotoSolutionsReview() {
+	location.href = '/buyingprocess/solutionsReview/' + [[${initiateModel.procurementId}]];
+}
+
+function gotoOffCatalogue() {
+	location.href = '/buyingprocess/offCatalogueBidsAndEvaluation/' + [[${initiateModel.procurementId}]];
+}
+
+function gotoOrdering(element) {
+	alert('Not yet implemented');
+	element.blur();
+}
+
+function inhibitPathwayButtons() {
+	$(".btn-pathway").each( function() {
+		$(this).attr("disabled", true);
+	});
+}
+
+// Default the Term value from the 1st Service Recipient into the Term for the other Service Recipients (if they don't already contain a value)
+$("form").on("change", ":input[id='contractTermMonths0']", function(event) {
+	$(".contract-term-months").each( function() {
+		if (this.id != 'contractTermMonths0' && $(this).val() == "") {
+			$(this).val(event.target.value).trigger('change');
+		}
+	});
+});
+
+//Sets the r/o Term in the 2nd and subsequent tabs to the value from the 1st tab
+$("form").on("change", ":input.contract-term-months", function(event) {
+	var sMonths = event.target.value + " months";
+	if (event.target.value == "1") {
+		sMonths = event.target.value + " months";
+	} else if (event.target.value == "") {
+		sMonths = "";
+	}
+	var idxSR = parseInt(event.target.id.split("contractTermMonths")[1]);
+	for (var idxBundle=1; idxBundle<$("div.tab-pane").length; idxBundle++) {
+		$("#contractTermMonthsRO_" + idxBundle + "_" + idxSR).text(sMonths);
+	}
+	inhibitPathwayButtons();
+});
+
+//Sets the r/o Patient Count in the 2nd and subsequent tabs to the value from the 1st tab
+$("form").on("change", ":input.patient-count", function(event) {
+	var idxSR = parseInt(event.target.id.split("patientCount")[1]);
+	//for (var idxBundle=1; idxBundle<$("div.tab-pane").length; idxBundle++) {
+	//	$("#patientCountRO_" + idxBundle + "_" + idxSR).text(event.target.value);
+	//}
+	$(".PCRO-" + idxSR).each( function() {
+		$(this).text(event.target.value);
+	});
+	inhibitPathwayButtons();
+});
+/*
+$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+	reduceServicePanelHeights();
+});
+	
+$( document ).ready(function() {
+	reduceServicePanelHeights();
+});
+*/
+</script>
+</body>
+</html>

@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModelProperty;
  * A &#39;Supplier&#39; is a company who supplies ‘solutions’ to NHS buyers.  A &#39;Buyer&#39; is a company who purchases &#39;solutions&#39; from a &#39;Supplier&#39;.  An &#39;Admin&#39; is a company, typically NHS Digital, who has ultimate control over all information in the Buying Catalog.  Standard MS Dynamics CRM entity
  */
 @ApiModel(description = "A 'Supplier' is a company who supplies ‘solutions’ to NHS buyers.  A 'Buyer' is a company who purchases 'solutions' from a 'Supplier'.  An 'Admin' is a company, typically NHS Digital, who has ultimate control over all information in the Buying Catalog.  Standard MS Dynamics CRM entity")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class Organisations {
   @JsonProperty("id")
   private String id = null;

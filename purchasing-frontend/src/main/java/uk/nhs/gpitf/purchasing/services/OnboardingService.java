@@ -64,7 +64,8 @@ public class OnboardingService {
     private String ADD_DOCMAN_TO_BUNDLES_STRING;
 	private static boolean ADD_DOCMAN_TO_BUNDLES;
 	
-	private static final String FRAMEWORK_ID = "5A8D06DD-8C32-4821-AC65-BD47294ACD8E";
+	@Value("${sysparam.initialFrameworkId}")
+	public String FRAMEWORK_ID;
 	public String getDefaultFramework() {
 		return FRAMEWORK_ID;
 	}
@@ -253,7 +254,7 @@ public class OnboardingService {
 		// Clean the array - do not include Foundation capabilities if we are doing a foundation search. Solutions will be matched for Foundation more directly
 		List<String> lstCapabilityIds = new ArrayList<>();
 		for (String capabilityId : arrCapabilityIds) {
-			if (capabilityId != null && capabilityId.trim().length() > 0) {
+			if (capabilityId != null && !capabilityId.equals("null") && capabilityId.trim().length() > 0) {
 				if (!foundation || !capabilitiesImplementedCache.getCapabilities().get(capabilityId).getType().equals("C")) {
 					lstCapabilityIds.add(capabilityId.trim());
 				}
@@ -269,7 +270,7 @@ public class OnboardingService {
 		// Clean the array 
 		List<String> lstInteroperableIds = new ArrayList<>();
 		for (String interoperableId : arrInteroperableIds) {
-			if (interoperableId != null && interoperableId.trim().length() > 0) {
+			if (interoperableId != null && !interoperableId.equals("null") && interoperableId.trim().length() > 0) {
 				lstInteroperableIds.add(interoperableId.trim());
 			}
 		}

@@ -29,7 +29,7 @@ import java.util.List;
  * All CapabilityMapping with all corresponding Standard
  */
 @ApiModel(description = "All CapabilityMapping with all corresponding Standard")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class CapabilityMappings {
   @JsonProperty("capabilityMapping")
   private List<CapabilityMapping> capabilityMapping = null;

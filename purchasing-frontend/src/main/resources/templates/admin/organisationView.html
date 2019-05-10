@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script}, ~{::link})}">
 <head>
     <meta charset="UTF-8" />
     <title>Organisation View</title>
@@ -37,11 +37,37 @@
                     <p class="form-control-static" th:text="${organisationEditModel.organisation.orgCode}">Organisation Code</p>
                 </div>
             </div>
+            
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Address</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static" th:text="${organisationEditModel.organisation.getAddress()}">Organisation Address</p>
+                </div>
+            </div>
+            
             <div th:if="${organisationEditModel.organisation.orgType.id == T(uk.nhs.gpitf.purchasing.entities.OrgType).PRESCRIBING_PRACTICE}" class="form-group">
                 <label class="col-sm-2 control-label">Patient Count:</label>
                 <div class="col-sm-10">
                     <p class="form-control-static" th:text="${organisationEditModel.organisation.getPatientCount()}">9999999</p>
                 </div>
+            </div>
+            
+            <div th:each="os, info : ${organisationEditModel.orgSolutions}">
+            
+            	<div th:if="${info.count==1}" class="row">
+                	<label class="col-sm-2 control-label">Solutions:</label>
+		            <label class="col-sm-5 control-label-left" style="margin-top:6px;">Name</label>
+		            <label class="col-sm-5 control-label-left" style="margin-top:6px;">Contract End</label>
+ 				</div>
+            
+            	<div class="row">
+	                <label class="col-sm-2 control-label"> </label>
+	                <div class="col-sm-5" th:text="${os.legacySolution.name!=null?os.legacySolution.name + ' (' + os.legacySolution.supplier.name + ')':os.solution}"></div>
+	                <div class="col-sm-5" th:text="${#temporals.format(os.contractEndDate, 'dd MMM yyyy')}">32nd Jum 2109</div>
+                </div>
+                
+                            
+            	<div th:if="${info.count==info.size}" class="row">&nbsp;</div>
             </div>
             
             <div th:each="rel : ${organisationEditModel.parentOrgRelationships}" class="form-group">

@@ -7,6 +7,7 @@ import java.util.List;
 import io.swagger.client.model.Capabilities;
 import lombok.Data;
 import lombok.Setter;
+import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.Organisation;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
@@ -17,8 +18,16 @@ public class SearchSolutionByCapabilityModel {
 
 	public static final int MODE_ALL = 1;
 	public static final int MODE_SITES_ONLY = 2;
+	public static final int MODE_CAPABILITIES_ONLY = 3;
 	private int mode;
 	private boolean foundation;
+	private boolean userIsKnown;
+	public boolean isSingleSiteContinuity() {
+		return procurement != null && procurement.getSingleSiteContinuity() != null && procurement.getSingleSiteContinuity().booleanValue();
+	}
+	public boolean isEvaluationTypePriceOnly() {
+		return procurement != null && procurement.getEvaluationType() != null && procurement.getEvaluationType() == EvaluationTypeEnum.PRICE_ONLY;
+	}
 	private Long procurementId;
 	private Procurement procurement;
 
@@ -75,4 +84,5 @@ public class SearchSolutionByCapabilityModel {
 	}
 	
 	private String SHORTLIST_MAX;
+	private boolean FOUNDATION_SEARCH_ADD_CAPABILITIES;
 }

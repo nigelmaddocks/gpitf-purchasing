@@ -10,14 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ProcShortlistRemovalReasonService {
+public class TmpAdditionalServiceService {
 
     @Autowired
-    private ProcShortlistRemovalReasonRepository thisRepository;
+    private TmpAdditionalServiceRepository thisRepository;
 
-    public List<ProcShortlistRemovalReason> getAll() {
-        List<ProcShortlistRemovalReason> coll = new ArrayList<>();
-        thisRepository.findAll().forEach(coll::add);
+    public List<TmpAdditionalService> getAllBySolutionIdOrderByName(String solutionId) {
+        List<TmpAdditionalService> coll = new ArrayList<>();
+        thisRepository.findAllBySolutionIdOrderByName(solutionId).forEach(coll::add);
         return coll;
     }    
+
 }

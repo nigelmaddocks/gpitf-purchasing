@@ -27,13 +27,15 @@ public class Breadcrumbs implements Serializable {
 		}
 		
 		int idxBreadcrumb = 0;
-		boolean bFound = false;
+		//boolean bFound = false;
 		for (Breadcrumb breadcrumb : objBreadcrumbs.getBreadcrumbs()) {
 			if (url.equals(breadcrumb.getUrl()) || title.equals(breadcrumb.title)) {
+				List<Breadcrumb> listToRemove = new ArrayList<>();
 				for (int idxToRemove = idxBreadcrumb; idxToRemove < objBreadcrumbs.getBreadcrumbs().size(); idxToRemove++) {
-					objBreadcrumbs.getBreadcrumbs().remove(idxToRemove);
+					listToRemove.add(objBreadcrumbs.getBreadcrumbs().get(idxToRemove));
 				}
-				bFound = true;
+				objBreadcrumbs.getBreadcrumbs().removeAll(listToRemove);
+				//bFound = true;
 				break;
 			}
 			idxBreadcrumb++;
@@ -79,6 +81,33 @@ public class Breadcrumbs implements Serializable {
 			objBreadcrumbs.breadcrumbs.remove(objBreadcrumbs.breadcrumbs.size()-1);
 		}
 	}
+
+	
+	public static void removeAfterTitle(String title, HttpServletRequest request) {
+		Breadcrumbs objBreadcrumbs = (Breadcrumbs)request.getSession().getAttribute("Breadcrumbs");
+		if (objBreadcrumbs == null) {
+			objBreadcrumbs = new Breadcrumbs();
+		}
+		
+		int idxBreadcrumb = 0;
+		//boolean bFound = false;
+		for (Breadcrumb breadcrumb : objBreadcrumbs.getBreadcrumbs()) {
+			if (title.equals(breadcrumb.title)) {
+				if (idxBreadcrumb < objBreadcrumbs.getBreadcrumbs().size()-1) {
+					List<Breadcrumb> listToRemove = new ArrayList<>();
+					for (int idxToRemove = idxBreadcrumb+1; idxToRemove < objBreadcrumbs.getBreadcrumbs().size(); idxToRemove++) {
+						listToRemove.add(objBreadcrumbs.getBreadcrumbs().get(idxToRemove));
+					}
+					objBreadcrumbs.getBreadcrumbs().removeAll(listToRemove);
+					//bFound = true;
+					break;
+				}
+			}
+			idxBreadcrumb++;
+		}
+		
+		request.getSession().setAttribute("Breadcrumbs", objBreadcrumbs);
+	}
 	
 	public static List<Breadcrumb> renderable(HttpServletRequest request) {
 		Breadcrumbs objBreadcrumbs = (Breadcrumbs)request.getSession().getAttribute("Breadcrumbs");
@@ -94,6 +123,7 @@ public class Breadcrumbs implements Serializable {
 
 	@Data
 	public static class Breadcrumb implements Serializable {
+		private static final long serialVersionUID = 3105097486353356333L;
 		private String title;
 		private String url; 
 		public Breadcrumb (String title, String url) {

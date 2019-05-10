@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<html th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::section}, ~{::script}, ~{::link})}">
 <head>
     <meta charset="UTF-8" />
     <title>Admin Menu</title>
@@ -50,9 +50,9 @@
             </div>
             
             <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
-                <label class="col-sm-6 control-label">Load Day Zero GP Practice legacy systems from Tracking Database output csv file</label>
+                <label class="col-sm-6 control-label" style="text-decoration:line-through;">Load Day Zero GP Practice legacy systems from Tracking Database output csv file</label>
                 <div class="col-sm-6" style="margin-top:6px;">
-                    <a href="/dataload/Day0LegacySystems" th:href="@{'/dataload/Day0LegacySystems'}">Load Day Zero Legacy Systems (csv)</a>
+                    <a href="/dataload/Day0LegacySystems" th:href="@{'/dataload/Day0LegacySystems'}" style="text-decoration:line-through;">Load Day Zero Legacy Systems (csv)</a>
                 </div>
             </div>
             
@@ -60,6 +60,20 @@
                 <label class="col-sm-6 control-label">Load Day Zero GP Practice legacy systems from GPSoC Marketshare XSLX file</label>
                 <div class="col-sm-6" style="margin-top:6px;">
                     <a href="/dataload/Day0LegacySystemsExcel" th:href="@{'/dataload/Day0LegacySystemsExcel'}">Load Day Zero Legacy Systems (xslx)</a>
+                </div>
+            </div>
+            
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
+                <label class="col-sm-6 control-label" style="text-decoration:line-through;">Load Day Zero Subsidiary Services (Docman only) from Tracking Database output csv file</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/dataload/GPSOC" th:href="@{'/dataload/GPSOC'}" style="text-decoration:line-through;">Load Docman installations</a>
+                </div>
+            </div>
+            
+            <div th:if="${session.SecurityInfo != null && session.SecurityInfo.isAdministrator()}" class="form-group">
+                <label class="col-sm-6 control-label">Load Day Zero Subsidiary Services from TDB GPSoC Schedule A Maintenance report csv file</label>
+                <div class="col-sm-6" style="margin-top:6px;">
+                    <a href="/dataload/GPSOCSchedA" th:href="@{'/dataload/GPSOCSchedA'}">Load Subsidiary Service installations</a>
                 </div>
             </div>
             

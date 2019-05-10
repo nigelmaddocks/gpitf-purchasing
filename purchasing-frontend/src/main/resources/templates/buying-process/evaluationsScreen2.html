@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
+<head>
+<meta charset="UTF-8">
+<title>Input Evaluation Scoring</title>
+</head>
+<body>
+	<main id="content">
+		<h1>Input Evaluation Scoring</h1>
+		<form action="" th:action="@{'/buyingprocess/evaluations/scores/' + ${pageModel.id}}" th:object="${pageModel}" method="POST">
+			<input type="hidden" th:field="*{id}"/>
+
+			<p>Placeholder for input of Evaluation Scoring</p>
+
+			<div class="form-group">
+				<button type="submit" class="btn button" id="continue">Update Scores</button>
+			</div>
+			<div class="form-group">
+				<button id="btnOrdering" class="btn btn-default" type="button" onclick="gotoOrdering(this);" th:disabled="${scoringDone == false}">Place Order with highest score</button>
+			</div>			
+		</form>
+	</main>
+
+<script th:inline="javascript">
+
+function gotoOrdering(element) {
+	alert('Not yet implemented');
+	element.blur();
+}
+
+</script>
+</body>
+</html>

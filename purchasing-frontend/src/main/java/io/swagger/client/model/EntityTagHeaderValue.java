@@ -25,7 +25,7 @@ import io.swagger.client.model.StringSegment;
 /**
  * EntityTagHeaderValue
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class EntityTagHeaderValue {
   @JsonProperty("tag")
   private StringSegment tag = null;

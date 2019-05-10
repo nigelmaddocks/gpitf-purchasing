@@ -87,7 +87,7 @@ public class ProcurementsFilteringService implements IProcurementsFilteringServi
         return unfiltered.stream().parallel()
                 .filter(procurement -> {
                     boolean allOptionSelecteddFromDropDown = statusSearchString.equalsIgnoreCase("ALL");
-                    boolean otherOptionSelectedFromDropDown = String.valueOf(procurement.getStatus().getId()).equalsIgnoreCase(statusSearchString);
+                    boolean otherOptionSelectedFromDropDown = String.valueOf(procurement.getStatus().getId()).equals(statusSearchString);
                     return allOptionSelecteddFromDropDown || otherOptionSelectedFromDropDown;
                 })
                 .collect(Collectors.toList());

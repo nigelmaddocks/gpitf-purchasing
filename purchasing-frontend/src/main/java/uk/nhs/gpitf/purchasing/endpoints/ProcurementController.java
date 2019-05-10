@@ -1,9 +1,12 @@
 package uk.nhs.gpitf.purchasing.endpoints;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,15 +22,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
 import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
 import uk.nhs.gpitf.purchasing.services.ProcurementService;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Controller
 public class ProcurementController {
 	
-    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES = "/buyingprocess/updateProcurementWithCapabilities";
-    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_INTEROPERABLES = "/buyingprocess/updateProcurementWithInteroperables";
-    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_FOUNDATION = "/buyingprocess/updateProcurementWithFoundation";
-    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_PRACTICES = "/buyingprocess/updateProcurementWithPractices";
+    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_CAPABILITIES 	= "/buyingprocess/updateProcurementWithCapabilities";
+    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_INTEROPERABLES 	= "/buyingprocess/updateProcurementWithInteroperables";
+    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_FOUNDATION 		= "/buyingprocess/updateProcurementWithFoundation";
+    public static final String ENDPOINT_UPDATE_PROCUREMENT_WITH_PRACTICES 		= "/buyingprocess/updateProcurementWithPractices";
+    public static final String ENDPOINT_CREATE_PROCUREMENT 						= "/buyingprocess/createProcurement";
 	
 	@Autowired
 	ProcurementRepository procurementRepository;
@@ -51,7 +56,7 @@ public class ProcurementController {
     	
     	SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
     	
-		if (procurementId != 0) {
+		if (procurementId != null && procurementId != 0) {
 			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 			if (optProcurement.isPresent()) {
 				Procurement procurement = optProcurement.get();
@@ -63,13 +68,21 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.of(csvCapabilities), Optional.empty(), Optional.empty(), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.of(csvCapabilities), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();					
 				}
 			}
+		} else {
+			Procurement.PrimitiveProcurement prim = (Procurement.PrimitiveProcurement) request.getSession().getAttribute(Procurement.SESSION_ATTR_NAME);
+			if (prim == null) {
+				prim = procurementService.createNewPrimitiveProcurement(secInfo);
+			}
+			prim.setCsvCapabilities(csvCapabilities);
+			request.getSession().setAttribute(Procurement.SESSION_ATTR_NAME, prim);
+			return new Procurement();
 		}
 		
     	return null;
@@ -89,7 +102,7 @@ public class ProcurementController {
     	
     	SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
     	
-		if (procurementId != 0) {
+		if (procurementId != null && procurementId != 0) {
 			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 			if (optProcurement.isPresent()) {
 				Procurement procurement = optProcurement.get();
@@ -101,15 +114,22 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.of(csvInteroperables), Optional.empty(), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.of(csvInteroperables), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();					
 				}
 			}
+		} else {
+			Procurement.PrimitiveProcurement prim = (Procurement.PrimitiveProcurement) request.getSession().getAttribute(Procurement.SESSION_ATTR_NAME);
+			if (prim == null) {
+				prim = procurementService.createNewPrimitiveProcurement(secInfo);
+			}
+			prim.setCsvCapabilities(csvInteroperables);
+			request.getSession().setAttribute(Procurement.SESSION_ATTR_NAME, prim);			
+			return new Procurement();
 		}
-		
     	return null;
     }
 
@@ -127,7 +147,7 @@ public class ProcurementController {
     	
     	SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
     	
-		if (procurementId != 0) {
+		if (procurementId != null && procurementId != 0) {
 			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 			if (optProcurement.isPresent()) {
 				Procurement procurement = optProcurement.get();
@@ -139,13 +159,20 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(Boolean.valueOf(sFoundation)), Optional.empty());
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(Boolean.valueOf(sFoundation)), Optional.empty());
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();					
 				}
 			}
+		} else {
+			Procurement.PrimitiveProcurement prim = (Procurement.PrimitiveProcurement) request.getSession().getAttribute(Procurement.SESSION_ATTR_NAME);
+			if (prim == null) {
+				prim = procurementService.createNewPrimitiveProcurement(secInfo);
+			}
+			prim.setFoundation(Boolean.valueOf(sFoundation));
+			request.getSession().setAttribute(Procurement.SESSION_ATTR_NAME, prim);
 		}
 		
     	return null;
@@ -166,7 +193,7 @@ public class ProcurementController {
     	
     	SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
     	
-		if (procurementId != 0) {
+		if (procurementId != null && procurementId != 0) {
 			Optional<Procurement> optProcurement = procurementRepository.findById(procurementId);
 			if (optProcurement.isPresent()) {
 				Procurement procurement = optProcurement.get();
@@ -178,16 +205,46 @@ public class ProcurementController {
 		    		logger.warn(SecurityInfo.getSecurityInfo(request).loggerSecurityMessage(message));
 				}
 				try {
-					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(csvPractices));
+					procurement = procurementService.saveCurrentPosition(procurementId, secInfo.getOrgContactId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(csvPractices));
 					return procurement;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();					
 				}
 			}
+		} else {
+			Procurement.PrimitiveProcurement prim = (Procurement.PrimitiveProcurement) request.getSession().getAttribute(Procurement.SESSION_ATTR_NAME);
+			if (prim == null) {
+				prim = procurementService.createNewPrimitiveProcurement(secInfo);
+			}
+			prim.setCsvPractices(GUtils.trimCommas(csvPractices));
+			request.getSession().setAttribute(Procurement.SESSION_ATTR_NAME, prim);
 		}
 		
     	return null;
     }
+    
 
+    @PostMapping(value = ENDPOINT_CREATE_PROCUREMENT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    @ResponseBody
+    public Procurement createProcurement ( 
+    		@RequestBody Map<String,Object> body,
+    		HttpServletRequest request
+    		) {
+    	
+    	SecurityInfo secInfo = SecurityInfo.getSecurityInfo(request);
+		Procurement.PrimitiveProcurement prim = (Procurement.PrimitiveProcurement) request.getSession().getAttribute(Procurement.SESSION_ATTR_NAME);
+		if (prim == null) {
+			prim = procurementService.createNewPrimitiveProcurement(secInfo);
+		}
+		try {
+			Procurement procurement = procurementService.saveCurrentPosition(prim);
+			request.getSession().removeAttribute(Procurement.SESSION_ATTR_NAME);
+			return procurement;
+		} catch (Exception e) {
+			e.printStackTrace();
+	    	return null;
+		}
+    }
 }

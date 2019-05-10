@@ -1,30 +1,24 @@
 package uk.nhs.gpitf.purchasing;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import uk.nhs.gpitf.purchasing.entities.Contact;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.repositories.ContactRepository;
@@ -33,18 +27,28 @@ import uk.nhs.gpitf.purchasing.repositories.OrgContactRoleRepository;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 @Configuration
+@ControllerAdvice(
+    basePackageClasses = {
+        uk.nhs.gpitf.purchasing.controllers.buyingprocess.PackageMarker.class
+    })
 public class ControllerConfiguration implements WebMvcConfigurer {
-	
+
 	@Autowired
 	ContactRepository contactRepository;
-	
+
 	@Autowired
 	OrgContactRepository orgContactRepository;
-	
+
 	@Autowired
 	OrgContactRoleRepository orgContactRoleRepository;
-	
-    @Override
+
+    @InitBinder()
+    public void initBinder(WebDataBinder binder) {
+        StringTrimmerEditor stringtrimmer = new StringTrimmerEditor(false);
+        binder.registerCustomEditor(String.class, stringtrimmer);
+    }
+
+	@Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new ControllerInterceptor()).addPathPatterns("/**/*")
         .excludePathPatterns("/scss/**/*")
@@ -56,9 +60,9 @@ public class ControllerConfiguration implements WebMvcConfigurer {
         .excludePathPatterns("/purchasingLogout")
         ;
     }
-    
+
     public class ControllerInterceptor implements HandlerInterceptor {
-/*    	
+/*
         @Override
         public void afterCompletion(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, Exception arg3) throws Exception {
             System.out.println("afterCompletion");
@@ -67,7 +71,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
         public void postHandle(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, ModelAndView arg3) throws Exception {
             System.out.println("postHandle");
         }
-*/        
+*/
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
             //System.out.println("preHandle");
@@ -76,33 +80,33 @@ public class ControllerConfiguration implements WebMvcConfigurer {
         	if (secinfo == null) {
         		secinfo = new SecurityInfo();
         	}
-    		
+
     		SecurityContext secCtx =  (SecurityContext) request.getSession().getAttribute("SPRING_SECURITY_CONTEXT");
-    		
+
     		if (secCtx != null) {
 	    		Authentication auth = secCtx.getAuthentication();
 	    		secinfo.setAuthenticated(auth.isAuthenticated());
 	    		Collection<SimpleGrantedAuthority> collAuthorities = (Collection<SimpleGrantedAuthority>) auth.getAuthorities();
-	
+
 	    		String sUserEmail = "";
 	            if (auth instanceof OAuth2Authentication) {
 	            	sUserEmail = (String) ((LinkedHashMap) ((OAuth2Authentication) auth).getUserAuthentication().getDetails()).get("email");
 	            }
-	            
+
 	            // If the email address has changed, then lookup the name from Contacts table
 	            if (!sUserEmail.equals(secinfo.getEmail())) {
                 	secinfo.setOrganisationId(0);
                 	secinfo.setOrganisationName("");
                 	secinfo.setRoles(new long[] {});
                 	secinfo.setRolesDescription("");
-                	
+
 	            	Optional<Contact> optContact = contactRepository.findByEmail(sUserEmail);
 	            	if (optContact.isPresent()) {
 	            		Contact contact = optContact.get();
 	            		secinfo.setForename(contact.getForename());
 	            		secinfo.setSurname(contact.getSurname());
 	            		secinfo.setKnown(true);
-	            		
+
 	            		Iterable<OrgContact> itbOrgContact = orgContactRepository.findAllByContactAndDeleted(contact, false);
 	            		ArrayList<OrgContact> arlOrgContact = new ArrayList<>();
 	            		for (OrgContact orgContact : itbOrgContact) {
@@ -121,7 +125,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
 	            					}
 	            				}
 	            			}
-	            			
+
 	            			if (secinfo.getOrganisationId() == 0) {
 		            			request.getSession().setAttribute("SecurityInfo", secinfo);
 		            			response.sendRedirect("/loginOrgSelection");
@@ -132,11 +136,11 @@ public class ControllerConfiguration implements WebMvcConfigurer {
 	            		secinfo.setForename(sUserEmail);
 	            		secinfo.setSurname("unknown");
 	            		secinfo.setKnown(false);
-	            	}            	
+	            	}
 	            }
 	            secinfo.setEmail(sUserEmail);
     		}
-    		
+
             if (!secinfo.isAuthenticated()) {
             	secinfo.setKnown(false);
             	secinfo.setEmail("");
@@ -148,22 +152,22 @@ public class ControllerConfiguration implements WebMvcConfigurer {
             	secinfo.setRoles(new long[] {});
             	secinfo.setRolesDescription("");
             }
-		
+
     		//DefaultOAuth2ClientContext oAuth2CliCtx = (DefaultOAuth2ClientContext) request.getSession().getAttribute("scopedTarget.oauth2ClientContext");
-    		
+
     		request.getSession().setAttribute("SecurityInfo", secinfo);
-            
+
     		// General page authorisation
     		boolean authorised = isPageAuthorised(request, secinfo);
     		if (!authorised) {
     			response.sendRedirect(SecurityInfo.SECURITY_ERROR_TARGET);
-    			return false;    			
+    			return false;
     		}
-    		
+
             return true;
         }
-    }    
-    
+    }
+
     private void setupSecinfoFromOrgContact(SecurityInfo secinfo, OrgContact orgContact) {
     	secinfo.setOrgContactId(orgContact.getId());
     	secinfo.setOrganisationId(orgContact.getOrganisation().getId());
@@ -180,7 +184,7 @@ public class ControllerConfiguration implements WebMvcConfigurer {
     	}
     	secinfo.setRoles(arrRoleIds);
     }
-/*    
+/*
     private  String getClientId(HttpServletRequest request) {
         //final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
@@ -194,8 +198,8 @@ public class ControllerConfiguration implements WebMvcConfigurer {
         }
 
         return "";
-    }    
-*/    
+    }
+*/
     /**
      * This is intended for simple authorisation of webpages, or a suite of webpages based on the url and the user's role[s]
      * @param secinfo
@@ -203,13 +207,13 @@ public class ControllerConfiguration implements WebMvcConfigurer {
      */
     private boolean isPageAuthorised(HttpServletRequest request, SecurityInfo secinfo) {
     	String uri = request.getRequestURI();
-    	
+
     	// dataload must be administrator
     	if (uri.matches(".*\\/dataload\\/.*") && !secinfo.isAdministrator()) {
     		return false;
     	}
-    	
+
     	return true;
     }
-    
+
 }

@@ -40,7 +40,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/**/*.woff2",
                 "/**/*.js").permitAll()                   
         .antMatchers("/organisationData/**").permitAll()
-        .antMatchers("/", "/mainMenu", "/purchasingLogout", "/loginOrgSelection", "/error").permitAll()
+        .antMatchers(
+        		"/", 
+        		"/mainMenu", 
+        		"/purchasingLogout", 
+        		"/loginOrgSelection", 
+        		"/error",
+        		"/buyingprocess/solutionByCapability",
+        		"/onboarding/solutionsByRankWithCapabilitiesInList/*",
+        		"/buyingprocess/updateProcurementWithCapabilities",
+        		"/buyingprocess/updateProcurementWithInteroperables"
+        		).permitAll()
         .anyRequest().authenticated()
         .and().formLogin().loginPage("/login").permitAll()
         .and()

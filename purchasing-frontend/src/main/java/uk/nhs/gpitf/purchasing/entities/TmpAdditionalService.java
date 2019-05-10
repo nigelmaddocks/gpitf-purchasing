@@ -11,21 +11,22 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import lombok.Data;
 
 @Entity
-@Table(name="proc_shortlist_removal_reason", schema="purchasing")
+@Table(name="tmp_additional_service", schema="purchasing")
 @Data
-public class ProcShortlistRemovalReason {
-	
-	public static final long OTHER = 90;
-
-	
+public class TmpAdditionalService {
     @Id
 	private long id;
+    
+	private String additionalServiceId;
+
+    private String solutionId;
 	
     @NotBlank
 	@Size(max = 255)
 	private String name;
-    
 }

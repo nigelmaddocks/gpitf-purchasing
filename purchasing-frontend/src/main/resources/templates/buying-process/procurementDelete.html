@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
 <head>
 <meta charset="UTF-8">
 <title>My Procurements</title>
@@ -16,7 +16,7 @@
 			</div>
 			<div class="form-group">
 				<label>Date created</label>
-					<p class="form-control-static" th:text="*{#temporals.format(startedDate, 'dd MMM yyyy')}"></p>		
+				<p class="form-control-static" th:text="*{#temporals.format(startedDate, 'dd MMM yyyy')}"></p>		
 			</div>
 			<div class="form-group">
 				<label>Date last amended</label>

@@ -1,6 +1,8 @@
 package uk.nhs.gpitf.purchasing.services.buying.process;
 
 import org.springframework.stereotype.Service;
+
+import uk.nhs.gpitf.purchasing.entities.EvaluationTypeEnum;
 import uk.nhs.gpitf.purchasing.entities.OrgContact;
 import uk.nhs.gpitf.purchasing.entities.ProcStatus;
 import uk.nhs.gpitf.purchasing.entities.Procurement;
@@ -61,7 +63,16 @@ public class ProcurementServiceStub implements IProcurementService {
     }
 
     @Override
-    public Procurement saveCurrentPosition(long procurementId, long orgContactId, Optional<String> searchKeyword, Optional<String> csvCapabilities, Optional<String> csvInteroperables, Optional<Boolean> foundation, Optional<String> csvPractices) throws Exception {
+    public Procurement saveCurrentPosition(
+    		long procurementId, 
+    		long orgContactId, 
+    		Optional<String> searchKeyword, 
+    		Optional<String> csvCapabilities, 
+    		Optional<String> csvInteroperables, 
+            Optional<EvaluationTypeEnum> evaluationType,
+            Optional<Boolean> singleSiteContinuity,
+    		Optional<Boolean> foundation, 
+    		Optional<String> csvPractices) throws Exception {
         return new Procurement();
     }
 

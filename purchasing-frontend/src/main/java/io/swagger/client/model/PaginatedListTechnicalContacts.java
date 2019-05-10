@@ -28,7 +28,7 @@ import java.util.List;
  * A paged list of objects
  */
 @ApiModel(description = "A paged list of objects")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class PaginatedListTechnicalContacts {
   @JsonProperty("pageIndex")
   private Integer pageIndex = null;

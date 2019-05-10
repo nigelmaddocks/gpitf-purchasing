@@ -26,7 +26,7 @@ import org.threeten.bp.OffsetDateTime;
  * Initially, a &#39;message&#39; or response to &#39;evidence&#39; which supports a claim to a ‘standard’.  Thereafter, this will be a response to a previous message/response.
  */
 @ApiModel(description = "Initially, a 'message' or response to 'evidence' which supports a claim to a ‘standard’.  Thereafter, this will be a response to a previous message/response.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-02-27T11:46:50.314Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2019-04-10T14:20:36.344Z")
 public class StandardsApplicableReviews {
   @JsonProperty("id")
   private String id = null;
@@ -42,6 +42,9 @@ public class StandardsApplicableReviews {
 
   @JsonProperty("createdOn")
   private OffsetDateTime createdOn = null;
+
+  @JsonProperty("originalDate")
+  private OffsetDateTime originalDate = null;
 
   @JsonProperty("message")
   private String message = null;
@@ -136,6 +139,24 @@ public class StandardsApplicableReviews {
     this.createdOn = createdOn;
   }
 
+  public StandardsApplicableReviews originalDate(OffsetDateTime originalDate) {
+    this.originalDate = originalDate;
+    return this;
+  }
+
+   /**
+   * UTC date and time at which record was originally created  Set by server when first creating record  SET ON SERVER
+   * @return originalDate
+  **/
+  @ApiModelProperty(value = "UTC date and time at which record was originally created  Set by server when first creating record  SET ON SERVER")
+  public OffsetDateTime getOriginalDate() {
+    return originalDate;
+  }
+
+  public void setOriginalDate(OffsetDateTime originalDate) {
+    this.originalDate = originalDate;
+  }
+
   public StandardsApplicableReviews message(String message) {
     this.message = message;
     return this;
@@ -169,12 +190,13 @@ public class StandardsApplicableReviews {
         Objects.equals(this.evidenceId, standardsApplicableReviews.evidenceId) &&
         Objects.equals(this.createdById, standardsApplicableReviews.createdById) &&
         Objects.equals(this.createdOn, standardsApplicableReviews.createdOn) &&
+        Objects.equals(this.originalDate, standardsApplicableReviews.originalDate) &&
         Objects.equals(this.message, standardsApplicableReviews.message);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, previousId, evidenceId, createdById, createdOn, message);
+    return Objects.hash(id, previousId, evidenceId, createdById, createdOn, originalDate, message);
   }
 
 
@@ -188,6 +210,7 @@ public class StandardsApplicableReviews {
     sb.append("    evidenceId: ").append(toIndentedString(evidenceId)).append("\n");
     sb.append("    createdById: ").append(toIndentedString(createdById)).append("\n");
     sb.append("    createdOn: ").append(toIndentedString(createdOn)).append("\n");
+    sb.append("    originalDate: ").append(toIndentedString(originalDate)).append("\n");
     sb.append("    message: ").append(toIndentedString(message)).append("\n");
     sb.append("}");
     return sb.toString();

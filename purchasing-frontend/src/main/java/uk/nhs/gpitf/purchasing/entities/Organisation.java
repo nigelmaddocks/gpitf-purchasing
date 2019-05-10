@@ -13,6 +13,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 
@@ -114,6 +115,53 @@ public class Organisation {
     		}
     	}
     	return null;
+    }
+    
+    @Transient
+    @JsonIgnore
+    public String getAddress() {
+    	String s = addrLine1;
+    	if (StringUtils.isNotEmpty(addrLine2)) {
+    		if (StringUtils.isNotEmpty(s)) {
+    			s += ",\n";
+    		}
+    		s += addrLine2;
+    	}
+    	if (StringUtils.isNotEmpty(addrLine3)) {
+    		if (StringUtils.isNotEmpty(s)) {
+    			s += ",\n";
+    		}
+    		s += addrLine3;
+    	}
+    	if (StringUtils.isNotEmpty(addrTown)) {
+    		if (StringUtils.isNotEmpty(s)) {
+    			s += ",\n";
+    		}
+    		s += addrTown;
+    	}
+    	if (StringUtils.isNotEmpty(addrCounty)) {
+    		if (StringUtils.isNotEmpty(s)) {
+    			s += ",\n";
+    		}
+    		s += addrCounty;
+    	}
+    	if (StringUtils.isNotEmpty(addrPostcode)) {
+    		if (StringUtils.isNotEmpty(s)) {
+    			s += ",\n";
+    		}
+    		s += addrPostcode;
+    	}
+    	if (StringUtils.isNotEmpty(addrCountry) && !addrCountry.equalsIgnoreCase("ENGLAND")) {
+    		if (StringUtils.isNotEmpty(s)) {
+    			if (StringUtils.isEmpty(addrPostcode)) {
+    				s += ",";
+    			}
+    			s += "\n";
+    		}
+    		s += addrCountry;
+    	}
+
+    	return s;
     }
     
 }
