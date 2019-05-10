@@ -53,6 +53,7 @@ public class BuyingProcessController {
 	protected static final String PAGE_INDEX = "index";
 	protected static final String PAGE_SEARCH_SOLUTIONS_MENU = "searchSolutionMenu";
 	protected static final String PAGE_LIST_PROCUREMENTS = "listProcurements";
+	protected static final String PAGE_LIST_FILTERED_PROCUREMENTS = "filteredProcurementsList";
 	protected static final String PAGE_PROCUREMENT = "procurement";
 	protected static final String PAGE_RENAME_PROCUREMENT = "procurementRename";
 	protected static final String PAGE_DELETE_PROCUREMENT = "procurementDelete";
@@ -185,12 +186,40 @@ public class BuyingProcessController {
 
 		model.addAttribute("listProcurementsModel", listProcurementsModel);
 
-		SearchListProcurementsModel searchListProcurementsModel = new SearchListProcurementsModel();
+		SearchListProcurementsModel searchListProcurementsModel = (SearchListProcurementsModel) request.getSession().getAttribute("tmp_ProcurementsListFilter");
+		if (searchListProcurementsModel == null) {
+			searchListProcurementsModel = new SearchListProcurementsModel();
+		}
+		if (searchListProcurementsModel.containsData()) {
+			return "redirect:" + PAGE_LIST_FILTERED_PROCUREMENTS; 
+		}
+		
 		model.addAttribute("searchListProcurementsModel", searchListProcurementsModel);
+
 		return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
 	}
 
-	@PostMapping(value = {"/filtered"})
+	@GetMapping(value = {"/filteredProcurementsList"})
+	public String filterProcurementsGET(@PathVariable Optional<Long> optionalOrgContactId, HttpServletRequest request,
+									 Model model,
+									 RedirectAttributes attr) {
+		if(accessIsDeniedToProcurements(request, optionalOrgContactId, orgContactRepository)) {
+			return sendSecurityWarning(request, attr, LOGGER);
+		} else {
+			long orgContactd = getOrgContactId(optionalOrgContactId, getSecurityInfo(request));
+			SearchListProcurementsModel searchListProcurementsModel = (SearchListProcurementsModel) request.getSession().getAttribute("tmp_ProcurementsListFilter");
+			if (searchListProcurementsModel == null) {
+				searchListProcurementsModel = new SearchListProcurementsModel();
+			}
+			model.addAttribute("searchListProcurementsModel", searchListProcurementsModel);
+
+			ListProcurementsModel filteredProcurements = procurementsFilteringService.filterProcurements(orgContactd, searchListProcurementsModel);
+			model.addAttribute("listProcurementsModel", filteredProcurements);
+			return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
+		}
+	}
+
+	@PostMapping(value = {"/filteredProcurementsList"})
 	public String filterProcurements(@PathVariable Optional<Long> optionalOrgContactId, HttpServletRequest request,
 									@ModelAttribute("searchListProcurementsModel") SearchListProcurementsModel searchModel,
 									 Model model,
@@ -199,6 +228,7 @@ public class BuyingProcessController {
 			return sendSecurityWarning(request, attr, LOGGER);
 		} else {
 			long orgContactd = getOrgContactId(optionalOrgContactId, getSecurityInfo(request));
+			request.getSession().setAttribute("tmp_ProcurementsListFilter", searchModel);
 			ListProcurementsModel filteredProcurements = procurementsFilteringService.filterProcurements(orgContactd, searchModel);
 			model.addAttribute("listProcurementsModel", filteredProcurements);
 			return PAGE_PATH + PAGE_LIST_PROCUREMENTS;

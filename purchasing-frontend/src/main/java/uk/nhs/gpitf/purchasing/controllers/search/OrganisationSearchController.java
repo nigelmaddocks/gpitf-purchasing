@@ -30,7 +30,7 @@ public class OrganisationSearchController {
 	@GetMapping("/organisationSearch")
 	public String organisationSearch(Model model, HttpServletRequest request) {
 		Breadcrumbs.register("Search Orgs", request);
-		OrganisationSearchModel.Criteria criteria = (OrganisationSearchModel.Criteria) request.getSession().getAttribute("OrganisationSearchModel.Criteria");
+		OrganisationSearchModel.Criteria criteria = (OrganisationSearchModel.Criteria) request.getSession().getAttribute("tmp_OrganisationSearchModel.Criteria");
 		
 		OrganisationSearchModel orgSearchModel = new OrganisationSearchModel();
 		
@@ -38,7 +38,6 @@ public class OrganisationSearchController {
 			orgSearchModel.setCriteria(criteria);
 			setupOrgSearchModel(null, orgSearchModel);
 		}
-		//request.getSession().removeAttribute("OrganisationSearchModel.Criteria");
 		
 		model.addAttribute("organisationSearchModel", orgSearchModel);
         return "admin/organisationSearch";
@@ -50,7 +49,7 @@ public class OrganisationSearchController {
 
 		setupOrgSearchModel(bindingResult, orgSearchModel);
 		
-    	request.getSession().setAttribute("OrganisationSearchModel.Criteria", orgSearchModel.getCriteria());
+    	request.getSession().setAttribute("tmp_OrganisationSearchModel.Criteria", orgSearchModel.getCriteria());
 
     	return "admin/organisationSearch";
     }	

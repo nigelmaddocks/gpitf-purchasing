@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
@@ -79,17 +80,15 @@ public class BaseController {
     }	
 	
 	@GetMapping("/")
-	public String root(Model model, HttpServletRequest request, Principal principal) {
-		LOGGER.trace("This is a trace message");
-		LOGGER.debug("This is a debug message");
-		LOGGER.info("This is an info message");
-		
+	public String root(Model model, HttpServletRequest request, Principal principal) {		
 		Breadcrumbs.reset("Home", request);
+		removeTemporarySessionObjects(request.getSession());
         return "mainMenu";
     }	
 	@GetMapping("/mainMenu")
 	public String mainMenu(Model model, HttpServletRequest request, Principal principal) {
 		Breadcrumbs.reset("Home", request);
+		removeTemporarySessionObjects(request.getSession());
         return "mainMenu";
     }	
 	
@@ -139,4 +138,13 @@ public class BaseController {
 		return "redirect:/mainMenu";
     }	
 
+	private void removeTemporarySessionObjects(HttpSession session) {
+		Enumeration<String> sessionAttributeNames = session.getAttributeNames();
+		while (sessionAttributeNames.hasMoreElements()) {
+			String name = sessionAttributeNames.nextElement();
+			if (name.startsWith("tmp_")) {
+				session.removeAttribute(name);
+			}
+		}
+	}
 }
