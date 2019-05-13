@@ -69,6 +69,10 @@ input[type='text'], input[type='email'], input[type='tel'], textarea {
     width: 100% !important;
 }
 
+div.col {
+    width: 20% !important;
+}
+
 .breadcrumb {
 	background-color:transparent; !important;
 }
@@ -83,4 +87,24 @@ input[type='text'], input[type='email'], input[type='tel'], textarea {
 
 .breadcrumb > li + li:before {  /* remove this to revert back to slash */
     content: "> ";
+}
+
+/**
+/* Other Styles
+*/
+
+a.minor-link, a.minor-link:link, a.minor-link:hover, a.minor-link:visited {
+	font-size: 0.8em;
+}
+a.minor-link::before {
+	color: #425563;
+	content: "["
+}
+a.minor-link::after {
+	color: #425563;
+	content: "]"
+}
+
+.form-control {
+    width:490% !important;
 }

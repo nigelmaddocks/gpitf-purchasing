@@ -110,9 +110,9 @@
             	<div class="row">
 	                <div class="col-md-4" th:style="${'display: ' + (myModel.foundation?'none':'block')}">
 	                	<input type="checkbox" id="togFoundation" disabled="true" name="togFoundation" th:checked="${myModel.foundation}" data-toggle="toggle" data-on="Foundation" data-off="Non-Foundation" data-onstyle="success" data-offstyle="info" data-width="150" /> <br />  <br /> 
-			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : 'capabilitysearch-capability-non-foundation'}" >		                
+			            <div th:each="cap : ${myModel.allCapabilities}" th:class="${cap.type == 'C' ? 'capabilitysearch-capability-foundation' : ''}" >		                
 		               		<input class="col-md-1" type="checkbox" name="filterCapabilities" th:value="${cap.id}" th:id="${'filterCapabilities_' + cap.id}" 
-		               			th:checked="${myModel.inInitialCapabilities(cap.id)}"
+		               		th:checked="${myModel.inInitialCapabilities(cap.id)}"
 		               		/>
 							<label class="col-md-11" th:text="${cap.name}" th:for="${'filterCapabilities_' + cap.id}" >Capability 1</label>		                
 			            </div>
@@ -120,7 +120,7 @@
 			            <div class="capabilitysearch-interoperable"><h4>Interoperable with</h4></div>
 			            <div th:each="fs : ${myModel.foundationSolutions}" class="capabilitysearch-interoperable">		                
 		               		<input class="col-md-1" type="checkbox" name="filterInteroperable" th:value="${fs.id}" th:id="${'filterInteroperable_' + fs.id}" 
-		               			th:checked="${myModel.inInitialInteroperables(fs.id)}"
+		               		th:checked="${myModel.inInitialInteroperables(fs.id)}"
 		               		/>
 							<label class="col-md-11" th:text="${fs.name}" th:for="${'filterInteroperable_' + fs.id}" >a foundation solution</label>		                
 			            </div>
@@ -201,20 +201,6 @@ $('#togFoundation').change(function() {
 			}
 		});
 
-		/*<![CDATA[*/
-        var FOUNDATION_SEARCH_ADD_CAPABILITIES = /*[[${myModel.FOUNDATION_SEARCH_ADD_CAPABILITIES}]]*/;
-    	/*]]>*/
-		
-		if (!FOUNDATION_SEARCH_ADD_CAPABILITIES) {
-			$(".capabilitysearch-capability-non-foundation").each( function() {
-				if (vFoundation) {
-					$(this).hide();
-				} else {
-					$(this).show();
-				}
-			});
-		}
-
 		$(".capabilitysearch-interoperable").each( function() {
 			if (vFoundation) {
 				$(this).hide();
@@ -246,24 +232,14 @@ $('#togFoundation').change(function() {
 
     function refreshCapabilityNames() {
 		var selectedCapabilityNames = "";
-		var selectedInteroperablesNames = "";
-
 		$("input[name=filterCapabilities]:checked").each( function () {
 			selectedCapabilityNames += ", " + $(this).siblings().first().text().trim();
 		});
 		if (selectedCapabilityNames.length > 0) {
 			selectedCapabilityNames = selectedCapabilityNames.substring(2);
 		}
-
-		$("input[name=filterInteroperable]:checked").each( function () {
-			selectedInteroperablesNames += ", " + $(this).siblings().first().text().trim();
-		});
-		if (selectedInteroperablesNames.length > 0) {
-			selectedInteroperablesNames = " Interoperable with " + selectedInteroperablesNames.substring(2);
-		}
-		
 		if ($("#selectedCapabilityNames") != null) {
-			$("#selectedCapabilityNames").text(selectedCapabilityNames + selectedInteroperablesNames);
+			$("#selectedCapabilityNames").text(selectedCapabilityNames);
 		}
     	
     }

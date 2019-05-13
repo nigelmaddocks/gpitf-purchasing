@@ -5,19 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -27,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import lombok.Getter;
 import lombok.Setter;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
@@ -35,7 +25,9 @@ import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
 @Entity
 @Table(name="procurement", schema="purchasing")
 @Data
-public class Procurement {
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+public class Procurement implements Serializable {
 
 	@Transient
 	public static final String SESSION_ATTR_NAME = "temp_procurement";
@@ -47,8 +39,6 @@ public class Procurement {
 	@Transient
 	@JsonIgnore
 	PatientCountRepository patientCountRepository;
-
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,100 +1,108 @@
 package uk.nhs.gpitf.purchasing.controllers.evaluations;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import uk.nhs.gpitf.purchasing.controllers.buyingprocess.BuyingProcessController;
-import uk.nhs.gpitf.purchasing.entities.CompetitionType;
-import uk.nhs.gpitf.purchasing.entities.EvaluationProcCriterion;
-import uk.nhs.gpitf.purchasing.entities.Procurement;
+import uk.nhs.gpitf.purchasing.exceptions.InvalidCriterionException;
 import uk.nhs.gpitf.purchasing.models.EvaluationsModel;
-import uk.nhs.gpitf.purchasing.repositories.EvaluationProcCriterionRepository;
-import uk.nhs.gpitf.purchasing.repositories.ProcurementRepository;
-import uk.nhs.gpitf.purchasing.services.EvaluationService;
-import uk.nhs.gpitf.purchasing.utils.Breadcrumbs;
+import uk.nhs.gpitf.purchasing.services.evaluations.EvaluationsServiceParameterObject;
+import uk.nhs.gpitf.purchasing.services.evaluations.IEvaluationService;
+import uk.nhs.gpitf.purchasing.utils.IBreadCrumbsWrapper;
 
-@Controller 
+import javax.servlet.http.HttpServletRequest;
+
+@Controller
 public class EvaluationsController {
-	
-	@Autowired
-	ProcurementRepository procurementRepository;
-	
-	@Autowired
-	EvaluationService evaluationService;
+
+    private static final Logger logger = LoggerFactory.getLogger(EvaluationsController.class);
+
+    private final IEvaluationService evaluationService;
+    private final IBreadCrumbsWrapper breadcrumbs;
 
     @Autowired
-    private EvaluationProcCriterionRepository evaluationProcCriterionRepository;
-	
-    private static final Logger logger = LoggerFactory.getLogger(EvaluationsController.class);
+    public EvaluationsController(IEvaluationService evaluationService, IBreadCrumbsWrapper breadCrumbsWrapper) {
+        this.evaluationService = evaluationService;
+        this.breadcrumbs = breadCrumbsWrapper;
+    }
+
+    @Value("${sysparam.shortlist.max}")
+    private String SHORTLIST_MAX;
+
     @RequestMapping(value = "/buyingprocess/evaluations/{procurementId}", method = { RequestMethod.GET, RequestMethod.POST })
     @Transactional
     public String initialiseScreen1 (@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request,
-                                         @ModelAttribute("evaluationsModel") EvaluationsModel evaluationsModel) {
-		Breadcrumbs.register("Evaluation criteria", request);
-    	evaluationsModel.setId(procurementId);
-    	model.addAttribute("pageModel", evaluationsModel);
-    	
-    	Procurement procurement = procurementRepository.findById(procurementId).get();
-    	if (request.getMethod().equalsIgnoreCase("GET")) {
-	    	if (procurement.getCompetitionType() == null || procurement.getCompetitionType().getId() == CompetitionType.OFF_CATALOGUE) {
-	    		return "buying-process/evaluationsOffCatScreen1";
-	    	} else {
-		    	return "buying-process/evaluationsOnCatScreen1";
-	    	}
-    	} else {
-    		boolean hasEvaluationCriteria = evaluationService.containsCriteria(procurementId);
-    		if (!hasEvaluationCriteria) {
-    			EvaluationProcCriterion criterion = new EvaluationProcCriterion();
-    			criterion.setName("Dummy to test page flow");
-    			criterion.setProcurement(procurement.getId());
-    			criterion.setSeq(50);
-    			criterion.setWeightingPercent(100);
-    			evaluationProcCriterionRepository.save(criterion);
-    		}
-    		
-    		return "redirect:"
-				+ BuyingProcessController.URL_PATH
-        		+ "/" + procurement.getId()
-        		+ "/gotoProcurement";
-    	}
-    }
-  
+                                         @ModelAttribute("evaluationsModel") EvaluationsModel evaluationsModel) throws InvalidCriterionException {
 
- 
+        breadcrumbs.removeTitle("By capability", request);
+        breadcrumbs.removeTitle("By keyword", request);
+        breadcrumbs.register("Evaluation", request);
+
+        EvaluationsServiceParameterObject espo = EvaluationsServiceParameterObject.builder()
+                .attr(attr)
+                .request(request)
+                .evaluationsModel(evaluationsModel)
+                .model(model)
+                .procurementId(procurementId).build();
+
+        return evaluationService.setUpEvaluationsScreen1(espo);
+    }
+
 
     @RequestMapping(value = "/buyingprocess/evaluations/weightings/{procurementId}", method = { RequestMethod.GET, RequestMethod.POST })
+    public String saveWeightings(@PathVariable Long procurementId, HttpServletRequest request,
+                                    @ModelAttribute("evaluationsModel") EvaluationsModel evaluationsModel,
+                                    Model model,
+                                    RedirectAttributes attr) {
+
+        EvaluationsServiceParameterObject espo = EvaluationsServiceParameterObject.builder()
+                .evaluationsModel(evaluationsModel)
+                .model(model)
+                .request(request)
+                .attr(attr)
+                .procurementId(procurementId)
+                .build();
+
+        return evaluationService.submitScreen1Form(espo);
+    }
+
+    @RequestMapping(value = "/buyingprocess/solutionsReview/{procurementId}", method = { RequestMethod.GET, RequestMethod.POST })
     public String initialiseScreen2(@PathVariable Long procurementId, HttpServletRequest request,
                                     @ModelAttribute("evaluationsModel") EvaluationsModel evaluationsModel,
                                     Model model,
                                     RedirectAttributes attr) {
-		Breadcrumbs.register("Evaluation scoring", request);
-    	evaluationsModel.setId(procurementId);
-    	model.addAttribute("pageModel", evaluationsModel);
-    	model.addAttribute("scoringDone", false);
 
-    	return "buying-process/evaluationsScreen2";
+        EvaluationsServiceParameterObject espo = EvaluationsServiceParameterObject.builder()
+                .evaluationsModel(evaluationsModel)
+                .model(model)
+                .request(request)
+                .attr(attr)
+                .procurementId(procurementId)
+                .build();
+
+        return evaluationService.setUpEvaluationsScreen2(espo);//TODO plug into solutions review
     }
 
     @PostMapping(value = {"/buyingprocess/evaluations/scores/{procurementId}"})
     public String saveScores(@PathVariable Long procurementId, HttpServletRequest request,
                                  @ModelAttribute("evaluationsModel") EvaluationsModel evaluationsModel,
                                  Model model,
-                                 RedirectAttributes attr) {    	
-    	evaluationsModel.setId(procurementId);
-    	model.addAttribute("pageModel", evaluationsModel);
-    	model.addAttribute("scoringDone", true);
-    	return "buying-process/evaluationsScreen2";
+                                 RedirectAttributes attr) {
+
+        EvaluationsServiceParameterObject espo = EvaluationsServiceParameterObject.builder()
+                .evaluationsModel(evaluationsModel)
+                .model(model)
+                .request(request)
+                .attr(attr)
+                .procurementId(procurementId)
+                .build();
+
+        return evaluationService.saveScoresForEachBundle(espo);
     }
+
 }

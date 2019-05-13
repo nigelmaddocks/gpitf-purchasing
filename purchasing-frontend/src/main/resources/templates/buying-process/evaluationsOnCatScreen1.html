@@ -1,26 +1,159 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
 <head>
-<meta charset="UTF-8">
-<title>Set Evaluation Criteria for On-Catalogue Procurement</title>
+	<title>Set Evaluation Criteria for On-Catalogue Procurement</title>
+	<meta charset="utf-8">
+	<!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+	<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">-->
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+	<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>-->
+	<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>-->
 </head>
 <body>
-	<main id="content">
-		<h1>Set Evaluation Criteria for On-Catalogue Procurement</h1>
-		<form action="" th:action="@{'/buyingprocess/evaluations/' + ${pageModel.id}}" th:object="${pageModel}" method="POST">
-			<input type="hidden" th:field="*{id}"/>
+<main id="content">
+	<section>
+    <div class="container">
 
-			<p>Placeholder for setting Evaluation Criteria for On-Catalogue Procurement</p>
 
-			<div class="form-group">
-				<button type="submit" class="btn button" id="continue">Continue</button>
+		<div class="eval-title">
+			<h3>Set Evaluation Criteria for On-Catalogue Procurement</h3>
+		</div>
+
+			<form action="#" th:action="@{/buyingprocess/evaluations/weightings/__${evaluationsModel.procurementId}__}" th:object="${evaluationsModel}"
+				  method="post">
+
+				<div class="eval">
+				<span class="eval-form-titles">Criterion</span>
+				<span class="eval-form-titles">Weighting</span>
+				<span class="eval-form-titles">Seq</span>
+				</div>
+
+			<div id="evaluationsList">
+
+				<div class="eval-form-col item fields" th:each="Evaluation, status : ${evaluationsModel.evaluations}">
+					<div class="eval-form-col form-group d-none"><input th:field="*{evaluations[__${status.index}__].criteria}" type="text" class="form-control" placeholder="kfc" autocomplete="off" ></div>
+					<div class="eval-form-col form-group">
+						<input th:field="*{evaluations[__${status.index}__].weighting}" type="text" class="form-control" autocomplete="off">
+					</div>
+					<div class="eval-form-col form-group">
+						<input th:field="*{evaluations[__${status.index}__].seq}" type="text" class="form-control" autocomplete="off">
+					</div>
+				</div>
 			</div>
-<!-- 			
-			<div class="form-group">
-				<a class="back-link" href="#" th:href="@{#}"></a>	
-			</div>			
--->
+
+				<div class="eval-controls-on-catalog" id="eval-controls-id">
+
+					<div>
+						<button type="button" class="btn btn-success eval-add-criterion-button" onclick="addCriterion()" >Add Criterion</button>
+					</div>
+
+					<div class="text-left">
+						<div>
+							<button type="submit" class="btn btn-primary eval-submit-button ">Submit</button>
+						</div>
+					</div>
+
+				    <div class="row text-left">
+						<input type="button" id="evaluationCancelButtonForOnCatalogScreen" value="Cancel" onClick="window.location.reload();"/>
+					</div>
+
+					<div>
+						<select id="criterionFormHelper" class="eval-helper-dropdown">
+							<option value="">---Select---</option>
+							<option th:each="criterionHint: ${criterionHints}"
+									th:value="${criterionHint}"
+									th:text="${criterionHint}">
+							</option>
+						</select>
+					</div>
+
+					<div>
+						<button type="button" id="helper" class="btn btn-primary eval-helper-button">Populate Criterion Box</button>
+					</div>
+
 		</form>
-	</main>
+
+	</div>
+
+	</div>
+</section>
+<script>
+    var lastSelectedCriteriaInputBox;;
+    var criterionAddedNumber = -1;
+    var columnCounter = 1;
+
+	let addCriterion = function () {
+
+        criterionAddedNumber++;
+
+        // set the criterion form helper dropdown to the default 'select' option
+        document.getElementById("criterionFormHelper").selectedIndex = "0";
+
+        let listName = 'evaluations';
+        let fieldsNames = ['id', 'criteria', 'weighting', 'seq'];
+        let rowIndex = document.querySelectorAll('.item').length;
+        let row = document.createElement('div');
+        row.classList.add('eval', 'item');
+
+		// iterate through each column and construct textbox for each
+        fieldsNames.forEach((fieldName) => {
+
+            let col = document.createElement('div');
+            col.classList.add('eval-form-col', 'form-group');
+            if (fieldName === 'id') {
+                col.classList.add('d-none'); //field with id - hidden
+            }
+
+            let input = document.createElement('input');
+            input.type = 'text';
+            input.classList.add('form-control');
+            input.id = listName + rowIndex + '.' + fieldName;
+            input.setAttribute('name', listName + '[' + rowIndex + '].' + fieldName);
+
+            if(fieldName ===  'criteria') {
+
+              // set global var to capture criteria input box id (for use by helper dropdown)
+              input.onclick = function(){lastSelectedCriteriaInputBox = input.id;};
+              input.placeholder="enter criteria or use the dropdown helper";
+
+              // add event handler for criterion form helper button
+              var btn = document.getElementById('helper');
+              btn.addEventListener("click", function() {
+                  var dropdown = document.getElementById("criterionFormHelper");
+                  var helperSelection = dropdown.options[dropdown.selectedIndex].value;
+                  var clickedOnInputBox = document.getElementById(lastSelectedCriteriaInputBox);
+                  clickedOnInputBox.value=helperSelection;
+              }, false);
+
+            } else if(fieldName === 'weighting') {
+              input.placeholder="enter weighting";
+            } else if(fieldName === 'seq') {
+              input.placeholder="enter seq";
+            }
+           input.autocomplete="off";
+
+           // add titles to each column of the form
+           if(fieldName ===  'id') {
+              let textHolder = document.createElement('span');
+              var t = document.createTextNode("Criterion " + columnCounter);
+              textHolder.appendChild(t);
+              textHolder.style.backgroundColor = "lightblue";
+              columnCounter++;
+            }
+
+            if(fieldName !==  'id') {
+              col.appendChild(input);
+              row.appendChild(col);
+            }
+
+        });
+
+        document.getElementById('evaluationsList').appendChild(row);
+    };
+
+window.onload = addCriterion();
+</script>
+
+</main>
 </body>
 </html>

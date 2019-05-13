@@ -64,7 +64,7 @@ public class Breadcrumbs implements Serializable {
 		}
 		request.getSession().setAttribute("Breadcrumbs", objBreadcrumbs);
 	}
-	
+
 	public static void removeTitle(String title, HttpServletRequest request) {
 		Breadcrumbs objBreadcrumbs = (Breadcrumbs)request.getSession().getAttribute("Breadcrumbs");
 		for (var breadcrumb : objBreadcrumbs.breadcrumbs) {

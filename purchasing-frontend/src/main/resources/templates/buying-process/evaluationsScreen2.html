@@ -1,33 +1,103 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
 <head>
-<meta charset="UTF-8">
-<title>Input Evaluation Scoring</title>
+    <meta charset="UTF-8"/>
+    <title>Evaluations Screen 2 - Scoring</title>
+
 </head>
 <body>
-	<main id="content">
-		<h1>Input Evaluation Scoring</h1>
-		<form action="" th:action="@{'/buyingprocess/evaluations/scores/' + ${pageModel.id}}" th:object="${pageModel}" method="POST">
-			<input type="hidden" th:field="*{id}"/>
+<main id="content">
+<section>
+    <div class="container">
+        <h1>Input Evaluation Scoring</h1>
 
-			<p>Placeholder for input of Evaluation Scoring</p>
+        <div class="panel panel-default">
+            <div class="panel-heading">Key</div>
 
-			<div class="form-group">
-				<button type="submit" class="btn button" id="continue">Update Scores</button>
-			</div>
-			<div class="form-group">
-				<button id="btnOrdering" class="btn btn-default" type="button" onclick="gotoOrdering(this);" th:disabled="${scoringDone == false}">Place Order with highest score</button>
-			</div>			
-		</form>
-	</main>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr style="font-weight: 600;">
+                        <td>Score</td>
+                        <td>Description</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="evaluationScoreValue: ${evaluationScoreValues}">
+                        <td th:text="${evaluationScoreValue.score}"></td>
+                        <td th:text="${evaluationScoreValue.name}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<script th:inline="javascript">
+        <div class="panel panel-default">
+            <div class="panel-heading">Bundles For Evaluation</div>
 
-function gotoOrdering(element) {
-	alert('Not yet implemented');
-	element.blur();
-}
+            <form action="#" th:action="@{/buyingprocess/evaluations/scores/__${evaluationsModel.procurementId}__}" th:object="${evaluationsModel}" method="post">
 
-</script>
+                <div id="evaluationsList">
+
+                    <div class="panel-body">
+
+                        <table class="table">
+                            <thead>
+                            <tr class="eval-table-font">
+                                <td>Bundle</td>
+                                <td>Score for each criterion</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="bundleScoring, status : ${evaluationsModel.bundleScorings}">
+                                <td th:text="${bundleScoring.bundle.getName()}">999</td>
+
+                                <td>
+                                    <div th:each="criterionScore, status2 : ${bundleScoring.criterionScores}">
+                                        <p th:text="${criterionScore.criterion}"></p>
+
+                                        <input type="hidden"
+                                                th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].criterion}"
+                                                th:value="${criterionScore.criterion}"/>
+                                        <input type="hidden"
+                                               th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].criterionId}"
+                                               th:value="${criterionScore.criterionId}"/>
+
+                                        <div class="col form-group d-none">
+                                            <select class="dropdown" th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].score}">
+                                              <option value="999">----Select----</option>
+                                              <option th:each="score: ${evaluationsModel.scores}"
+                                                      th:value="${score}"
+                                                      th:text="${score}">
+                                              </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <div class="eval-controls">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary eval-submit-button-screen-2">Submit</button>
+                    </div>
+                    <div class="row text-left">
+                        <input type="button" id="evaluationCancelButtonScreen2" value="Cancel" onClick="window.location.reload();"/>
+                    </div>
+                </div>
+
+            </form>
+            <div class="panel-body">
+            </div>
+        </div>
+
+    </div>
+</section>
+</main>
 </body>
 </html>

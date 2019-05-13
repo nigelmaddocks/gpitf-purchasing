@@ -11,11 +11,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name="org_type", schema="purchasing")
 @Getter @Setter
 @NoArgsConstructor
-public class OrgType {
+public class OrgType implements Serializable {
 	
 	public static final long PRESCRIBING_PRACTICE = 1;
 	public static final long CCG = 2;
