@@ -10,7 +10,7 @@ import uk.nhs.gpitf.purchasing.repositories.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service("evalService")
 public class EvaluationService {
 
     @Autowired

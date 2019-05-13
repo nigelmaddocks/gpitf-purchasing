@@ -98,6 +98,141 @@
 	overflow: auto;
 }
 
+#evaluateButton {
+    border-radius:4px;
+    background-color:Orange;
+    margin-top:3px;
+    margin-bottom:10px;
+    height:30px !important;
+}
+
+#evaluationCancelButton {
+    margin-left:-10px;
+    border-radius:4px;
+    background-color:Tomato;
+    margin-top:3px;
+    margin-bottom:10px;
+    height:32px !important;
+}
+
+#evaluationCancelButtonScreen2 {
+    margin-left:0px;
+    border-radius:4px;
+    background-color:Tomato;
+    margin-top:3px;
+    margin-bottom:10px;
+    height:32px !important;
+}
+
+#evaluationCancelButtonForOnCatalogScreen {
+    margin-left: -22px;
+    border-radius:4px;
+    background-color:Tomato;
+    margin-top:3px;
+    margin-bottom:10px;
+    height:32px !important;
+}
+
+.eval {
+    margin-top:5px;
+    margin-bottom:5px !important;
+    display: grid;
+    height:40px !important;
+    grid-template-columns: 1fr 1fr 1fr; /* fraction */
+}
+
+.eval-form-col {
+    width:98%;
+}
+
+.eval-controls {
+    margin-top: -5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* fraction */
+    width: 25%;
+}
+
+.eval-controls-on-catalog {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; /* fraction */
+    width: 60%;
+}
+
+.eval-form-titles {
+   color:grey;
+   background-color:lightblue;
+   text-align:center;
+   padding-top:10px;
+   padding-bottom:10px;
+   margin-bottom:20px;
+   width:98%
+}
+
+.eval-add-criterion-button {
+   border-radius:4px !important;
+   background-color:gold !important;
+   color:white !important;
+   margin-right:7px !important;
+   margin-top:3px !important;
+   height:32px !important;
+   padding-top:0px !important;
+   padding-bottom:0px !important;
+}
+
+.eval-title {
+   margin-top:20px !important;
+}
+
+.eval-submit-button {
+   border-radius:4px !important;
+   background-color:orange !important;
+   color:white !important;
+   margin-top:3px !important;
+   margin-bottom:3px !important;
+   height:32px !important;
+   padding-top:0px !important;
+   padding-bottom:0px !important;
+}
+
+.eval-helper-dropdown {
+   border-radius:4px;
+   margin-top:3px;
+   margin-left:-48px;
+   margin-right:4px;
+   background-color:cornFlowerBlue;
+   color:white;
+   height:32px;
+   width:100px;
+}
+
+.eval-helper-button {
+   margin-left:-46px !important;
+   border-radius:4px !important;
+   background-color:plum !important;
+   margin-top:3px !important;
+   margin-bottom:3px !important;
+   height:32px !important;
+   padding-top:0px !important;
+   padding-bottom:0px !important;
+}
+
+.eval-submit-button-2 {
+   border-radius:4px;
+   background-color:DodgerBlue;
+   margin-top:3px;
+}
+
+.eval-submit-button-screen-2 {
+   margin-left:15px;
+   border-radius:4px;
+   background-color:DodgerBlue;
+   margin-top:3px;
+}
+
+.eval-table-font {
+  font-weight: 600;
+}
+
 a.minor-link:link, a.minor-link:visited, a.minor-link:hover, a.minor-link:active {
 	font-size: 0.8rem;
 	color: #005EB8;

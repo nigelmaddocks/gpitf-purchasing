@@ -13,10 +13,12 @@ import javax.validation.constraints.Size;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name="role", schema="purchasing")
 @Data
-public class Role {
+public class Role implements Serializable {
 	
 	public static final long PURCHASER = 1;
 	public static final long APPROVER = 2;

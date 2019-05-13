@@ -1,26 +1,148 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
 <head>
-<meta charset="UTF-8">
-<title>Set Evaluation Criteria for Off-Catalogue Procurement</title>
+    <meta charset="UTF-8" />
+    <title>Evaluations Screen 1 - Weightings</title>
 </head>
 <body>
-	<main id="content">
-		<h1>Set Evaluation Criteria for Off-Catalogue Procurement</h1>
-		<form action="" th:action="@{'/buyingprocess/evaluations/' + ${pageModel.id}}" th:object="${pageModel}" method="POST">
-			<input type="hidden" th:field="*{id}"/>
+<main id="content">
 
-			<p>Placeholder for setting Evaluation Criteria for Off-Catalogue Procurement</p>
+<section>
+    <div class="container">
 
-			<div class="form-group">
-				<button type="submit" class="btn button" id="continue">Continue</button>
+		<div class="eval-title">
+		    <h3>Set Evaluation Criteria for Off-Catalogue Procurement</h3>
+	    </div>
+
+		<form action="#" th:action="@{/buyingprocess/evaluations/weightings/__${evaluationsModel.procurementId}__}" th:object="${evaluationsModel}" method="post">
+
+			<div class="eval">
+				<span class="eval-form-titles">Criterion</span>
+				<span class="eval-form-titles">Weighting</span>
+				<span class="eval-form-titles">Seq</span>
 			</div>
-<!-- 			
-			<div class="form-group">
-				<a class="back-link" href="#" th:href="@{#}"></a>	
-			</div>			
--->
+
+			<div id="evaluationsList">
+				<div class="eval-form-col item fields" th:each="Evaluation, status : ${evaluationsModel.evaluations}">
+					<div class="eval-form-col form-group d-none"><select id="eval-dropdown" th:field="*{evaluations[__${status.index}__].criteria}">
+						<option th:each="name: ${evaluationsModel.offCatCriterion}"
+								th:value="${name}"
+								th:text="${name}">
+						</option>
+					</select></div>
+					<div class="eval-form-col form-group">
+						<input th:field="*{evaluations[__${status.index}__].weighting}" type="text" class="form-control">
+					</div>
+					<div class="eval-form-col form-group">
+						<input th:field="*{evaluations[__${status.index}__].seq}" type="text" class="form-control" >
+					</div>
+				</div>
+			</div>
+
+			<div class="eval">
+				<div class="col">
+					<button type="button" class="btn btn-success" onclick="addCriterion()">Add Criterion</button>
+				</div>
+			</div>
+
+			<div class="eval-controls">
+			<div class="text-left">
+				<div>
+					<button type="submit" class="btn btn-primary eval-submit-button-2">Submit</button>
+				</div>
+			</div>
+
 		</form>
-	</main>
+
+		<form action="#" th:action="@{/buyingprocess/evaluations/__${evaluationsModel.procurementId}__}" th:object="${evaluationsModel}" method="post">
+			<input type="submit" id="evaluationCancelButton" class="name-search-submit" value="Cancel"/>
+		</form>
+
+	</div>
+</section>
+<script th:inline="javascript">
+
+let addCriterion = function () {
+ /*<![CDATA[*/
+
+    var parent =  document.getElementById('evaluationsList');
+    var options = /*[[${evaluationsModel.offCatCriterion}]]*/ null;
+
+    let listName = 'evaluations';
+        let fieldsNames = ['criteria', 'weighting', 'seq'];
+        let rowIndex = document.querySelectorAll('.item').length;
+
+        let row = document.createElement('div');
+        row.classList.add('eval', 'item');
+
+        // iterate through each column and construct textbox for each and dropdown for criterion
+        fieldsNames.forEach((fieldName) => {
+
+            if(fieldName!=='criteria') {
+                let col = document.createElement('div');
+                col.classList.add('eval-form-col', 'form-group');
+                if (fieldName === 'id') {
+                    col.classList.add('d-none'); //field with id - hidden
+                }
+
+                // text input boxes
+                let input = document.createElement('input');
+                input.type = 'text';
+                input.classList.add('form-control');
+                input.id = listName + rowIndex + '.' + fieldName;
+                input.setAttribute('name', listName + '[' + rowIndex + '].' + fieldName);
+                input.autocomplete="off";
+                if(fieldName=='weighting') {
+                      input.placeholder="enter weighting";
+                  } else if(fieldName=='seq') {
+                      input.placeholder="enter seq";
+                  }
+
+                col.appendChild(input);
+                row.appendChild(col);
+
+            } else {
+
+               let col = document.createElement('div');
+               col.classList.add('col', 'form-group');
+
+               // dropdown
+               var select = document.createElement('select');
+               select.classList.add('form-control');
+               select.id = listName + rowIndex + '.' + fieldName;
+               select.setAttribute('name', listName + '[' + rowIndex + '].' + fieldName);
+               var options = /*[[${evaluationsModel.offCatCriterion}]]*/ null;
+
+               for (i = 0; i < options.length; i++) {
+                  if(i==0) {
+                      var placeholder = "----Select----";
+                      var placeholderElement = document.createElement("option");
+                      placeholderElement.textContent = placeholder;
+                      placeholderElement.value="";
+                      select.appendChild(placeholderElement);
+                  }
+
+                  var opt = options[i];
+                  var el = document.createElement("option");
+                  el.textContent = opt;
+                  el.value = opt;
+                  select.appendChild(el);
+               }
+
+               col.appendChild(select);
+               row.appendChild(col);
+
+            }
+        });
+        document.getElementById('evaluationsList').appendChild(row);
+
+
+/*]]>*/
+};
+
+window.onload = addCriterion();
+
+</script>
+</main>
 </body>
 </html>
