@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/defaultLayout :: layout(~{::title}, ~{::main}, ~{::script}, ~{::link})}">
 <head>
     <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="../../static/css/pages/evaluationsScreen2.css" th:href="@{/css/pages/evaluationsScreen2.css}">
     <title>Evaluations Screen 2 - Scoring</title>
 
 </head>
@@ -33,7 +34,7 @@
         </div>
 
         <div class="panel panel-default">
-            <div class="panel-heading">Bundles For Evaluation</div>
+            <div class="panel-heading">Solutions For Evaluation</div>
 
             <form action="#" th:action="@{/buyingprocess/evaluations/scores/__${evaluationsModel.procurementId}__}" th:object="${evaluationsModel}" method="post">
 				<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
@@ -44,37 +45,41 @@
 
                     <div class="panel-body">
 
-                        <table class="table">
+                        <table class="table" style="table-layout:fixed;">
                             <thead>
                             <tr class="eval-table-font">
-                                <td>Bundle</td>
+                                <td>Solution</td>
                                 <td>Score for each criterion</td>
                             </tr>
                             </thead>
                             <tbody>
+                            <tr th:each="bundleScoring, status : ${evaluationsModel.bundleScorings}" th:if="${status.index == 0}" styleX="border: solid black 1px">
+                            	<td>&nbsp;</td>
+                                <td th:each="criterionScore, status2 : ${bundleScoring.criterionScores}" th:text='${criterionScore.criterion}'></td>
+                            </tr>
+                            
                             <tr th:each="bundleScoring, status : ${evaluationsModel.bundleScorings}">
                                 <td th:text="${bundleScoring.bundle.getName()}">999</td>
 
-                                <td>
-                                    <div th:each="criterionScore, status2 : ${bundleScoring.criterionScores}">
-                                        <p th:text="${criterionScore.criterion}"></p>
+                                <td th:each="criterionScore, status2 : ${bundleScoring.criterionScores}">
 
-                                        <input type="hidden"
-                                                th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].criterion}"
-                                                th:value="${criterionScore.criterion}"/>
-                                        <input type="hidden"
-                                               th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].criterionId}"
-                                               th:value="${criterionScore.criterionId}"/>
+                                    <input type="hidden"
+                                            th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].criterion}"
+                                            th:value="${criterionScore.criterion}"/>
+                                    <input type="hidden"
+                                           th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].criterionId}"
+                                           th:value="${criterionScore.criterionId}"/>
+                                           
+                                    <!--  div th:text="${criterionScore.criterion}"></div> -->
 
-                                        <div class="col form-group d-none">
-                                            <select class="dropdown" th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].score}">
-                                              <option value="999">----Select----</option>
-                                              <option th:each="score: ${evaluationsModel.scores}"
-                                                      th:value="${score}"
-                                                      th:text="${score}">
-                                              </option>
-                                            </select>
-                                        </div>
+                                    <div class="col form-group d-none">
+                                        <select class="dropdown" th:field="*{bundleScorings[__${status.index}__].criterionScores[__${status2.index}__].score}">
+                                          <option value="999">----Select----</option>
+                                          <option th:each="score: ${evaluationsModel.scores}"
+                                                  th:value="${score}"
+                                                  th:text="${score}">
+                                          </option>
+                                        </select>
                                     </div>
                                 </td>
                             </tr>
