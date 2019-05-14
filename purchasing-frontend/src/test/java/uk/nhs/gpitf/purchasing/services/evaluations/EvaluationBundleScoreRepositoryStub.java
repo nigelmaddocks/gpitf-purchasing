@@ -3,6 +3,7 @@ package uk.nhs.gpitf.purchasing.services.evaluations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import uk.nhs.gpitf.purchasing.entities.EvaluationBundleScore;
+import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundle;
 import uk.nhs.gpitf.purchasing.repositories.EvaluationBundleScoreRepository;
 
 import java.util.ArrayList;
@@ -73,5 +74,11 @@ public class EvaluationBundleScoreRepositoryStub implements EvaluationBundleScor
     public void deleteAll() {
 
     }
+
+	@Override
+	public Iterable<EvaluationBundleScore> findAllByBundle(ProcSolutionBundle bundle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

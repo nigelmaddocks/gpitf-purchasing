@@ -104,7 +104,3 @@ a.minor-link::after {
 	color: #425563;
 	content: "]"
 }
-
-.form-control {
-    width:490% !important;
-}

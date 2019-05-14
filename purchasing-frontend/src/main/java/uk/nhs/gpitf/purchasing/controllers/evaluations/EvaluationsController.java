@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.nhs.gpitf.purchasing.exceptions.InvalidCriterionException;
@@ -71,7 +72,7 @@ public class EvaluationsController {
         return evaluationService.submitScreen1Form(espo);
     }
 
-    @RequestMapping(value = "/buyingprocess/solutionsReview/{procurementId}", method = { RequestMethod.GET, RequestMethod.POST })
+    @RequestMapping(value = "/buyingprocess/evaluations/solutionsReview/{procurementId}", method = { RequestMethod.GET, RequestMethod.POST })
     public String initialiseScreen2(@PathVariable Long procurementId, HttpServletRequest request,
                                     @ModelAttribute("evaluationsModel") EvaluationsModel evaluationsModel,
                                     Model model,
@@ -92,12 +93,14 @@ public class EvaluationsController {
     public String saveScores(@PathVariable Long procurementId, HttpServletRequest request,
                                  @ModelAttribute("evaluationsModel") EvaluationsModel evaluationsModel,
                                  Model model,
+                                 BindingResult bindingResult, 
                                  RedirectAttributes attr) {
 
         EvaluationsServiceParameterObject espo = EvaluationsServiceParameterObject.builder()
                 .evaluationsModel(evaluationsModel)
                 .model(model)
                 .request(request)
+                .bindingResult(bindingResult)
                 .attr(attr)
                 .procurementId(procurementId)
                 .build();

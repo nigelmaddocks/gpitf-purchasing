@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.nhs.gpitf.purchasing.entities.*;
 import uk.nhs.gpitf.purchasing.exceptions.InvalidCriterionException;
@@ -17,6 +18,7 @@ import uk.nhs.gpitf.purchasing.models.EvaluationsModel;
 import uk.nhs.gpitf.purchasing.repositories.*;
 import uk.nhs.gpitf.purchasing.services.IOnboardingService;
 import uk.nhs.gpitf.purchasing.services.OnboardingService;
+import uk.nhs.gpitf.purchasing.utils.GUtils;
 import uk.nhs.gpitf.purchasing.utils.SecurityInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +37,8 @@ public class EvaluationService implements IEvaluationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaluationService.class);
     private static final String SCREEN_1 = "redirect:/buyingprocess/evaluations/{procurementId}";
-    private static final String SCREEN_2 = "redirect:/buyingprocess/solutionsReview/{procurementId}";
+    private static final String SCREEN_2 = "redirect:/buyingprocess/evaluations/solutionsReview/{procurementId}";
+    private static final String SCREEN_2_ERROR = "buying-process/evaluationsScreen2";
     private static final String SEARCH_SOLUTIONS_SCREEN = "redirect:/buyingprocess/{procurementId}/solutionByCapability";
     private final IRepositoryFetcher repositoryFetcher;
     private final IOnboardingService onboardingService;
@@ -99,11 +102,13 @@ public class EvaluationService implements IEvaluationService {
         try {
             screen2SetUpHelper.persistScoresForEachBundle(espo, rankedBundlesValidator.getBundles());
         } catch(InvalidCriterionException ice) {
+            screen2SetUpHelper.setUpBundleNamesCriterionNamesAndDropDowns(rankedBundlesValidator, p, espo);
             String errorMessage = "InvalidCriterionException::" + ice.getStackTrace()[0] +  " ::" + ice.getMessage();
+            espo.getBindingResult().addError(new ObjectError("Evaluation scoring error",  ice.getUserMessage()));
             LOGGER.error(errorMessage);
-            return SCREEN_2;
+            return SCREEN_2_ERROR;
         }
-        return "unknown"; //TODO
+        return SCREEN_2; //TODO: Place order with winning supplier
     }
 
     private class EvaluationsScreen2SetUpHelper {
@@ -136,26 +141,28 @@ public class EvaluationService implements IEvaluationService {
             List<EvaluationBundleScore> evaluationBundleScores = new ArrayList<>();
             List<Integer> bundleIds = bundles.stream().map(this::getBundleId).collect(Collectors.toList());
 
-            for(int i=0; i<espo.getEvaluationsModel().getBundleScorings().size(); i++) {
-                BundleScoring bundleScoring = espo.getEvaluationsModel().getBundleScorings().get(i);
-                Integer bundleId = bundleIds.get(i);
-
-                for(CriterionScore criterionScore : bundleScoring.getCriterionScores()) {
-                    EvaluationBundleScore evaluationBundleScore = new EvaluationBundleScore();
-                    evaluationBundleScore.setBundle(bundleId);
-                    evaluationBundleScore.setScoredDate(new Date());
-                    evaluationBundleScore.setScore(criterionScore.getScore());
-                    evaluationBundleScore.setProcCriterion(criterionScore.getCriterionId());
-                    evaluationBundleScores.add(evaluationBundleScore);
-                    evaluationBundleScore.setScoredBy(getScoredBy(espo));
-                    updateScoreInProcSolutionBundleRepo(getEvaluationProcCriterion(criterionScore, espo), criterionScore, bundleId);
-                }
-            }
-
             try {
-                repositoryFetcher.getEvaluationBundleScoreRepository().saveAll(evaluationBundleScores);
+	            for(int i=0; i<espo.getEvaluationsModel().getBundleScorings().size(); i++) {
+	                BundleScoring bundleScoring = espo.getEvaluationsModel().getBundleScorings().get(i);
+	                Integer bundleId = bundleIds.get(i);
+	
+	                for(CriterionScore criterionScore : bundleScoring.getCriterionScores()) {
+	                    EvaluationBundleScore evaluationBundleScore = new EvaluationBundleScore();
+	                    evaluationBundleScore.setBundle((ProcSolutionBundle) GUtils.makeObjectForId(ProcSolutionBundle.class, bundleId.longValue()));
+	                    evaluationBundleScore.setScoredDate(new Date());
+	                    evaluationBundleScore.setScore(criterionScore.getScore());
+	                    evaluationBundleScore.setProcCriterion(criterionScore.getCriterionId());
+	                    evaluationBundleScores.add(evaluationBundleScore);
+	                    evaluationBundleScore.setScoredBy(getScoredBy(espo));
+	                    updateScoreInProcSolutionBundleRepo(getEvaluationProcCriterion(criterionScore, espo), criterionScore, bundleId);
+	                }
+	            }
+
+                 repositoryFetcher.getEvaluationBundleScoreRepository().saveAll(evaluationBundleScores);
             } catch (DataIntegrityViolationException dive) {
-                throw new InvalidCriterionException("No score selected from dropdown:: " + dive);
+                throw new InvalidCriterionException("No score selected from dropdown:: " + dive, "No score selected from dropdown");
+            } catch (Exception dive) {
+                throw new InvalidCriterionException("No score selected from dropdown:: " + dive, "No score selected from dropdown");
             }
         }
         
@@ -180,13 +187,20 @@ public class EvaluationService implements IEvaluationService {
 
         private void updateScoreInProcSolutionBundleRepo(EvaluationProcCriterion evaluationProcCriterion, CriterionScore criterionScore, Integer bundleId) throws InvalidCriterionException {
             long weighting = evaluationProcCriterion.getWeightingPercent();
+            if (criterionScore == null || criterionScore.getScore() == null) { // nima
+            	throw new InvalidCriterionException("No score selected from dropdown", "No score selected from dropdown");
+            }
             long score = criterionScore.getScore();
             ProcSolutionBundle procSolutionBundle = getProcSolutionBundle(bundleId);
-            procSolutionBundle.setEvaluationScorePercent(new BigDecimal(weighting*score/5));
+            BigDecimal value = procSolutionBundle.getEvaluationScorePercent();
+            if (value == null) {
+            	value = BigDecimal.valueOf(0.0);
+            }
+            procSolutionBundle.setEvaluationScorePercent(value.add(new BigDecimal(weighting*score/5)));
             try {
                 repositoryFetcher.getProcSolutionBundleRepository().save(procSolutionBundle);
             } catch (DataIntegrityViolationException dive) {
-                throw new InvalidCriterionException("No score selected from dropdown:: " + dive);
+                throw new InvalidCriterionException("No score selected from dropdown:: " + dive, "No score selected from dropdown");
             }
         }
 
@@ -213,8 +227,56 @@ public class EvaluationService implements IEvaluationService {
             List<CriterionScore> criterionScores = screen2SetUpHelper.getCriterionScores(p.getId());
 
             espo.getEvaluationsModel().setScores(screen2SetUpHelper.getDropDownEntries());
+
             List<BundleScoring> bundleScorings = screen2SetUpHelper.getBundleScorings(bundles,criterionScores);
-            espo.getEvaluationsModel().setBundleScorings(bundleScorings);
+            
+            // Load scores from user's input
+        	if (espo.getRequest().getMethod().equalsIgnoreCase("POST")) { // nima
+        		for (int idxBundleScoring = 0; idxBundleScoring < bundleScorings.size(); idxBundleScoring++) {
+        			BundleScoring bundleScoring = bundleScorings.get(idxBundleScoring);
+        			List<CriterionScore> newCriterionScores = new ArrayList<>();
+        			for (int idxCriterionScore = 0; idxCriterionScore < bundleScoring.getCriterionScores().size(); idxCriterionScore++) {
+        				CriterionScore criterionScore = bundleScoring.getCriterionScores().get(idxCriterionScore);
+        				CriterionScore newCriterionScore = new CriterionScore();
+        				Integer userScore = espo.getEvaluationsModel().getBundleScorings().get(idxBundleScoring).getCriterionScores().get(idxCriterionScore).getScore();
+        				newCriterionScore.setCriterion(criterionScore.getCriterion());
+        				newCriterionScore.setCriterionId(criterionScore.getCriterionId());
+    					newCriterionScore.setScore(userScore.intValue());
+        				newCriterionScores.add(newCriterionScore);
+        			}
+        			bundleScoring.setCriterionScores(newCriterionScores);
+        			bundleScorings.set(idxBundleScoring, bundleScoring);
+        		}
+        	} else {
+        	
+        	// Load scores from database	
+        		for (int idxBundleScoring = 0; idxBundleScoring < bundleScorings.size(); idxBundleScoring++) {
+        			BundleScoring bundleScoring = bundleScorings.get(idxBundleScoring);
+        			List<CriterionScore> newCriterionScores = new ArrayList<>();
+        			Iterable<EvaluationBundleScore> iterEbs = repositoryFetcher.getEvaluationBundleScoreRepository().findAllByBundle(bundleScoring.getBundle());
+        			boolean bAddedScores = false;
+        			for (EvaluationBundleScore ebs : iterEbs) {
+            			for (int idxCriterionScore = 0; idxCriterionScore < bundleScoring.getCriterionScores().size(); idxCriterionScore++) {
+            				CriterionScore criterionScore = bundleScoring.getCriterionScores().get(idxCriterionScore);
+            				if (ebs.getProcCriterion().intValue() == criterionScore.getCriterionId().intValue()) {
+	            				CriterionScore newCriterionScore = new CriterionScore();
+	            				Integer dbScore = ebs.getScore();
+	            				newCriterionScore.setCriterion(criterionScore.getCriterion());
+	            				newCriterionScore.setCriterionId(criterionScore.getCriterionId());
+            					newCriterionScore.setScore(dbScore);
+	            				newCriterionScores.add(newCriterionScore);
+	            				bAddedScores = true;
+	            				break;
+            				}
+            			}
+        			}
+        			if (bAddedScores) {
+        				bundleScoring.setCriterionScores(newCriterionScores);
+        			}
+        			bundleScorings.set(idxBundleScoring, bundleScoring);
+        		}        		
+        	}
+        	espo.getEvaluationsModel().setBundleScorings(bundleScorings);
 
             espo.getModel().addAttribute("evaluations", espo.getEvaluationsModel());
 
@@ -590,4 +652,4 @@ public class EvaluationService implements IEvaluationService {
 
     }
 
-}
+} 

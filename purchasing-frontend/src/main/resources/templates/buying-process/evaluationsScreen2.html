@@ -36,6 +36,9 @@
             <div class="panel-heading">Bundles For Evaluation</div>
 
             <form action="#" th:action="@{/buyingprocess/evaluations/scores/__${evaluationsModel.procurementId}__}" th:object="${evaluationsModel}" method="post">
+				<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+				    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.fieldName + ': ' + err.message}"></p>    
+				</div>
 
                 <div id="evaluationsList">
 

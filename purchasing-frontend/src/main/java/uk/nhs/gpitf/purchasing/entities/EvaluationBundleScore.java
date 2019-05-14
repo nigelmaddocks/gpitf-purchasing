@@ -13,7 +13,10 @@ public class EvaluationBundleScore {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
-    private Integer bundle;
+    
+    @ManyToOne(optional=false)
+    @JoinColumn(name = "bundle")
+    private ProcSolutionBundle bundle;
     private Integer procCriterion;
     private Integer score;
     private Integer scoredBy;
