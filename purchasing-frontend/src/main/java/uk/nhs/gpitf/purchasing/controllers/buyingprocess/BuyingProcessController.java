@@ -231,6 +231,7 @@ public class BuyingProcessController {
 		if(accessIsDeniedToProcurements(request, Optional.of(orgContactId), orgContactRepository)) {
 			return sendSecurityWarning(request, attr, LOGGER);
 		} else {
+			request.getSession().setAttribute("tmp_ProcurementsListFilter", searchModel);
 			ListProcurementsModel filteredProcurements = procurementsFilteringService.filterProcurements(orgContactId, searchModel);
 			model.addAttribute("listProcurementsModel", filteredProcurements);
 			return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
