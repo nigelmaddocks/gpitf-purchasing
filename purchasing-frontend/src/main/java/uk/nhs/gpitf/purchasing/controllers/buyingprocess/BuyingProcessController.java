@@ -199,6 +199,26 @@ public class BuyingProcessController {
 		return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
 	}
 
+	@GetMapping(value = {"/filteredProcurementsList"})
+	public String filterProcurementsGET(@PathVariable Optional<Long> optionalOrgContactId, HttpServletRequest request,
+									 Model model,
+									 RedirectAttributes attr) {
+		if(accessIsDeniedToProcurements(request, optionalOrgContactId, orgContactRepository)) {
+			return sendSecurityWarning(request, attr, LOGGER);
+		} else {
+			long orgContactd = getOrgContactId(optionalOrgContactId, getSecurityInfo(request));
+			SearchListProcurementsModel searchListProcurementsModel = (SearchListProcurementsModel) request.getSession().getAttribute("tmp_ProcurementsListFilter");
+			if (searchListProcurementsModel == null) {
+				searchListProcurementsModel = new SearchListProcurementsModel();
+			}
+			model.addAttribute("searchListProcurementsModel", searchListProcurementsModel);
+
+			ListProcurementsModel filteredProcurements = procurementsFilteringService.filterProcurements(orgContactd, searchListProcurementsModel);
+			model.addAttribute("listProcurementsModel", filteredProcurements);
+			return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
+		}
+	}
+
 	@PostMapping(value = {"/filteredProcurementsList"})
 	public String filterProcurements(HttpServletRequest request,
 									 @ModelAttribute("searchListProcurementsModel") SearchListProcurementsModel searchModel,
