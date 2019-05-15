@@ -255,7 +255,7 @@ public class OnboardingService implements IOnboardingService {
 		// Clean the array - do not include Foundation capabilities if we are doing a foundation search. Solutions will be matched for Foundation more directly
 		List<String> lstCapabilityIds = new ArrayList<>();
 		for (String capabilityId : arrCapabilityIds) {
-			if (capabilityId != null && capabilityId.trim().length() > 0) {
+			if (capabilityId != null && capabilityId.trim().length() > 0 && !capabilityId.equals("null")) {
 				if (!foundation || !capabilitiesImplementedCache.getCapabilities().get(capabilityId).getType().equals("C")) {
 					lstCapabilityIds.add(capabilityId.trim());
 				}
