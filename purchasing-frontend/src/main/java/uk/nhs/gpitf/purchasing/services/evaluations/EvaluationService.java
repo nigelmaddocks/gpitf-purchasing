@@ -74,7 +74,14 @@ public class EvaluationService implements IEvaluationService {
         try {
             screen2SetUpHelper.persistEvaluationCriteriaFromScreen1(espo.getEvaluationsModel());
         } catch (InvalidCriterionException ice) {
-            return SCREEN_1;
+        	espo.getBindingResult().addError(new ObjectError("Evaluation criteria error",  ice.getUserMessage()));
+        	try {
+                screen1SetUpHelper.setUpHelperBox(espo.getModel());
+        		screen1SetUpHelper.populateDropDownWithOffCatalogCriterion(espo.getEvaluationsModel(), espo.getModel(), espo.getProcurementId());
+        		return screen1SetUpHelper.getScreen1Path(espo.getProcurementId());
+        	} catch (Exception e) {
+        		return "path unknown";
+        	}
         }
         return SEARCH_SOLUTIONS_SCREEN;
     }
@@ -332,7 +339,7 @@ public class EvaluationService implements IEvaluationService {
             } catch (InvalidCriterionException ice) {
                 String errorMessage = "InvalidCriterionException:: " + ice.getStackTrace()[0] +  " ::" + ice.getMessage();
                 LOGGER.error(errorMessage);
-                throw new InvalidCriterionException(errorMessage);
+                throw new InvalidCriterionException(errorMessage, ice.getMessage());
             }
             repositoryFetcher.getEvaluationProcCriterionRepository().saveAll(evaluationProcCriterionList);
         }

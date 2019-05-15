@@ -16,16 +16,19 @@
 	    </div>
 
 		<form action="#" th:action="@{/buyingprocess/evaluations/weightings/__${evaluationsModel.procurementId}__}" th:object="${evaluationsModel}" method="post">
+			<div class="alert alert-danger" th:if="${#fields.hasErrors('*')}" id="errorMessage">
+			    <p th:each="err : ${#fields.detailedErrors()}" th:text="${err.global}? ${err.message} : ${err.fieldName + ': ' + err.message}"></p>    
+			</div>
 
 			<div class="eval">
 				<span class="eval-form-titles">Criterion</span>
-				<span class="eval-form-titles">Weighting</span>
-				<span class="eval-form-titles">Seq</span>
+				<span class="eval-form-titles">Weighting %</span>
+				<span class="eval-form-titles">Sequence</span>
 			</div>
 
 			<div id="evaluationsList">
-				<div class="eval-form-col item fields" th:each="Evaluation, status : ${evaluationsModel.evaluations}">
-					<div class="eval-form-col form-group d-none"><select id="eval-dropdown" th:field="*{evaluations[__${status.index}__].criteria}">
+				<div class="eval item " th:each="Evaluation, status : ${evaluationsModel.evaluations}">
+					<div class="eval-form-col form-group d-none"><select id="eval-dropdown" th:field="*{evaluations[__${status.index}__].criteria}" class="form-control">
 						<option th:each="name: ${evaluationsModel.offCatCriterion}"
 								th:value="${name}"
 								th:text="${name}">
@@ -63,7 +66,7 @@
 </section>
 <script th:inline="javascript">
 
-let addCriterion = function () {
+function addCriterion() {
  /*<![CDATA[*/
 
     var parent =  document.getElementById('evaluationsList');
@@ -105,7 +108,7 @@ let addCriterion = function () {
             } else {
 
                let col = document.createElement('div');
-               col.classList.add('col', 'form-group');
+               col.classList.add('eval-form-col', 'form-group');
 
                // dropdown
                var select = document.createElement('select');
@@ -139,9 +142,11 @@ let addCriterion = function () {
 
 
 /*]]>*/
-};
+}
 
-window.onload = addCriterion();
+if (!document.getElementById("errorMessage")) {
+	window.onload = addCriterion;
+}
 
 </script>
 </main>

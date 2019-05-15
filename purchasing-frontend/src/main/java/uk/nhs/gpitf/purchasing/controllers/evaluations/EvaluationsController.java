@@ -59,12 +59,14 @@ public class EvaluationsController {
     public String saveWeightings(@PathVariable Long procurementId, HttpServletRequest request,
                                     @ModelAttribute("evaluationsModel") EvaluationsModel evaluationsModel,
                                     Model model,
+                                    BindingResult bindingResult,
                                     RedirectAttributes attr) {
 
         EvaluationsServiceParameterObject espo = EvaluationsServiceParameterObject.builder()
                 .evaluationsModel(evaluationsModel)
                 .model(model)
                 .request(request)
+                .bindingResult(bindingResult)
                 .attr(attr)
                 .procurementId(procurementId)
                 .build();
