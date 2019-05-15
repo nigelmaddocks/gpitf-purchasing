@@ -237,7 +237,7 @@ public class EvaluationsServiceTest {
     @Test
     public void testSubmitScreen1Form_redirectsToErrorPage_whenWeightingViolatesTolerance() {
         // given
-        String expected = "redirect:/buyingprocess/evaluations/{procurementId}";
+        String expected = "buying-process/evaluationsOffCatScreen1";
         String invalidWeighting = "0";
 
         // and
@@ -245,6 +245,7 @@ public class EvaluationsServiceTest {
                 .procurementId(idOfOffCatProcurement)
                 .evaluationsModel(generateStubEvaluationsModel(score, invalidWeighting))
                 .model(new ModelStub())
+                .bindingResult(new BindingResultStub())
                 .request(new HttpServletRequestStub())
                 .build();
 
