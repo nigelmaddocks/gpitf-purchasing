@@ -34,8 +34,8 @@ import uk.nhs.gpitf.purchasing.entities.ProcSolutionBundleItem;
 import uk.nhs.gpitf.purchasing.entities.swagger.SolutionEx2;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
 
-@Service
-public class OnboardingService {
+@Service("onboardingService")
+public class OnboardingService implements IOnboardingService {
 	@Autowired
 	private CapabilitiesApi capabilitiesApi;
 	
@@ -244,6 +244,7 @@ public class OnboardingService {
 	/**
 	 * WARNING: Non-api method that works over cached solutions and capabilities
 	 */
+	@Override
 	public List<RankedBundle> findRankedSolutionsHavingCapabilitiesInList(String csvCapabilityList, String csvInteroperables, boolean foundation) {
 		int RANK_LIMIT = 99;
 		String[] arrCapabilityIds = new String[] {};
@@ -254,7 +255,7 @@ public class OnboardingService {
 		// Clean the array - do not include Foundation capabilities if we are doing a foundation search. Solutions will be matched for Foundation more directly
 		List<String> lstCapabilityIds = new ArrayList<>();
 		for (String capabilityId : arrCapabilityIds) {
-			if (capabilityId != null && !capabilityId.equals("null") && capabilityId.trim().length() > 0) {
+			if (capabilityId != null && capabilityId.trim().length() > 0 && !capabilityId.equals("null")) {
 				if (!foundation || !capabilitiesImplementedCache.getCapabilities().get(capabilityId).getType().equals("C")) {
 					lstCapabilityIds.add(capabilityId.trim());
 				}
@@ -270,7 +271,7 @@ public class OnboardingService {
 		// Clean the array 
 		List<String> lstInteroperableIds = new ArrayList<>();
 		for (String interoperableId : arrInteroperableIds) {
-			if (interoperableId != null && !interoperableId.equals("null") && interoperableId.trim().length() > 0) {
+			if (interoperableId != null && interoperableId.trim().length() > 0) {
 				lstInteroperableIds.add(interoperableId.trim());
 			}
 		}

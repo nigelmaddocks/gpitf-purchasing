@@ -30,7 +30,7 @@
 			<br />
 	       	<a href="/buyingprocess" th:href="@{'/buyingprocess'}"><button class="btn" type="button" style="width:150px; padding:6px;">Start New</button></a>
 
-           <form action="#" th:action="@{/buyingprocess/filtered}" th:object="${searchListProcurementsModel}"
+           <form action="#" th:action="@{/buyingprocess/filteredProcurementsList}" th:object="${searchListProcurementsModel}"
                    method="post">
 
 			   <input type="hidden" th:if="${listProcurementsModel.orgContactId != 0}" id="orgContactId" name="orgContactId" th:value="${listProcurementsModel.orgContactId}"/>

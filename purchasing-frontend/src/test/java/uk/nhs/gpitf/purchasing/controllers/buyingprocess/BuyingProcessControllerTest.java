@@ -27,6 +27,8 @@ import uk.nhs.gpitf.purchasing.services.ProcurementService;
 import uk.nhs.gpitf.purchasing.services.buying.process.ProcurementsFilteringService;
 import uk.nhs.gpitf.purchasing.services.buying.process.ProcurementsFilteringServiceParameterObject;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class BuyingProcessControllerTest {
 
@@ -49,7 +51,7 @@ public class BuyingProcessControllerTest {
   public void procurementShouldGoToProcurementView() throws Exception {
     MockMvc mockMvc = standaloneSetup(bpc).build();
     mockMvc.perform(get("/buyingprocess/procurement"))
-           .andExpect(view().name("buying-process/procurement"));
+            .andExpect(view().name("buying-process/procurement"));
   }
 
   @Test
@@ -60,8 +62,8 @@ public class BuyingProcessControllerTest {
 
     MockMvc mockMvc = standaloneSetup(bpc).build();
     mockMvc.perform(get("/buyingprocess/procurement"))
-           .andExpect(model().attributeExists("procurements"))
-           .andExpect(model().attribute("procurements", procurementList));
+            .andExpect(model().attributeExists("procurements"))
+            .andExpect(model().attribute("procurements", procurementList));
   }
 
   @Test
@@ -73,7 +75,7 @@ public class BuyingProcessControllerTest {
     given(procurementsFilteringService.filterProcurements(ArgumentMatchers.anyLong(), ArgumentMatchers.any(SearchListProcurementsModel.class))).willReturn(expected);
 
     MockMvc mockMvc = standaloneSetup(bpc).build();
-    mockMvc.perform(post("/buyingprocess/filtered"))
+    mockMvc.perform(post("/buyingprocess/filteredProcurementsList"))
             .andExpect(model().attribute("listProcurementsModel", expected));
   }
 

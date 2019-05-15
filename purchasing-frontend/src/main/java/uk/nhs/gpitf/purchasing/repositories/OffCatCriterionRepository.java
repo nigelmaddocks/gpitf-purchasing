@@ -10,4 +10,3 @@ import java.util.Optional;
 public interface OffCatCriterionRepository extends CrudRepository<OffCatCriterion, Long> {
     Optional<OffCatCriterion> findByName(String name);
 }
-

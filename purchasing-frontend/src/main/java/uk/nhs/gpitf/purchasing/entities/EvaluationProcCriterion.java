@@ -17,7 +17,6 @@ public class EvaluationProcCriterion {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long id;
     private long weightingPercent;
-
     private Long procurement;
     private Integer offCatCriterion;
     private Integer tolerance;

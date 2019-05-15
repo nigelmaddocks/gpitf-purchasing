@@ -6,6 +6,7 @@ import uk.nhs.gpitf.purchasing.repositories.PatientCountRepository;
 import uk.nhs.gpitf.purchasing.repositories.PatientCountRunRepository;
 import uk.nhs.gpitf.purchasing.utils.GUtils;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name="organisation", schema="purchasing")
 @Data
-public class Organisation {
+public class Organisation implements Serializable {
 	@Transient
 	@JsonIgnore
 	PatientCountRunRepository patientCountRunRepository;

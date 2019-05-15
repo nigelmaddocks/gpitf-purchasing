@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.purchasing.entities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ import lombok.Data;
 @Entity
 @Table(name="org_contact", schema="purchasing")
 @Data
-public class OrgContact {
+public class OrgContact implements Serializable {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private long id;

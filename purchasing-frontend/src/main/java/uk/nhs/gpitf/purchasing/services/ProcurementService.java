@@ -29,14 +29,14 @@ public class ProcurementService implements IProcurementService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
-    private ProcurementRepository thisRepository;
+    private ProcurementRepository procurementRepository;
 
     @Autowired
 	OrgContactRepository orgContactRepository;
 
     public List<Procurement> getAll() {
         List<Procurement> coll = new ArrayList<>();
-        thisRepository.findAll().forEach(coll::add);
+        procurementRepository.findAll().forEach(coll::add);
         return coll;
     }
 
@@ -47,24 +47,24 @@ public class ProcurementService implements IProcurementService {
         status.setId(iStatus);
 
         List<Procurement> coll = new ArrayList<>();
-        thisRepository.findAllByOrgContactAndStatusOrderByLastUpdatedDesc(orgContact, status).forEach(coll::add);
+        procurementRepository.findAllByOrgContactAndStatusOrderByLastUpdatedDesc(orgContact, status).forEach(coll::add);
         return coll;
     }
 
     public List<Procurement> getAllByOrgContactAndStatusOrderByLastUpdatedDesc(OrgContact orgContact, ProcStatus status) {
         List<Procurement> coll = new ArrayList<>();
-        thisRepository.findAllByOrgContactAndStatusOrderByLastUpdatedDesc(orgContact, status).forEach(coll::add);
+        procurementRepository.findAllByOrgContactAndStatusOrderByLastUpdatedDesc(orgContact, status).forEach(coll::add);
         return coll;
     }
 
     public List<Procurement> getUncompletedByOrgContactOrderByLastUpdated(long iOrgContact) {
         OrgContact orgContact = new OrgContact();
         orgContact.setId(iOrgContact);
-        return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
+        return procurementRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
     public List<Procurement> getUncompletedByOrgContactOrderByLastUpdated(OrgContact orgContact) {
-       return thisRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
+       return procurementRepository.findUncompletedByOrgContactOrderByLastUpdated(orgContact);
     }
 
     public Procurement saveCurrentPosition(
@@ -115,7 +115,7 @@ public class ProcurementService implements IProcurementService {
     public Procurement findById(Long procurementId) throws ProcurementNotFoundException {
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
-      return thisRepository.findById(procurementId)
+      return procurementRepository.findById(procurementId)
                            .orElseThrow(() -> {
                              LOGGER.warn("An attempt to retrieve Procurement \"{}\" occurred. But could not be found.", procurementId);
                              return new ProcurementNotFoundException("Procurement " + procurementId + " not found");
@@ -126,7 +126,7 @@ public class ProcurementService implements IProcurementService {
       procurement.setLastUpdated(LocalDateTime.now());
       // TODO Validation required to check User has access to requested procurement.
       // Throw UnauthorizedDataAccessException if the case.
-      return thisRepository.save(procurement);
+      return procurementRepository.save(procurement);
     }
 
     public void delete(Long procurementId) throws ProcurementNotFoundException, Exception {
@@ -154,10 +154,10 @@ public class ProcurementService implements IProcurementService {
     	procurement.setStatusLastChangedDate(now);
     	procurement.setLastUpdated(now);
 
-    	procurement = thisRepository.save(procurement);
+    	procurement = procurementRepository.save(procurement);
 
 		procurement.setName("Procurement-" + procurement.getId() + "-" + now.format(formatter));
-    	procurement = thisRepository.save(procurement);
+    	procurement = procurementRepository.save(procurement);
 
     	return procurement;
     }

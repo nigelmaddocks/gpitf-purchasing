@@ -44,23 +44,23 @@ public class StubScreensController {
 	
     private static final Logger logger = LoggerFactory.getLogger(StubScreensController.class);
 
-	@GetMapping(value = {"/buyingprocess/solutionsReview/{procurementId}"})
-	public String solutionsReview(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
-		Breadcrumbs.register("Solutions Review", request);
-		
-		String securityCheck = procurementSecurity(procurementId, true, attr, request);
-		if (StringUtils.isNotEmpty(securityCheck)) {
-			return securityCheck;
-		}
-		
-		Procurement procurement = procurementRepository.findById(procurementId).get();
-		
-		model.addAttribute("procurementId", procurementId);
-		model.addAttribute("procurementName", procurement.getName());
-		model.addAttribute("procurementSummaryAttributes", procurement.getSummaryAttributes());
-		return "buying-process/solutionsReview";
-
-	}
+//	@GetMapping(value = {"/buyingprocess/solutionsReview/{procurementId}"})
+//	public String solutionsReview(@PathVariable long procurementId, Model model, RedirectAttributes attr, HttpServletRequest request) {
+//		Breadcrumbs.register("Solutions Review", request);
+//
+//		String securityCheck = procurementSecurity(procurementId, true, attr, request);
+//		if (StringUtils.isNotEmpty(securityCheck)) {
+//			return securityCheck;
+//		}
+//
+//		Procurement procurement = procurementRepository.findById(procurementId).get();
+//
+//		model.addAttribute("procurementId", procurementId);
+//		model.addAttribute("procurementName", procurement.getName());
+//		model.addAttribute("procurementSummaryAttributes", procurement.getSummaryAttributes());
+//		return "buying-process/solutionsReview";
+//
+//	}
 	
 
 	@GetMapping(value = {"/buyingprocess/solutionsComparison/{procurementId}"})

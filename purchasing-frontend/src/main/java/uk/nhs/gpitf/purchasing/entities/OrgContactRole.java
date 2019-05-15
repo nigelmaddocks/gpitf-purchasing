@@ -13,10 +13,12 @@ import javax.validation.constraints.Size;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name="org_contact_role", schema="purchasing")
 @Data
-public class OrgContactRole {
+public class OrgContactRole implements Serializable {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private long id;

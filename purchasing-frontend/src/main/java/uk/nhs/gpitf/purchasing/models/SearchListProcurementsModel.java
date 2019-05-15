@@ -1,18 +1,23 @@
 package uk.nhs.gpitf.purchasing.models;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.stereotype.Component;
+import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
-@Getter
-@Setter
-public class SearchListProcurementsModel {
+public class SearchListProcurementsModel implements Serializable {
 
-    String openProcNameSearchField;
+	private static final long serialVersionUID = -8058180382836492293L;
+
+	String openProcNameSearchField;
     String completedProcNameSearchField;
     String openProcStatusSearchField;
     long orgContactId;
 
+    public boolean containsData() {
+    	return
+    		StringUtils.isNotEmpty(openProcNameSearchField)
+    		|| StringUtils.isNotEmpty(completedProcNameSearchField)
+    		|| StringUtils.isNotEmpty(openProcStatusSearchField);
+    }
 }
