@@ -164,7 +164,7 @@ public class EvaluationsServiceTest {
     @Test
     public void testSaveScores() {
         // given
-        String expected = "unknown";
+        String expected = "redirect:/buyingprocess/evaluations/solutionsReview/{procurementId}";
         EvaluationsServiceParameterObject espo = EvaluationsServiceParameterObject.builder()
                 .procurementId(idOfOnCatProcurement)
                 .evaluationsModel(generateStubEvaluationsModel(score, weighting))
@@ -200,11 +200,12 @@ public class EvaluationsServiceTest {
     @Test
     public void testSaveScores_reloadsPage_whenNoScoreSelected() {
         // given
-        String expected = "redirect:/buyingprocess/solutionsReview/{procurementId}";
+        String expected = "buying-process/evaluationsScreen2";
         EvaluationsServiceParameterObject espo = EvaluationsServiceParameterObject.builder()
                 .procurementId(idOfOnCatProcurement)
                 .evaluationsModel(generateStubEvaluationsModel(999, weighting))
                 .model(new ModelStub())
+                .bindingResult(new BindingResultStub())
                 .request(new HttpServletRequestStub())
                 .build();
 
@@ -222,6 +223,7 @@ public class EvaluationsServiceTest {
                 .procurementId(idOfOnCatProcurement)
                 .evaluationsModel(generateStubEvaluationsModel(score, weighting))
                 .model(new ModelStub())
+                .bindingResult(new BindingResultStub())
                 .request(new HttpServletRequestStub())
                 .build();
 

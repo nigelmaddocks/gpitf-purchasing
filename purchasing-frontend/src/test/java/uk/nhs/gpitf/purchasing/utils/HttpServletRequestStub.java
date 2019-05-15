@@ -58,7 +58,7 @@ public class HttpServletRequestStub implements HttpServletRequest {
 
     @Override
     public String getMethod() {
-        return null;
+        return "POST";
     }
 
     @Override

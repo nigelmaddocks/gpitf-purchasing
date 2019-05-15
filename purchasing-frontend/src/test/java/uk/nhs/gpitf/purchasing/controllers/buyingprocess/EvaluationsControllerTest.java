@@ -57,7 +57,7 @@ public class EvaluationsControllerTest {
     public void testInitialseScreen2() throws Exception {
         Mockito.when(evaluationService.setUpEvaluationsScreen2(Mockito.any(EvaluationsServiceParameterObject.class))).thenReturn("buying-process/evaluationsScreen2");
         MockMvc mockMvc = standaloneSetup(underTest).build();
-        MockHttpServletRequestBuilder mockBuilder = post("/buyingprocess/solutionsReview/1");
+        MockHttpServletRequestBuilder mockBuilder = post("/buyingprocess/evaluations/solutionsReview/1");
         mockMvc.perform(mockBuilder).andExpect(view().name("buying-process/evaluationsScreen2"));
     }
 
