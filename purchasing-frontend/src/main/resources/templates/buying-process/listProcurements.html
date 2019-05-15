@@ -32,6 +32,10 @@
 
            <form action="#" th:action="@{/buyingprocess/filtered}" th:object="${searchListProcurementsModel}"
                    method="post">
+
+			   <input type="hidden" th:if="${listProcurementsModel.orgContactId != 0}" id="orgContactId" name="orgContactId" th:value="${listProcurementsModel.orgContactId}"/>
+			   <input type="hidden" th:if="${listProcurementsModel.orgContactId == 0}" th:field="*{orgContactId}" />
+
 	            <div class="row">
 	                <h3>Open procurements</h3>
 	            </div>
@@ -104,6 +108,7 @@
 	                </tr>
 	                </tbody>
 	            </table>
+
             </form>
 
         </main>

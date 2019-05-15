@@ -191,15 +191,18 @@ public class BuyingProcessController {
 	}
 
 	@PostMapping(value = {"/filtered"})
-	public String filterProcurements(@PathVariable Optional<Long> optionalOrgContactId, HttpServletRequest request,
+	public String filterProcurements(HttpServletRequest request,
 									@ModelAttribute("searchListProcurementsModel") SearchListProcurementsModel searchModel,
 									 Model model,
+									 BindingResult result,
 									 RedirectAttributes attr) {
-		if(accessIsDeniedToProcurements(request, optionalOrgContactId, orgContactRepository)) {
+
+		long orgContactId = searchModel.getOrgContactId();
+
+		if(accessIsDeniedToProcurements(request, Optional.of(orgContactId), orgContactRepository)) {
 			return sendSecurityWarning(request, attr, LOGGER);
 		} else {
-			long orgContactd = getOrgContactId(optionalOrgContactId, getSecurityInfo(request));
-			ListProcurementsModel filteredProcurements = procurementsFilteringService.filterProcurements(orgContactd, searchModel);
+			ListProcurementsModel filteredProcurements = procurementsFilteringService.filterProcurements(orgContactId, searchModel);
 			model.addAttribute("listProcurementsModel", filteredProcurements);
 			return PAGE_PATH + PAGE_LIST_PROCUREMENTS;
 		}
